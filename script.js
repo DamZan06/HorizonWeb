@@ -1351,8 +1351,16 @@ async function renderAdminCollection(type) {
         deleteButton.className = 'button ghost';
         deleteButton.textContent = 'Cancella';
         deleteButton.addEventListener('click', async () => {
-            await deleteCollectionItem(type, item.id);
-            await renderAdminCollection(type);
+            // Optimistic UI: remove immediately, then persist in background.
+            article.remove();
+            try {
+                await deleteCollectionItem(type, item.id);
+                if (!list.children.length) {
+                    renderEmptyState(list, 'Nessun contenuto', 'Questa sezione e ancora vuota.');
+                }
+            } catch (error) {
+                await renderAdminCollection(type);
+            }
         });
         actions.append(upButton, downButton, deleteButton);
         article.append(meta, actions);
