@@ -175,6 +175,88 @@ function readItemGeo(item) {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
     return { lat, lng };
 }
+
+function buildNightGallerySeedEntries() {
+    return [
+        {
+            id: 'night-photo-1',
+            title: 'Notte 1',
+            date: '01/08/2026',
+            time: '22:00',
+            km: '0',
+            location: 'Via al Laghetto, 6832 Chiasso',
+            tag: 'night',
+            description: 'Prima notte del percorso',
+            image: 'data/Night_1.jpg',
+            geo: { lat: 45.8259066594, lng: 9.0140666007 }
+        },
+        {
+            id: 'night-photo-2',
+            title: 'Notte 2',
+            date: '02/08/2026',
+            time: '22:00',
+            km: '0',
+            location: 'A Tasín 2, 6702 Claro',
+            tag: 'night',
+            description: 'Seconda notte del percorso',
+            image: 'data/Night_2.jpg',
+            geo: { lat: 46.2565465111, lng: 9.0111590127 }
+        },
+        {
+            id: 'night-photo-3',
+            title: 'Notte 3',
+            date: '03/08/2026',
+            time: '22:00',
+            km: '0',
+            location: 'Gotthard-Strassentunnel 41, 6493 Hospental',
+            tag: 'night',
+            description: 'Terza notte del percorso',
+            image: 'data/Night_3.jpg',
+            geo: { lat: 46.5913747331, lng: 8.5618263165 }
+        },
+        {
+            id: 'night-photo-4',
+            title: 'Notte 4',
+            date: '04/08/2026',
+            time: '22:00',
+            km: '0',
+            location: 'Rottannenstrasse, Arth',
+            tag: 'night',
+            description: 'Quarta notte del percorso',
+            image: 'data/Night_4.jpg',
+            geo: { lat: 47.0562228192, lng: 8.5364110764 }
+        },
+        {
+            id: 'night-photo-5',
+            title: 'Notte 5',
+            date: '05/08/2026',
+            time: '22:00',
+            km: '0',
+            location: 'GGPQ+RG, 8180 Bülach',
+            tag: 'night',
+            description: 'Quinta notte del percorso',
+            image: 'data/Night_5.jpg',
+            geo: { lat: 47.5263890229, lng: 8.5443702332 }
+        }
+    ];
+}
+
+function mergeNightGalleryEntries(items) {
+    const current = Array.isArray(items) ? items : [];
+    const seedEntries = buildNightGallerySeedEntries();
+    const existingIds = new Set(current.map(item => String(item?.id || '')));
+    const missing = seedEntries.filter(entry => !existingIds.has(entry.id));
+    return [...current, ...missing];
+}
+
+async function syncNightGalleryEntriesToFirebase() {
+    const galleryItems = await loadCollection('gallery');
+    const merged = mergeNightGalleryEntries(galleryItems);
+    if (merged.length !== galleryItems.length) {
+        await persistCollection('gallery', merged);
+    }
+}
+
 function buildUnifiedDiaryTimelineEntries(diaryEntries, timelineEntries) {
     const diaryItems = diaryEntries.map((entry, index) => ({
         ...entry,
@@ -205,11 +287,12 @@ function buildUnifiedDiaryTimelineEntries(diaryEntries, timelineEntries) {
         });
 }
 async function loadUnifiedMediaItems() {
-    const [diaryEntries, timelineEntries, galleryEntries] = await Promise.all([
+    const [diaryEntries, timelineEntries, galleryEntriesRaw] = await Promise.all([
         loadCollection('diary'),
         loadCollection('timeline'),
         loadCollection('gallery')
     ]);
+    const galleryEntries = mergeNightGalleryEntries(galleryEntriesRaw);
     const media = [];
     diaryEntries.forEach((entry, index) => {
         if (!entry.image) return;
@@ -1740,6 +1823,7 @@ function initAdminPage() {
             showAdminState(true);
             initAdminFormHelpers();
             bindAdminForm('gallery');
+            await syncNightGalleryEntriesToFirebase();
             await renderAdminCollection('gallery');
             loginForm.reset();
         };
@@ -1760,7 +1844,9 @@ function initAdminPage() {
     if (isAdminAuthenticated()) {
         initAdminFormHelpers();
         bindAdminForm('gallery');
-        renderAdminCollection('gallery');
+        syncNightGalleryEntriesToFirebase()
+            .then(() => renderAdminCollection('gallery'))
+            .catch(() => renderAdminCollection('gallery'));
     }
 }
 function getPhotoMarkerIcon(item, zoomLevel) {
