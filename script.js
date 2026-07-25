@@ -768,7 +768,7 @@ async function ensureGpxDataLoaded() {
         await gpxLoadPromise;
         return;
     }
-    gpxLoadPromise = fetch('data/NorthLine_3.gpx')
+    gpxLoadPromise = fetch('data/NorthLine_4.gpx')
         .then(response => {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response.text();
@@ -883,7 +883,7 @@ function initMap(options = {}) {
     L.control.zoom({ position: 'topright' }).addTo(mapInstance);
     addMapControl();
     if (!withGpx) return;
-    const gpxUrl = 'data/NorthLine_3.gpx';
+    const gpxUrl = 'data/NorthLine_4.gpx';
     try {
         new L.GPX(gpxUrl, {
             async: true,
