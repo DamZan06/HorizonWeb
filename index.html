@@ -135,13 +135,15 @@
         </section>
         <section class="section section-status">
             <div class="section-title">
-                <h2>Stato dell'avventura</h2>
+                <h2>Stato percorso e legenda</h2>
+                <p>Stato attuale: <strong id="homeAdventureState">Non partito</strong></p>
             </div>
             <div class="status-grid">
-                <article class="status-pill status-moving"><span>🟢</span> In movimento</article>
-                <article class="status-pill status-paused"><span>🟡</span> In pausa</article>
-                <article class="status-pill status-ended"><span>🔴</span> Fine giornata</article>
-                <article class="status-pill status-completed"><span>⚫</span> Sfida completata</article>
+                <article id="homeState-not-started" class="status-pill"><span>⚪</span> Non partito</article>
+                <article id="homeState-moving" class="status-pill"><span>🟢</span> In movimento</article>
+                <article id="homeState-paused" class="status-pill"><span>🟡</span> In pausa</article>
+                <article id="homeState-ended" class="status-pill"><span>🔴</span> Fine giornata</article>
+                <article id="homeState-completed" class="status-pill"><span>⚫</span> Sfida completata</article>
             </div>
         </section>
     </main>

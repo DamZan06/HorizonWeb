@@ -99,17 +99,55 @@ function buildSummary(points) {
 }
 function updateHomeSummary(summary) {
     if (!summary) return;
-    document.getElementById('homeDistance').textContent = summary.totalDistance.toFixed(1);
+    const distanceText = summary.totalDistance === 0 ? '0' : summary.totalDistance.toFixed(1);
+    document.getElementById('homeDistance').textContent = distanceText;
     const blended = computeBlendedRemaining(summary);
     const remaining = blended !== null ? blended : Math.max(0, (gpxTotalKm || 290) - summary.totalDistance);
     const completion = computeDynamicProgress(summary.totalDistance, remaining);
     document.getElementById('homeRemaining').textContent = remaining.toFixed(1);
     document.getElementById('homeCompletion').textContent = `${completion.toFixed(1)}%`;
-    document.getElementById('homeTime').textContent = formatTime(summary.duration);
+    document.getElementById('homeTime').textContent = summary.duration > 0 ? formatTime(summary.duration) : '0';
     document.getElementById('homeGain').textContent = Math.round(summary.elevationGain);
     document.getElementById('homeSteps').textContent = computeEstimatedSteps(summary.totalDistance, summary.duration).toLocaleString();
     document.getElementById('homeStatusLabel').textContent = summary.status;
-    document.getElementById('homeStatusText').textContent = summary.status === 'In movimento' ? 'Tracker attivo e aggiornato.' : 'Dati disponibili, attesa prossima posizione.';
+    document.getElementById('homeStatusText').textContent = summary.status === 'In movimento'
+        ? 'Tracker attivo e aggiornato.'
+        : summary.status === 'Non partito'
+            ? 'In attesa della partenza: nessun dato live disponibile.'
+            : 'Dati disponibili, attesa prossima posizione.';
+    updateHomeStateLegend(summary.status);
+}
+function normalizeHomeStatus(status) {
+    const value = String(status || '').toLowerCase();
+    if (value.includes('mov')) return 'moving';
+    if (value.includes('paus')) return 'paused';
+    if (value.includes('fine')) return 'ended';
+    if (value.includes('complet')) return 'completed';
+    return 'not-started';
+}
+
+function updateHomeStateLegend(statusLabel) {
+    const label = statusLabel || 'Non partito';
+    const stateLabel = document.getElementById('homeAdventureState');
+    if (stateLabel) stateLabel.textContent = label;
+
+    const activeKey = normalizeHomeStatus(label);
+    document.querySelectorAll('.status-grid .status-pill').forEach(pill => pill.classList.remove('active'));
+    const activePill = document.getElementById(`homeState-${activeKey}`);
+    if (activePill) activePill.classList.add('active');
+}
+
+function buildHomePreStartSummary() {
+    return {
+        totalDistance: 0,
+        duration: 0,
+        elevationGain: 0,
+        status: 'Non partito',
+        lastPoint: null,
+        points: [],
+        speed: 0,
+        progress: 0
+    };
 }
 function initHomeCountdown() {
     const dayEl = document.getElementById('countdownDays');
@@ -570,8 +608,8 @@ async function initHomePage() {
     initHomeCountdown();
     await ensureGpxDataLoaded();
     const points = await fetchPoints();
-    const summary = buildSummary(points);
-    if (summary) updateHomeSummary(summary);
+    const summary = buildSummary(points) || buildHomePreStartSummary();
+    updateHomeSummary(summary);
 }
 function buildChartData(points, summaryContext = null) {
     const safePoints = points
