@@ -593,35 +593,41 @@ function updateLiveUI(summary) {
     document.getElementById('speed').textContent = `${summary.speed.toFixed(1)} km/h`;
     const altitude = Number(summary.lastPoint?.altitudine?.metri ?? 0);
     document.getElementById('altitude').textContent = `${altitude.toFixed(0)} m`;
-    document.getElementById('lastUpdate').textContent = summary.lastPoint?.orario ? formatRelativeDate(summary.lastPoint.orario) : '0';
+    document.getElementById('lastUpdate').textContent = summary.lastPoint?.orario ? formatRelativeDate(summary.lastPoint.orario) : '0 s';
     document.getElementById('time').textContent = summary.duration > 0 ? formatTime(summary.duration) : '0';
     document.getElementById('elevation').textContent = `${Math.round(summary.elevationGain)} m`;
     document.getElementById('steps').textContent = computeEstimatedSteps(summary.totalDistance, summary.duration).toLocaleString();
-    if (!summary.lastPoint) {
-        document.getElementById('visitorDistance').textContent = '0 km';
-    }
     document.getElementById('progressBar').style.width = `${completion.toFixed(1)}%`;
 }
 
 function updateVisitorDistance(lastPoint) {
-    if (!navigator.geolocation) {
-        document.getElementById('visitorDistance').textContent = 'Non supportato';
+    const label = document.getElementById('visitorDistanceLabel');
+    const visitorDistanceField = document.getElementById('visitorDistance');
+    const startCoord = gpxCoords.length ? gpxCoords[0] : null;
+    const hasLivePosition = Number.isFinite(lastPoint?.coordinate?.lat) && Number.isFinite(lastPoint?.coordinate?.lon);
+    const referenceLat = hasLivePosition ? lastPoint.coordinate.lat : startCoord?.lat;
+    const referenceLon = hasLivePosition ? lastPoint.coordinate.lon : startCoord?.lng;
+
+    if (label) {
+        label.textContent = hasLivePosition ? 'Distanza visitatore' : 'Distanza dalla partenza';
+    }
+
+    if (!Number.isFinite(referenceLat) || !Number.isFinite(referenceLon)) {
+        if (visitorDistanceField) visitorDistanceField.textContent = '0 km';
         return;
     }
+
+    if (!navigator.geolocation) {
+        if (visitorDistanceField) visitorDistanceField.textContent = 'Non supportato';
+        return;
+    }
+
     navigator.geolocation.getCurrentPosition(position => {
         showVisitorMarker(position);
-        const R = 6371e3;
-        const toRad = deg => deg * Math.PI / 180;
-        const lat1 = toRad(position.coords.latitude);
-        const lat2 = toRad(lastPoint.coordinate.lat);
-        const dLat = toRad(lastPoint.coordinate.lat - position.coords.latitude);
-        const dLon = toRad(lastPoint.coordinate.lon - position.coords.longitude);
-        const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c;
-        document.getElementById('visitorDistance').textContent = `${(distance / 1000).toFixed(1)} km`;
+        const distanceKm = haversineKm(position.coords.latitude, position.coords.longitude, referenceLat, referenceLon);
+        if (visitorDistanceField) visitorDistanceField.textContent = `${distanceKm.toFixed(1)} km`;
     }, () => {
-        document.getElementById('visitorDistance').textContent = 'Permesso negato';
+        if (visitorDistanceField) visitorDistanceField.textContent = 'Permesso negato';
     });
 }
 async function initLivePage() {
@@ -635,8 +641,8 @@ async function initLivePage() {
     updateLiveUI(summary);
     if (summary.lastPoint) {
         refreshMapRoute(summary.points);
-        updateVisitorDistance(summary.lastPoint);
     }
+    updateVisitorDistance(summary.lastPoint);
     // center-live button
     const centerBtn = document.getElementById('centerLiveBtn');
     if (centerBtn) {
@@ -664,8 +670,8 @@ async function initLivePage() {
         updateLiveUI(summary);
         if (summary.lastPoint) {
             refreshMapRoute(summary.points);
-            updateVisitorDistance(summary.lastPoint);
         }
+        updateVisitorDistance(summary.lastPoint);
     }, 8000);
 }
 async function initHomePage() {
