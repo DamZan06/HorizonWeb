@@ -1,5 +1,5 @@
 ﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json";
-const plannedStartDateIso = '2026-07-25T10:35:00+02:00';
+const plannedStartDateIso = '2026-07-25T10:45:00+02:00';
 const defaultCenter = [46.0, 8.9];
 const defaultZoom = 12;
 let mapInstance = null;
