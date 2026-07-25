@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>NorthLine – Admin</title>
-    <meta name="description" content="Pannello admin NorthLine per gestire diario, galleria e timeline.">
+    <meta name="description" content="Pannello admin NorthLine per gestire la galleria condivisa.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css?v=20260725c">
+    <link rel="stylesheet" href="style.css?v=20260725e">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
     <link rel="icon" type="image/png" href="assets/favicon-v2.png?v=20260715r">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=20260715r">
@@ -23,9 +24,8 @@
             <a href="index.html">Home</a>
             <a href="live.html">Live</a>
             <a href="dashboard.html">Dashboard</a>
-            <a href="diary.html">Diario</a>
             <a href="gallery.html">Galleria</a>
-            <a href="replay.html">Cartina</a>
+            <a href="replay.html">Replay</a>
             <a href="progress.html">Progressi</a>
             <a href="project.html">Il progetto</a>
         </nav>
@@ -56,8 +56,8 @@
         <section id="adminApp" class="section admin-section-stack" hidden>
             <div class="section-title">
                 <p class="eyebrow">Gestione contenuti</p>
-                <h2>Diario, Galleria e Timeline</h2>
-                <p>Da qui puoi aggiungere, cancellare e spostare gli elementi pubblicati nelle sezioni del sito.</p>
+                <h2>Galleria</h2>
+                <p>Da qui puoi aggiungere, cancellare e spostare le immagini pubblicate sul sito.</p>
             </div>
             <div class="admin-toolbar">
                 <p id="adminSaveNotice" class="admin-feedback"></p>
@@ -66,41 +66,13 @@
 
             <section class="section-white admin-block">
                 <div class="section-title">
-                    <h2>Diario</h2>
-                </div>
-                <form data-admin-form="diary" class="admin-form-grid">
-                    <label>Titolo<input type="text" name="title" required></label>
-                    <label>Data
-                        <span class="admin-input-with-action">
-                            <input type="text" name="date" placeholder="01/08/2026 07:30" required>
-                            <button id="adminDiaryNowBtn" type="button" class="button secondary">Adesso</button>
-                        </span>
-                    </label>
-                    <label>Km
-                        <span class="admin-input-with-action">
-                            <input type="text" name="km" placeholder="18" required>
-                            <button id="adminDiaryKmNowBtn" type="button" class="button secondary">Km attuale</button>
-                        </span>
-                    </label>
-                    <label class="admin-form-full">Testo<textarea name="text" rows="4" required></textarea></label>
-                    <label class="admin-form-full">Immagine<input type="file" name="image" accept="image/*"></label>
-                    <div class="admin-form-full admin-inline-row">
-                        <button id="adminDiaryGeoBtn" type="button" class="button secondary">Usa posizione attuale</button>
-                        <span id="adminDiaryGeoStatus" class="admin-inline-note">Posizione non impostata</span>
-                    </div>
-                    <input type="hidden" name="lat">
-                    <input type="hidden" name="lng">
-                    <button type="submit" class="button primary">Aggiungi al diario</button>
-                </form>
-                <div data-admin-list="diary" class="admin-item-list"></div>
-            </section>
-
-            <section class="section-white admin-block">
-                <div class="section-title">
                     <h2>Galleria</h2>
                 </div>
                 <form data-admin-form="gallery" class="admin-form-grid">
                     <label>Titolo<input type="text" name="title" required></label>
+                    <label>Data<input type="text" name="date" placeholder="01/08/2026"></label>
+                    <label>Orario<input type="text" name="time" placeholder="07:30"></label>
+                    <label>Km<input type="text" name="km" placeholder="18"></label>
                     <label>Localita<input type="text" name="location" required></label>
                     <label>Tag
                         <input type="text" name="tag" placeholder="montagna" list="adminGalleryTagList" required>
@@ -127,7 +99,12 @@
                     <label class="admin-form-full">Immagine<input type="file" name="image" accept="image/*" required></label>
                     <div class="admin-form-full admin-inline-row">
                         <button id="adminGalleryGeoBtn" type="button" class="button secondary">Usa posizione attuale</button>
+                        <button id="adminGalleryMapBtn" type="button" class="button secondary">Scegli su cartina</button>
                         <span id="adminGalleryGeoStatus" class="admin-inline-note">Posizione non impostata</span>
+                    </div>
+                    <div id="adminGalleryMapPickerWrap" class="admin-form-full admin-map-picker-wrap" hidden>
+                        <p class="admin-inline-note">Clicca sulla cartina per impostare la posizione della foto.</p>
+                        <div id="adminGalleryMapPicker" class="admin-map-picker"></div>
                     </div>
                     <input type="hidden" name="lat">
                     <input type="hidden" name="lng">
@@ -135,33 +112,13 @@
                 </form>
                 <div data-admin-list="gallery" class="admin-item-list"></div>
             </section>
-
-            <section class="section-white admin-block">
-                <div class="section-title">
-                    <h2>Timeline</h2>
-                </div>
-                <form data-admin-form="timeline" class="admin-form-grid">
-                    <label>Data<input type="text" name="date" placeholder="01/08/2026" required></label>
-                    <label>Orario<input type="text" name="time" placeholder="07:30" required></label>
-                    <label>Titolo<input type="text" name="title" required></label>
-                    <label class="admin-form-full">Descrizione<textarea name="description" rows="4" required></textarea></label>
-                    <label class="admin-form-full">Immagine<input type="file" name="image" accept="image/*"></label>
-                    <div class="admin-form-full admin-inline-row">
-                        <button id="adminTimelineGeoBtn" type="button" class="button secondary">Usa posizione attuale</button>
-                        <span id="adminTimelineGeoStatus" class="admin-inline-note">Posizione non impostata</span>
-                    </div>
-                    <input type="hidden" name="lat">
-                    <input type="hidden" name="lng">
-                    <button type="submit" class="button primary">Aggiungi alla timeline</button>
-                </form>
-                <div data-admin-list="timeline" class="admin-item-list"></div>
-            </section>
         </section>
     </main>
     <script src="firebase-config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
-    <script src="script.js?v=20260725c"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="script.js?v=20260725e"></script>
 </body>
 </html>

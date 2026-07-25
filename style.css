@@ -574,7 +574,7 @@ body.mobile-nav-open {
     flex-wrap: wrap;
     justify-content: flex-end;
 }
-.modal-backdrop { position: fixed; inset: 0; background: rgba(4, 8, 18, 0.85); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 40; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(4, 8, 18, 0.85); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 7000; }
 .modal-backdrop.active { display: flex; }
 .modal-content { width: min(100%, 980px); max-height: 90vh; overflow: auto; background: var(--surface); border-radius: 28px; padding: 24px; position: relative; }
 .modal-close { position: absolute; right: 18px; top: 18px; border: none; background: rgba(255,255,255,0.08); color: var(--text); width: 42px; height: 42px; border-radius: 50%; cursor: pointer; }
@@ -605,6 +605,17 @@ body.mobile-nav-open {
 .admin-inline-note {
     color: var(--muted);
     font-size: 0.92rem;
+}
+.admin-map-picker-wrap {
+    display: grid;
+    gap: 10px;
+}
+.admin-map-picker {
+    width: 100%;
+    min-height: 240px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.16);
 }
 .photo-map-topbar {
     display: flex;

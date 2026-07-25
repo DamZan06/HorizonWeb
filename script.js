@@ -232,11 +232,14 @@ async function loadUnifiedMediaItems() {
     });
     galleryEntries.forEach((entry, index) => {
         if (!entry.image) return;
+        const dateSegment = [entry.date, entry.time].filter(Boolean).join(' ').trim();
+        const kmSegment = entry.km ? `${entry.km} km` : '';
+        const locationLine = [entry.location, dateSegment, kmSegment].filter(Boolean).join(' · ');
         media.push({
             id: entry.id || createRecordId('media-gallery'),
             source: 'Galleria',
             title: entry.title || `Foto ${index + 1}`,
-            location: entry.location || 'Localita non impostata',
+            location: locationLine || 'Localita non impostata',
             description: entry.description || '',
             image: entry.image,
             geo: readItemGeo(entry),
@@ -1251,6 +1254,7 @@ async function initGalleryPage() {
             'Galleria vuota',
             'Nessuna immagine disponibile al momento. Le foto verranno aggiunte dalla prossima pubblicazione.'
         );
+        await initGalleryPhotoMap([]);
         return;
     }
 
@@ -1265,6 +1269,7 @@ async function initGalleryPage() {
         });
         grid.appendChild(card);
     });
+    await initGalleryPhotoMap(items);
 }
 async function initDiaryPage() {
     initializeTheme();
@@ -1313,7 +1318,7 @@ async function renderAdminCollection(type) {
         heading.textContent = item.title || item.location || item.time || `Elemento ${index + 1}`;
         const info = document.createElement('p');
         info.textContent = type === 'gallery'
-            ? `${item.tag || 'senza tag'} · ${item.location || 'nessuna localita'}`
+            ? `${item.tag || 'senza tag'} · ${item.location || 'nessuna localita'}${item.date ? ` · ${item.date}${item.time ? ` ${item.time}` : ''}` : ''}${item.km ? ` · ${item.km} km` : ''}`
             : type === 'diary'
                 ? `${item.date || 'nessuna data'} · ${item.km || '0'} km`
                 : `${item.date || 'nessuna data'} ${item.time || '--:--'} · ${item.description || ''}`;
@@ -1365,11 +1370,6 @@ function showAdminSaveNotice(message, isError = false) {
     setAdminFeedbackMessage(document.getElementById('adminSaveNotice'), message, isError);
 }
 function initAdminFormHelpers() {
-    const diaryForm = document.querySelector('[data-admin-form="diary"]');
-    const dateField = diaryForm?.querySelector('[name="date"]');
-    const kmField = diaryForm?.querySelector('[name="km"]');
-    const nowButton = document.getElementById('adminDiaryNowBtn');
-    const kmNowButton = document.getElementById('adminDiaryKmNowBtn');
     const bindGeoCapture = (formSelector, buttonId, statusId) => {
         const form = document.querySelector(formSelector);
         const button = document.getElementById(buttonId);
@@ -1398,35 +1398,60 @@ function initAdminFormHelpers() {
         });
         button.dataset.bound = 'true';
     };
+    const bindMapCapture = (formSelector, buttonId, statusId, wrapId, mapId) => {
+        const form = document.querySelector(formSelector);
+        const button = document.getElementById(buttonId);
+        const status = document.getElementById(statusId);
+        const wrap = document.getElementById(wrapId);
+        const mapHost = document.getElementById(mapId);
+        const latField = form?.querySelector('[name="lat"]');
+        const lngField = form?.querySelector('[name="lng"]');
+        if (!form || !button || !wrap || !mapHost || button.dataset.bound === 'true') return;
 
-    if (nowButton && nowButton.dataset.bound !== 'true') {
-        nowButton.addEventListener('click', () => {
-            if (!dateField) return;
-            dateField.value = formatAdminNow();
-        });
-        nowButton.dataset.bound = 'true';
-    }
+        let pickerMap = null;
+        let pickerMarker = null;
 
-    if (kmNowButton && kmNowButton.dataset.bound !== 'true') {
-        kmNowButton.addEventListener('click', async () => {
-            if (!kmField) return;
-            const defaultLabel = 'Km attuale';
-            kmNowButton.disabled = true;
-            kmNowButton.textContent = 'Carico...';
-            try {
-                const points = await fetchPoints();
-                const lastPoint = points[points.length - 1];
-                const km = Number(lastPoint?.distanza?.km ?? 0);
-                kmField.value = Number.isFinite(km) ? (km === 0 ? '0' : km.toFixed(1)) : '0';
-            } catch (error) {
-                showAdminSaveNotice(`Km live non disponibile: ${error.message || 'errore sconosciuto'}.`, true);
-            } finally {
-                kmNowButton.disabled = false;
-                kmNowButton.textContent = defaultLabel;
+        const ensurePickerMap = () => {
+            if (pickerMap) {
+                setTimeout(() => pickerMap.invalidateSize(), 80);
+                return;
             }
+            if (typeof L === 'undefined') {
+                if (status) status.textContent = 'Cartina non disponibile';
+                return;
+            }
+            pickerMap = L.map(mapId, { zoomControl: true }).setView(defaultCenter, 11);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(pickerMap);
+
+            pickerMap.on('click', event => {
+                const { lat, lng } = event.latlng;
+                if (!pickerMarker) {
+                    pickerMarker = L.marker([lat, lng]).addTo(pickerMap);
+                } else {
+                    pickerMarker.setLatLng([lat, lng]);
+                }
+                if (latField) latField.value = String(lat);
+                if (lngField) lngField.value = String(lng);
+                if (status) status.textContent = `Posizione scelta: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+            });
+
+            const lat = Number(latField?.value ?? Number.NaN);
+            const lng = Number(lngField?.value ?? Number.NaN);
+            if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                pickerMarker = L.marker([lat, lng]).addTo(pickerMap);
+                pickerMap.setView([lat, lng], 12);
+            }
+        };
+
+        button.addEventListener('click', () => {
+            const isHidden = wrap.hidden;
+            wrap.hidden = !isHidden;
+            button.textContent = isHidden ? 'Chiudi cartina' : 'Scegli su cartina';
+            if (isHidden) ensurePickerMap();
         });
-        kmNowButton.dataset.bound = 'true';
-    }
+
+        button.dataset.bound = 'true';
+    };
 
     document.querySelectorAll('[data-tag-suggestion]').forEach(button => {
         if (button.dataset.bound === 'true') return;
@@ -1438,10 +1463,8 @@ function initAdminFormHelpers() {
         });
         button.dataset.bound = 'true';
     });
-
-    bindGeoCapture('[data-admin-form="diary"]', 'adminDiaryGeoBtn', 'adminDiaryGeoStatus');
     bindGeoCapture('[data-admin-form="gallery"]', 'adminGalleryGeoBtn', 'adminGalleryGeoStatus');
-    bindGeoCapture('[data-admin-form="timeline"]', 'adminTimelineGeoBtn', 'adminTimelineGeoStatus');
+    bindMapCapture('[data-admin-form="gallery"]', 'adminGalleryMapBtn', 'adminGalleryGeoStatus', 'adminGalleryMapPickerWrap', 'adminGalleryMapPicker');
 }
 async function handleAdminFormSubmit(type, form) {
     const items = await loadCollection(type);
@@ -1449,17 +1472,20 @@ async function handleAdminFormSubmit(type, form) {
     const lat = Number(form.lat?.value ?? Number.NaN);
     const lng = Number(form.lng?.value ?? Number.NaN);
     const geo = Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
-    if (type === 'diary') {
-        const image = await readFileAsDataUrl(form.querySelector('[name="image"]')?.files?.[0]);
-        items.push({ id, title: form.title.value.trim(), date: form.date.value.trim(), km: form.km.value.trim(), text: form.text.value.trim(), image, geo });
-    }
     if (type === 'gallery') {
         const image = await readFileAsDataUrl(form.querySelector('[name="image"]')?.files?.[0]);
-        items.push({ id, title: form.title.value.trim(), location: form.location.value.trim(), tag: form.tag.value.trim(), description: form.description.value.trim(), image, geo });
-    }
-    if (type === 'timeline') {
-        const image = await readFileAsDataUrl(form.querySelector('[name="image"]')?.files?.[0]);
-        items.push({ id, date: form.date.value.trim(), time: form.time.value.trim(), title: form.title.value.trim(), description: form.description.value.trim(), image, geo });
+        items.push({
+            id,
+            title: form.title.value.trim(),
+            date: form.date.value.trim(),
+            time: form.time.value.trim(),
+            km: form.km.value.trim(),
+            location: form.location.value.trim(),
+            tag: form.tag.value.trim(),
+            description: form.description.value.trim(),
+            image,
+            geo
+        });
     }
     await persistCollection(type, items);
     form.reset();
@@ -1526,10 +1552,8 @@ function initAdminPage() {
             setAdminFeedbackMessage(successBox, 'Accesso riuscito: pannello admin sbloccato.', false);
             showAdminState(true);
             initAdminFormHelpers();
-            for (const type of ['diary', 'gallery', 'timeline']) {
-                bindAdminForm(type);
-                await renderAdminCollection(type);
-            }
+            bindAdminForm('gallery');
+            await renderAdminCollection('gallery');
             loginForm.reset();
         };
 
@@ -1548,10 +1572,8 @@ function initAdminPage() {
     });
     if (isAdminAuthenticated()) {
         initAdminFormHelpers();
-        ['diary', 'gallery', 'timeline'].forEach(async type => {
-            bindAdminForm(type);
-            await renderAdminCollection(type);
-        });
+        bindAdminForm('gallery');
+        renderAdminCollection('gallery');
     }
 }
 function getPhotoMarkerIcon(item, zoomLevel) {
@@ -1565,8 +1587,8 @@ function getPhotoMarkerIcon(item, zoomLevel) {
     });
 }
 function bindPhotoMapFullscreen() {
-    const fullscreenBtn = document.getElementById('photoMapFullscreenBtn');
-    const mapWrap = document.querySelector('.map-wrap-photo');
+    const fullscreenBtn = document.getElementById('galleryPhotoMapFullscreenBtn');
+    const mapWrap = document.querySelector('.map-wrap-photo-gallery');
     if (!fullscreenBtn || !mapWrap) return;
     fullscreenBtn.addEventListener('click', () => {
         mapWrap.classList.toggle('map-wrap--fullscreen');
@@ -1576,26 +1598,31 @@ function bindPhotoMapFullscreen() {
         setTimeout(() => mapInstance?.invalidateSize(), 120);
     });
 }
-async function initPhotoMapPage() {
-    initializeTheme();
-    initMap({ withGpx: false });
-    buildNav();
+async function initGalleryPhotoMap(items) {
+    initMap();
+    if (!mapInstance) return;
     bindPhotoMapFullscreen();
 
-    const statusLabel = document.getElementById('photoMapStatus');
-    const allMedia = await loadUnifiedMediaItems();
-    const geoItems = allMedia.filter(item => item.geo);
+    const statusLabel = document.getElementById('galleryPhotoMapStatus');
+    const geoItems = items.filter(item => item.geo);
+    const points = await fetchPoints();
 
-    if (!mapInstance || !geoItems.length) {
+    if (!geoItems.length) {
         if (statusLabel) {
-            statusLabel.textContent = allMedia.length
+            statusLabel.textContent = items.length
                 ? 'Nessuna foto con posizione disponibile.'
                 : 'Nessuna immagine disponibile.';
         }
+        if (points.length) refreshMapRoute(points);
         return;
     }
 
+    if (points.length) refreshMapRoute(points);
+
     const bounds = L.latLngBounds(geoItems.map(item => [item.geo.lat, item.geo.lng]));
+    if (routeLine && typeof routeLine.getBounds === 'function') {
+        bounds.extend(routeLine.getBounds());
+    }
     mapInstance.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
 
     const clusterGroup = typeof L.markerClusterGroup === 'function'
@@ -1638,8 +1665,45 @@ async function initPhotoMapPage() {
     });
 
     if (statusLabel) {
-        statusLabel.textContent = `${geoItems.length} foto geolocalizzate sulla cartina`;
+        statusLabel.textContent = `${geoItems.length} foto geolocalizzate · percorso live visibile`;
     }
+}
+async function initReplayPage() {
+    initializeTheme();
+    await ensureGpxDataLoaded();
+    initMap();
+    buildNav();
+    const points = await fetchPoints();
+    const coords = points.length ? points.map(p => [p.coordinate.lat, p.coordinate.lon]) : [defaultCenter];
+    const route = L.polyline(coords, { color: '#7f7dff', weight: 5, opacity: 0.45 }).addTo(mapInstance);
+    const replayTrail = L.polyline([coords[0]], { color: '#7f7dff', weight: 6, opacity: 0.95 }).addTo(mapInstance);
+    mapInstance.fitBounds(route.getBounds() || L.latLngBounds(coords), { padding: [40, 40] });
+    let index = 0;
+    const marker = L.circleMarker(coords[0], { radius: 12, color: '#ffb347', fillColor: '#ffd382', fillOpacity: 1 }).addTo(mapInstance);
+    const statusLabel = document.getElementById('replayStatus');
+    let interval = null;
+    function updateMarker() {
+        if (index >= coords.length) {
+            clearInterval(interval);
+            statusLabel.textContent = 'Replay completato';
+            return;
+        }
+        marker.setLatLng(coords[index]);
+        replayTrail.addLatLng(coords[index]);
+        statusLabel.textContent = `Replay ${index + 1}/${coords.length}`;
+        mapInstance.panTo(coords[index], { animate: true, duration: 0.45 });
+        index += 1;
+    }
+    document.getElementById('replayPlay')?.addEventListener('click', () => { clearInterval(interval); interval = setInterval(updateMarker, Number(document.getElementById('replaySpeed')?.value || 500)); });
+    document.getElementById('replayPause')?.addEventListener('click', () => clearInterval(interval));
+    document.getElementById('replayReset')?.addEventListener('click', () => {
+        clearInterval(interval);
+        index = 0;
+        marker.setLatLng(coords[0]);
+        replayTrail.setLatLngs([coords[0]]);
+        if (statusLabel) statusLabel.textContent = 'Replay pronto';
+    });
+    document.getElementById('replaySpeed')?.addEventListener('input', event => { document.getElementById('replaySpeedLabel').textContent = `${event.target.value} ms`; });
 }
 async function initProgressPage() {
     initializeTheme();
@@ -1684,8 +1748,7 @@ function initPage() {
         case 'diary': initDiaryPage(); break;
         case 'timeline': initTimelinePage(); break;
         case 'admin': initAdminPage(); break;
-        case 'replay': initPhotoMapPage(); break;
-        case 'photo-map': initPhotoMapPage(); break;
+        case 'replay': initReplayPage(); break;
         case 'progress': initProgressPage(); break;
         default: initializeTheme(); break;
     }

@@ -2,74 +2,62 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>NorthLine – Cartina Foto</title>
-    <meta name="description" content="Cartina fotografica NorthLine con tutte le immagini geolocalizzate e navigazione swipe.">
+    <title>NorthLine – Replay</title>
+    <meta name="description" content="Replay del percorso NorthLine con controllo di velocità, pausa e selezione giornata.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css?v=20260725c">
+    <link rel="stylesheet" href="style.css?v=20260725e">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
     <link rel="icon" type="image/png" href="assets/favicon-v2.png?v=20260715r">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=20260715r">
 </head>
-<body data-page="photo-map">
+<body data-page="replay">
     <header class="topbar">
         <div class="brand">
             <img src="assets/favicon-v2.png?v=20260715r" alt="Logo NorthLine" class="brand-icon">
             <div>
                 <span class="brand-title">NorthLine</span>
-                <span class="brand-subtitle">Cartina Foto</span>
+                <span class="brand-subtitle">Replay</span>
             </div>
         </div>
         <nav class="main-nav" aria-label="Navigazione principale">
             <a href="index.html">Home</a>
             <a href="live.html">Live</a>
             <a href="dashboard.html">Dashboard</a>
-            <a href="diary.html">Diario</a>
             <a href="gallery.html">Galleria</a>
-            <a href="replay.html">Cartina</a>
+            <a href="replay.html">Replay</a>
             <a href="progress.html">Progressi</a>
             <a href="project.html">Il progetto</a>
         </nav>
     </header>
-    <main class="page page-photo-map">
+    <main class="page page-replay">
         <section class="section">
             <div class="section-title">
-                <p class="eyebrow">Cartina fotografica</p>
-                <h2>Tutte le foto sulla mappa.</h2>
-                <p>Le immagini geolocalizzate vengono raggruppate quando sono vicine e diventano cliccabili quando fai zoom.</p>
+                <p class="eyebrow">Replay</p>
+                <h2>Rivivi il percorso.</h2>
+                <p>Riproduci l'intero tracciato, metti in pausa, accelera e controlla i punti più significativi.</p>
             </div>
-            <div class="photo-map-topbar">
-                <a href="gallery.html" class="button ghost">Torna alla galleria</a>
-                <span id="photoMapStatus">In attesa immagini geolocalizzate...</span>
-            </div>
-            <div class="map-wrap map-wrap-photo" style="min-height:560px;">
-                <div id="map"></div>
-                <div class="map-actions">
-                    <button id="photoMapFullscreenBtn" type="button" class="map-toggle-btn" title="Mappa a schermo intero">⛶</button>
+            <div class="replay-controls" style="display:grid;gap:16px;">
+                <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                    <button id="replayPlay" class="button primary">Riproduci</button>
+                    <button id="replayPause" class="button ghost">Pausa</button>
+                    <button id="replayReset" class="button secondary">Reset</button>
                 </div>
+                <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+                    <label for="replaySpeed">Velocità:</label>
+                    <input id="replaySpeed" type="range" min="100" max="1200" step="100" value="500">
+                    <span id="replaySpeedLabel">500 ms</span>
+                    <span id="replayStatus">Replay pronto</span>
+                </div>
+            </div>
+            <div class="map-wrap" style="min-height:560px;">
+                <div id="map"></div>
             </div>
         </section>
     </main>
-    <div class="modal-backdrop" role="dialog" aria-modal="true">
-        <div class="modal-content">
-            <button class="modal-close" aria-label="Chiudi">×</button>
-            <button class="modal-nav modal-prev" id="modalPrev" aria-label="Immagine precedente">‹</button>
-            <button class="modal-nav modal-next" id="modalNext" aria-label="Immagine successiva">›</button>
-            <img id="modalImage" src="assets/preview.png" alt="">
-            <div class="modal-details">
-                <h3 id="modalTitle">Titolo immagine</h3>
-                <p id="modalLocation">Località</p>
-                <p id="modalDescription">Descrizione della foto.</p>
-            </div>
-        </div>
-    </div>
-    <script src="firebase-config.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <script src="script.js?v=20260725c"></script>
+    <script src="script.js?v=20260725e"></script>
 </body>
 </html>
 

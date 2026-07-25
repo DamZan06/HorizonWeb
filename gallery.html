@@ -5,7 +5,10 @@
     <title>NorthLine – Galleria</title>
     <meta name="description" content="Galleria fotografica NorthLine con filtro per giorno, checkpoint, località e bivacchi.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css?v=20260725c">
+    <link rel="stylesheet" href="style.css?v=20260725e">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
     <link rel="icon" type="image/png" href="assets/favicon-v2.png?v=20260715r">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=20260715r">
@@ -23,9 +26,8 @@
             <a href="index.html">Home</a>
             <a href="live.html">Live</a>
             <a href="dashboard.html">Dashboard</a>
-            <a href="diary.html">Diario</a>
             <a href="gallery.html">Galleria</a>
-            <a href="replay.html">Cartina</a>
+            <a href="replay.html">Replay</a>
             <a href="progress.html">Progressi</a>
             <a href="project.html">Il progetto</a>
         </nav>
@@ -35,12 +37,24 @@
             <div class="section-title gallery-title-row">
                 <div>
                     <p class="eyebrow">Fotografie</p>
-                    <h2>Galleria completa del viaggio.</h2>
-                    <p>Qui trovi tutte le immagini provenienti da Diario e Timeline, apribili a schermo grande con swipe.</p>
+                    <h2>Galleria completa del viaggio</h2>
+                    <p>Tutte le immagini in un'unica griglia, apribili a schermo grande con swipe destra e sinistra.</p>
                 </div>
-                <a href="replay.html" class="button secondary">Mostra su cartina</a>
             </div>
             <div class="gallery-grid"></div>
+        </section>
+        <section class="section section-white">
+            <div class="section-title">
+                <p class="eyebrow">Cartina foto</p>
+                <h2>Posizione delle immagini e percorso fatto.</h2>
+                <p id="galleryPhotoMapStatus">In attesa di immagini geolocalizzate...</p>
+            </div>
+            <div class="map-wrap map-wrap-photo-gallery" style="min-height:560px;">
+                <div id="map"></div>
+                <div class="map-actions">
+                    <button id="galleryPhotoMapFullscreenBtn" type="button" class="map-toggle-btn" title="Mappa a schermo intero">⛶</button>
+                </div>
+            </div>
         </section>
     </main>
     <div class="modal-backdrop" role="dialog" aria-modal="true">
@@ -57,7 +71,10 @@
         </div>
     </div>
     <script src="firebase-config.js"></script>
-    <script src="script.js?v=20260725c"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="script.js?v=20260725e"></script>
 </body>
 </html>
 
