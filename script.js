@@ -132,6 +132,112 @@ function readFileAsDataUrl(file) {
         reader.readAsDataURL(file);
     });
 }
+
+function createSeedGalleryImage(place, nightLabel, accentA, accentB) {
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-label="${escapeHtml(nightLabel)} ${escapeHtml(place)}">
+            <defs>
+                <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="${accentA}"/>
+                    <stop offset="100%" stop-color="${accentB}"/>
+                </linearGradient>
+                <radialGradient id="glow" cx="50%" cy="35%" r="60%">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.24"/>
+                    <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                </radialGradient>
+            </defs>
+            <rect width="1200" height="900" fill="url(#bg)"/>
+            <circle cx="930" cy="180" r="260" fill="url(#glow)"/>
+            <circle cx="250" cy="720" r="180" fill="#ffffff" fill-opacity="0.08"/>
+            <path d="M0 650C130 600 250 620 360 660C480 705 590 730 720 700C870 664 980 590 1200 635V900H0Z" fill="#04111f" fill-opacity="0.32"/>
+            <path d="M0 720C160 680 290 700 410 735C540 772 650 790 780 760C915 728 1035 655 1200 690V900H0Z" fill="#02101b" fill-opacity="0.5"/>
+            <g transform="translate(80 90)">
+                <rect x="0" y="0" rx="28" ry="28" width="250" height="84" fill="#08131f" fill-opacity="0.6"/>
+                <text x="28" y="34" fill="#f7fbff" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800">${escapeHtml(nightLabel)}</text>
+                <text x="28" y="64" fill="#dbeeff" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600">${escapeHtml(place)}</text>
+            </g>
+            <g transform="translate(900 600)">
+                <path d="M110 0C74 0 45 29 45 65c0 46 65 113 65 113s65-67 65-113C175 29 146 0 110 0zm0 95c-17 0-30-13-30-30s13-30 30-30 30 13 30 30-13 30-30 30z" fill="#ffffff" fill-opacity="0.9"/>
+            </g>
+        </svg>`;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function buildDefaultGallerySeedEntries() {
+    return [
+        {
+            id: 'seed-night-1',
+            title: 'Notte 1',
+            date: '01/08/2026',
+            time: '22:00',
+            km: '0',
+            location: 'Via al Laghetto, 6832 Chiasso',
+            tag: 'notte-1',
+            description: 'Prima notte del percorso, a Chiasso.',
+            image: createSeedGalleryImage('Via al Laghetto, 6832 Chiasso', 'Notte 1', '#1d4ed8', '#0f172a'),
+            geo: { lat: 45.8326, lng: 9.0315 }
+        },
+        {
+            id: 'seed-night-2',
+            title: 'Notte 2',
+            date: '02/08/2026',
+            time: '22:00',
+            km: '0',
+            location: 'A Tasín 2, 6702 Claro',
+            tag: 'notte-2',
+            description: 'Seconda notte del percorso, a Claro.',
+            image: createSeedGalleryImage('A Tasín 2, 6702 Claro', 'Notte 2', '#0ea5e9', '#1e3a8a'),
+            geo: { lat: 46.2829, lng: 8.9772 }
+        },
+        {
+            id: 'seed-night-3',
+            title: 'Notte 3',
+            date: '03/08/2026',
+            time: '22:00',
+            km: '0',
+            location: 'Gotthard-Strassentunnel 41, 6493 Hospental',
+            tag: 'notte-3',
+            description: 'Terza notte del percorso, in zona Hospental.',
+            image: createSeedGalleryImage('Gotthard-Strassentunnel 41, 6493 Hospental', 'Notte 3', '#7c3aed', '#111827'),
+            geo: { lat: 46.6102, lng: 8.5627 }
+        },
+        {
+            id: 'seed-night-4',
+            title: 'Notte 4',
+            date: '04/08/2026',
+            time: '22:00',
+            km: '0',
+            location: 'Rottannenstrasse, Arth',
+            tag: 'notte-4',
+            description: 'Quarta notte del percorso, ad Arth.',
+            image: createSeedGalleryImage('Rottannenstrasse, Arth', 'Notte 4', '#16a34a', '#14532d'),
+            geo: { lat: 47.0560, lng: 8.5454 }
+        },
+        {
+            id: 'seed-night-5',
+            title: 'Notte 5',
+            date: '05/08/2026',
+            time: '22:00',
+            km: '0',
+            location: 'GGPQ+RG, 8180 Bülach',
+            tag: 'notte-5',
+            description: 'Quinta notte del percorso, a Bülach.',
+            image: createSeedGalleryImage('GGPQ+RG, 8180 Bülach', 'Notte 5', '#f59e0b', '#7c2d12'),
+            geo: { lat: 47.5106, lng: 8.5418 }
+        }
+    ];
+}
+
+async function seedGalleryCollectionIfNeeded() {
+    const items = await loadCollection('gallery');
+    const seedEntries = buildDefaultGallerySeedEntries();
+    const existingIds = new Set(items.map(item => String(item?.id || '')));
+    const missingEntries = seedEntries.filter(entry => !existingIds.has(entry.id));
+    if (!missingEntries.length) return items;
+    const mergedItems = [...items, ...missingEntries];
+    await persistCollection('gallery', mergedItems);
+    return mergedItems;
+}
 function getTileProviders() {
     if (typeof L === 'undefined') return {};
     return {
@@ -1701,6 +1807,7 @@ function initAdminPage() {
             showAdminState(true);
             initAdminFormHelpers();
             bindAdminForm('gallery');
+            await seedGalleryCollectionIfNeeded();
             await renderAdminCollection('gallery');
             loginForm.reset();
         };
@@ -1721,7 +1828,12 @@ function initAdminPage() {
     if (isAdminAuthenticated()) {
         initAdminFormHelpers();
         bindAdminForm('gallery');
-        renderAdminCollection('gallery');
+        seedGalleryCollectionIfNeeded()
+            .then(() => renderAdminCollection('gallery'))
+            .catch(error => {
+                console.warn('Seed gallery fallito:', error);
+                renderAdminCollection('gallery');
+            });
     }
 }
 function getPhotoMarkerIcon(item, zoomLevel) {
