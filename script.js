@@ -1,7 +1,15 @@
 ﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json";
 const plannedStartDateIso = '2026-08-01T00:04:00+02:00';
+const adminPassword = 'northline-admin-2026';
+const contentDatabasePath = 'content';
 const defaultCenter = [46.0, 8.9];
 const defaultZoom = 12;
+const contentStorageKeys = {
+    diary: 'northline-content-diary',
+    gallery: 'northline-content-gallery',
+    timeline: 'northline-content-timeline'
+};
+const adminSessionKey = 'northline-admin-authenticated';
 let mapInstance = null;
 let routeLine = null;
 let startMarker = null;
@@ -15,6 +23,129 @@ let gpxCoords = [];
 let gpxLoadPromise = null;
 let latestLiveCoord = null;
 let latestVisitorCoord = null;
+let firebaseAppInstance = null;
+function createRecordId(prefix = 'item') {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return `${prefix}-${crypto.randomUUID()}`;
+    }
+    return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+}
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+function readCollection(type) {
+    const storageKey = contentStorageKeys[type];
+    if (!storageKey) return [];
+    try {
+        const raw = localStorage.getItem(storageKey);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.warn(`Impossibile leggere la collezione ${type}:`, error);
+        return [];
+    }
+}
+function saveCollection(type, items) {
+    const storageKey = contentStorageKeys[type];
+    if (!storageKey) return;
+    localStorage.setItem(storageKey, JSON.stringify(items));
+}
+function getFirebaseClientConfig() {
+    return window.NorthLineFirebaseConfig || null;
+}
+function hasUsableFirebaseConfig() {
+    const config = getFirebaseClientConfig();
+    if (!config) return false;
+    const required = ['apiKey', 'authDomain', 'databaseURL', 'projectId', 'appId'];
+    return required.every(key => {
+        const value = String(config[key] || '');
+        return value && !value.startsWith('INSERISCI_');
+    });
+}
+function getFirebaseContentUrl(type) {
+    const config = getFirebaseClientConfig();
+    if (!config?.databaseURL) return null;
+    return `${String(config.databaseURL).replace(/\/$/, '')}/${contentDatabasePath}/${type}.json`;
+}
+function ensureFirebaseClient() {
+    const config = getFirebaseClientConfig();
+    if (!config || !hasUsableFirebaseConfig() || typeof firebase === 'undefined') return null;
+    if (!firebaseAppInstance) {
+        firebaseAppInstance = firebase.apps?.length ? firebase.app() : firebase.initializeApp(config);
+    }
+    return firebaseAppInstance;
+}
+function getFirebaseDatabase() {
+    const app = ensureFirebaseClient();
+    return app ? firebase.database(app) : null;
+}
+function getFirebaseAuth() {
+    const app = ensureFirebaseClient();
+    return app ? firebase.auth(app) : null;
+}
+async function loadCollection(type) {
+    const publicUrl = getFirebaseContentUrl(type);
+    if (publicUrl) {
+        try {
+            const response = await fetch(publicUrl, { cache: 'no-store' });
+            if (response.ok) {
+                const data = await response.json();
+                if (Array.isArray(data)) return data;
+            }
+        } catch (error) {
+            console.warn(`Impossibile leggere ${type} da Firebase, uso fallback locale:`, error);
+        }
+    }
+    return readCollection(type);
+}
+async function persistCollection(type, items) {
+    saveCollection(type, items);
+    const database = getFirebaseDatabase();
+    if (!database) return;
+    try {
+        await database.ref(`${contentDatabasePath}/${type}`).set(items);
+    } catch (error) {
+        console.warn(`Impossibile salvare ${type} su Firebase, contenuto mantenuto in locale:`, error);
+    }
+}
+function isAdminAuthenticated() {
+    return sessionStorage.getItem(adminSessionKey) === 'true';
+}
+function setAdminAuthenticated(value) {
+    if (value) sessionStorage.setItem(adminSessionKey, 'true');
+    else sessionStorage.removeItem(adminSessionKey);
+}
+async function moveCollectionItem(type, itemId, direction) {
+    const items = await loadCollection(type);
+    const index = items.findIndex(item => item.id === itemId);
+    if (index < 0) return;
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= items.length) return;
+    const [entry] = items.splice(index, 1);
+    items.splice(targetIndex, 0, entry);
+    await persistCollection(type, items);
+}
+async function deleteCollectionItem(type, itemId) {
+    const items = (await loadCollection(type)).filter(item => item.id !== itemId);
+    await persistCollection(type, items);
+}
+function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            resolve('');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+        reader.onerror = () => reject(reader.error || new Error('Errore lettura file'));
+        reader.readAsDataURL(file);
+    });
+}
 function getTileProviders() {
     if (typeof L === 'undefined') return {};
     return {
@@ -953,7 +1084,7 @@ async function initDashboardPage() {
 }
 async function initGalleryPage() {
     initializeTheme();
-    const items = [];
+    const items = await loadCollection('gallery');
     const grid = document.querySelector('.gallery-grid');
     const modal = document.querySelector('.modal-backdrop');
     const modalTitle = document.getElementById('modalTitle');
@@ -980,8 +1111,9 @@ async function initGalleryPage() {
         const card = document.createElement('article');
         card.className = 'gallery-item';
         card.dataset.filter = item.tag;
-        card.innerHTML = `<img src="${item.image}" alt="${item.title}"><div class="gallery-meta"><h3>${item.title}</h3><p>${item.location}</p></div>`;
+        card.innerHTML = `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}"><div class="gallery-meta"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.location)}</p></div>`;
         card.addEventListener('click', () => {
+            if (!modal || !modalTitle || !modalLocation || !modalDescription || !modalImage) return;
             modalTitle.textContent = item.title;
             modalLocation.textContent = item.location;
             modalDescription.textContent = item.description;
@@ -1002,7 +1134,7 @@ async function initGalleryPage() {
 }
 async function initDiaryPage() {
     initializeTheme();
-    const entries = [];
+    const entries = await loadCollection('diary');
     const container = document.querySelector('.diary-list');
 
     if (!entries.length) {
@@ -1017,13 +1149,13 @@ async function initDiaryPage() {
     entries.forEach(entry => {
         const article = document.createElement('article');
         article.className = 'diary-entry';
-        article.innerHTML = `<img src="${entry.image}" alt="${entry.title}"><div><time>${entry.date}</time><h3>${entry.title}</h3><p><strong>${entry.km} km</strong> · ${entry.text}</p></div>`;
+        article.innerHTML = `${entry.image ? `<img src="${escapeHtml(entry.image)}" alt="${escapeHtml(entry.title)}">` : ''}<div><time>${escapeHtml(entry.date)}</time><h3>${escapeHtml(entry.title)}</h3><p><strong>${escapeHtml(entry.km)} km</strong> · ${escapeHtml(entry.text)}</p></div>`;
         container.appendChild(article);
     });
 }
 async function initTimelinePage() {
     initializeTheme();
-    const events = [];
+    const events = await loadCollection('timeline');
     const list = document.querySelector('.timeline-list');
 
     if (!events.length) {
@@ -1038,10 +1170,151 @@ async function initTimelinePage() {
     events.forEach(event => {
         const article = document.createElement('article');
         article.className = 'timeline-event';
-        article.innerHTML = `<time>${event.time}</time><h3>${event.title}</h3><p>${event.description}</p>`;
+        article.innerHTML = `<time>${escapeHtml(event.time)}</time><h3>${escapeHtml(event.title)}</h3><p>${escapeHtml(event.description)}</p>`;
         article.addEventListener('click', () => alert(`Sposta la mappa su: ${event.title}`));
         list.appendChild(article);
     });
+}
+async function renderAdminCollection(type) {
+    const list = document.querySelector(`[data-admin-list="${type}"]`);
+    if (!list) return;
+    const items = await loadCollection(type);
+    list.innerHTML = '';
+    if (!items.length) {
+        renderEmptyState(list, 'Nessun contenuto', 'Questa sezione e ancora vuota.');
+        return;
+    }
+    items.forEach((item, index) => {
+        const article = document.createElement('article');
+        article.className = 'admin-item-card';
+        const meta = document.createElement('div');
+        meta.className = 'admin-item-meta';
+        const heading = document.createElement('h3');
+        heading.textContent = item.title || item.location || item.time || `Elemento ${index + 1}`;
+        const info = document.createElement('p');
+        info.textContent = type === 'gallery'
+            ? `${item.tag || 'senza tag'} · ${item.location || 'nessuna localita'}`
+            : type === 'diary'
+                ? `${item.date || 'nessuna data'} · ${item.km || '0'} km`
+                : `${item.time || '--'} · ${item.description || ''}`;
+        meta.append(heading, info);
+        const actions = document.createElement('div');
+        actions.className = 'admin-item-actions';
+        const upButton = document.createElement('button');
+        upButton.type = 'button';
+        upButton.className = 'button secondary';
+        upButton.textContent = 'Su';
+        upButton.disabled = index === 0;
+        upButton.addEventListener('click', async () => {
+            await moveCollectionItem(type, item.id, 'up');
+            await renderAdminCollection(type);
+        });
+        const downButton = document.createElement('button');
+        downButton.type = 'button';
+        downButton.className = 'button secondary';
+        downButton.textContent = 'Giu';
+        downButton.disabled = index === items.length - 1;
+        downButton.addEventListener('click', async () => {
+            await moveCollectionItem(type, item.id, 'down');
+            await renderAdminCollection(type);
+        });
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'button ghost';
+        deleteButton.textContent = 'Cancella';
+        deleteButton.addEventListener('click', async () => {
+            await deleteCollectionItem(type, item.id);
+            await renderAdminCollection(type);
+        });
+        actions.append(upButton, downButton, deleteButton);
+        article.append(meta, actions);
+        list.append(article);
+    });
+}
+async function handleAdminFormSubmit(type, form) {
+    const items = await loadCollection(type);
+    const id = createRecordId(type);
+    if (type === 'diary') {
+        const image = await readFileAsDataUrl(form.querySelector('[name="image"]')?.files?.[0]);
+        items.push({ id, title: form.title.value.trim(), date: form.date.value.trim(), km: form.km.value.trim(), text: form.text.value.trim(), image });
+    }
+    if (type === 'gallery') {
+        const image = await readFileAsDataUrl(form.querySelector('[name="image"]')?.files?.[0]);
+        items.push({ id, title: form.title.value.trim(), location: form.location.value.trim(), tag: form.tag.value.trim(), description: form.description.value.trim(), image });
+    }
+    if (type === 'timeline') {
+        items.push({ id, time: form.time.value.trim(), title: form.title.value.trim(), description: form.description.value.trim() });
+    }
+    await persistCollection(type, items);
+    form.reset();
+    await renderAdminCollection(type);
+}
+function bindAdminForm(type) {
+    const form = document.querySelector(`[data-admin-form="${type}"]`);
+    if (!form || form.dataset.bound === 'true') return;
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        await handleAdminFormSubmit(type, form);
+    });
+    form.dataset.bound = 'true';
+}
+function showAdminState(unlocked) {
+    const locked = document.getElementById('adminLocked');
+    const app = document.getElementById('adminApp');
+    if (locked) locked.hidden = unlocked;
+    if (app) app.hidden = !unlocked;
+}
+function initAdminPage() {
+    initializeTheme();
+    showAdminState(isAdminAuthenticated());
+    const loginForm = document.getElementById('adminLoginForm');
+    const errorBox = document.getElementById('adminLoginError');
+    const auth = getFirebaseAuth();
+    const modeLabel = document.getElementById('adminModeLabel');
+    if (modeLabel) {
+        modeLabel.textContent = auth && hasUsableFirebaseConfig()
+            ? 'Autenticazione Firebase attiva'
+            : 'Modalita locale attiva: inserisci la password oppure configura Firebase';
+    }
+    loginForm?.addEventListener('submit', event => {
+        event.preventDefault();
+        const password = loginForm.querySelector('[name="password"]')?.value || '';
+        const email = loginForm.querySelector('[name="email"]')?.value || '';
+        const unlockAdmin = async () => {
+            setAdminAuthenticated(true);
+            if (errorBox) errorBox.textContent = '';
+            showAdminState(true);
+            for (const type of ['diary', 'gallery', 'timeline']) {
+                bindAdminForm(type);
+                await renderAdminCollection(type);
+            }
+            loginForm.reset();
+        };
+        if (auth && hasUsableFirebaseConfig() && email && password) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then(unlockAdmin)
+                .catch(error => {
+                    if (errorBox) errorBox.textContent = `Login Firebase fallito: ${error.message}`;
+                });
+            return;
+        }
+        if (password === adminPassword) {
+            unlockAdmin();
+            return;
+        }
+        if (errorBox) errorBox.textContent = auth ? 'Inserisci email/password Firebase valide oppure la password locale.' : 'Password non corretta.';
+    });
+    document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
+        getFirebaseAuth()?.signOut().catch(() => {});
+        setAdminAuthenticated(false);
+        showAdminState(false);
+    });
+    if (isAdminAuthenticated()) {
+        ['diary', 'gallery', 'timeline'].forEach(async type => {
+            bindAdminForm(type);
+            await renderAdminCollection(type);
+        });
+    }
 }
 async function initReplayPage() {
     initializeTheme();
@@ -1122,6 +1395,7 @@ function initPage() {
         case 'gallery': initGalleryPage(); break;
         case 'diary': initDiaryPage(); break;
         case 'timeline': initTimelinePage(); break;
+        case 'admin': initAdminPage(); break;
         case 'replay': initReplayPage(); break;
         case 'progress': initProgressPage(); break;
         default: initializeTheme(); break;

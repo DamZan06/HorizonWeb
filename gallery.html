@@ -48,6 +48,18 @@
             <div class="gallery-grid"></div>
         </section>
     </main>
+    <div class="modal-backdrop" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Chiudi">×</button>
+            <img id="modalImage" src="assets/preview.png" alt="">
+            <div class="modal-details">
+                <h3 id="modalTitle">Titolo immagine</h3>
+                <p id="modalLocation">Località</p>
+                <p id="modalDescription">Descrizione della foto e posizione sulla mappa.</p>
+            </div>
+        </div>
+    </div>
+    <script src="firebase-config.js"></script>
     <script src="script.js?v=20260725a"></script>
 </body>
 </html>
