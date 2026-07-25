@@ -463,3 +463,36 @@ body.mobile-nav-open {
 .section-white { background: rgba(255, 255, 255, 0.04); padding: 32px; border-radius: 28px; }
 @media (max-width: 1024px) { .hero, .map-layout { grid-template-columns: 1fr; } .hero-panel { order: -1; } .map-wrap { min-height: 560px; } }
 @media (max-width: 760px) { .topbar { display: flex; align-items: center; padding: 14px 16px; gap: 12px; } .topbar-menu-toggle { display: inline-flex; margin-left: auto; } .main-nav { position: fixed; top: 0; right: 0; width: min(82vw, 320px); max-width: 320px; height: 100vh; overflow-y: auto; padding: 84px 20px 24px; display: flex; flex-direction: column; gap: 12px; flex-wrap: nowrap; background: rgba(7, 17, 28, 0.98); border-left: 1px solid rgba(255,255,255,0.12); box-shadow: -18px 0 38px rgba(0,0,0,0.38); z-index: 1500; transform: translateX(100%); transition: transform 0.26s ease; pointer-events: none; } .main-nav a { font-size: 1rem; padding: 8px 4px; } body.mobile-nav-open .mobile-nav-overlay { display: block; } body.mobile-nav-open .main-nav { transform: translateX(0); pointer-events: auto; } .topbar-actions { display: none; } .hero { gap: 20px; } .countdown-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .page { padding: 20px 18px 50px; } .feature-grid, .status-grid, .stats-grid, .detail-grid, .gallery-grid, .badge-grid, .chart-grid { grid-template-columns: 1fr; } .chart-grid .metric-card:nth-child(1) { order: 2; } .chart-grid .metric-card:nth-child(2) { order: 3; } .chart-grid .metric-card:nth-child(3) { order: 1; } .chart-grid .metric-card:nth-child(4) { order: 4; } .chart-grid canvas { height: 200px !important; max-height: 200px !important; } .map-footer { flex-direction: column; align-items: stretch; } .map-footer button { width: 100%; } }
+
+@media (max-width: 760px) {
+    .page-live .stats-grid,
+    .page-live .detail-grid,
+    .page-dashboard .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .page-live .stats-grid article,
+    .page-live .detail-grid article,
+    .page-dashboard .stats-grid article {
+        min-height: auto;
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.06));
+    }
+
+    .page-live .stats-grid article strong,
+    .page-live .detail-grid article strong,
+    .page-dashboard .stats-grid article strong {
+        display: block;
+        margin-top: 10px;
+        font-size: 1.7rem;
+    }
+
+    .page-live .stats-grid article span,
+    .page-live .detail-grid article span,
+    .page-dashboard .stats-grid article span {
+        color: var(--muted);
+        font-size: 0.93rem;
+    }
+}
