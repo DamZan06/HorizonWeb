@@ -155,7 +155,10 @@ function parseDateTime(dateValue = '', timeValue = '') {
     if (!rawDate && !rawTime) return Number.NaN;
     const localMatch = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$/);
     if (localMatch) {
-        const [, d, m, y, h = '0', min = '0'] = localMatch;
+        const [, d, m, y, dateHour = '', dateMinute = ''] = localMatch;
+        const timeMatch = rawTime.match(/^(\d{1,2}):(\d{2})/);
+        const h = timeMatch ? timeMatch[1] : (dateHour || '0');
+        const min = timeMatch ? timeMatch[2] : (dateMinute || '0');
         return new Date(Number(y), Number(m) - 1, Number(d), Number(h), Number(min)).getTime();
     }
     const combined = rawTime ? `${rawDate} ${rawTime}` : rawDate;
@@ -243,13 +246,13 @@ async function loadUnifiedMediaItems() {
             description: entry.description || '',
             image: entry.image,
             geo: readItemGeo(entry),
-            sortTs: Number.NaN
+            sortTs: parseDateTime(entry.date, entry.time)
         });
     });
     return media.sort((a, b) => {
         const aTs = Number.isFinite(a.sortTs) ? a.sortTs : Number.POSITIVE_INFINITY;
         const bTs = Number.isFinite(b.sortTs) ? b.sortTs : Number.POSITIVE_INFINITY;
-        if (aTs !== bTs) return aTs - bTs;
+        if (aTs !== bTs) return bTs - aTs;
         return a.title.localeCompare(b.title, 'it');
     });
 }
