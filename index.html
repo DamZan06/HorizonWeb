@@ -1,111 +1,146 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <title>North Line Live Tracker</title>
-
-    <meta name="description"
-          content="Segui la North Line in tempo reale con mappa GPS, velocità, altitudine e statistiche aggiornate dal Garmin LiveTrack.">
-
-    <link rel="stylesheet" href="style.css">
-
-    <link rel="stylesheet"
-          href="https://unpkg.com/leaflet/dist/leaflet.css">
-
-    <meta property="og:title" content="North Line Live Tracker">
-    <meta property="og:description" content="Segui la North Line in tempo reale sulla mappa con Garmin LiveTrack.">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://damzan06.github.io/northline/preview.png">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:locale" content="it_IT">
-    <meta property="og:site_name" content="North Line Live Tracker">
-    <meta property="og:url" content="https://damzan06.github.io/northline/">
+    <title>NorthLine – Home</title>
+    <meta name="description" content="NorthLine è il tracker live dell'avventura svizzera: mappa, statistiche, diario, replay e meteo in un unico sito.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://damzan06.github.io/northline/">
-
-    <link rel="icon" href="favicon-v2.png">
-
+    <meta property="og:title" content="NorthLine – Live Tracker">
+    <meta property="og:description" content="Mappa live, statistiche e diario dell'avventura NorthLine.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://damzan06.github.io/northline/">
+    <meta property="og:image" content="https://damzan06.github.io/northline/assets/preview.png?v=20260715s">
+    <meta property="og:image:secure_url" content="https://damzan06.github.io/northline/assets/preview.png?v=20260715s">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1254">
+    <meta property="og:image:height" content="1254">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NorthLine – Live Tracker">
+    <meta name="twitter:description" content="Mappa live, statistiche e diario dell'avventura NorthLine.">
+    <meta name="twitter:image" content="https://damzan06.github.io/northline/assets/preview.png?v=20260715s">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
+    <link rel="icon" type="image/png" href="assets/favicon-v2.png?v=20260715r">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=20260715r">
 </head>
 
-<body>
-
-    <h1 class="visually-hidden">
-        North Line Live Tracker
-    </h1>
-
-    <p class="visually-hidden">
-        Segui la North Line in tempo reale grazie al Garmin LiveTrack.
-        Visualizza posizione GPS, velocità, altitudine, distanza percorsa e progressi sulla mappa.
-    </p>
-    <!-- Pannello statistiche -->
-
-    <div id="statsPanel">
-
-        <div id="statsHeader">
-
-            <div id="distance"></div>
-            <div id="time"></div>
-            <div id="elevation"></div>
-            <div id="speed"></div>
-            <div id="eta"></div>
-            <div id="lastUpdate"></div>
-
+<body data-page="home">
+    <header class="topbar">
+        <div class="brand">
+            <img src="assets/favicon-v2.png?v=20260715r" alt="Logo NorthLine" class="brand-icon">
+            <div>
+                <span class="brand-title">NorthLine</span>
+                <span class="brand-subtitle">Adventure Tracker</span>
+            </div>
         </div>
-
-        <div id="statsContent">
-
-
-            <div id="progressContainer">
-
-                <div id="progressText">
-                    Completamento
-                </div>
-
-                <div id="progressBarBackground">
-
-                    <div id="progressBar"></div>
-
-                </div>
-
-            </div>
-
-
-
-            <h3>Velocità</h3>
-
-            <div class="chartContainer">
-                <canvas id="speedChart"></canvas>
-            </div>
-
-
-            <h3>Profilo altimetrico</h3>
-
-            <div class="chartContainer">
-                <canvas id="elevationChart"></canvas>
-            </div>
-
-
+        <nav class="main-nav" aria-label="Navigazione principale">
+            <a href="index.html">Home</a>
+            <a href="live.html">Live</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="diary.html">Diario</a>
+            <a href="gallery.html">Galleria</a>
+            <a href="timeline.html">Timeline</a>
+            <a href="replay.html">Replay</a>
+            <a href="progress.html">Progressi</a>
+            <a href="project.html">Il progetto</a>
+        </nav>
+        <div class="topbar-actions">
+            <button id="themeToggle" class="button ghost">Tema</button>
+            <a class="button primary" href="live.html">Segui il Live</a>
         </div>
-
-    </div>
-
-    <!-- Mappa -->
-
-    <div id="map"></div>
-
-    <!-- Librerie -->
-
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- Script -->
-
-    <script src="script.js"></script>
-
+    </header>
+    <main class="page page-home">
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Percorso NorthLine · Svizzera</p>
+                <h1>Vivi l'avventura NorthLine in tempo reale.</h1>
+                <p>Un tracker moderno che unisce mappa live, statistiche, diario multimediale e replay interattivo per seguire l'impresa come se fossi sul posto.</p>
+                <div class="hero-actions">
+                    <a href="live.html" class="button primary">Segui il Live</a>
+                    <a href="project.html" class="button ghost">Esplora il progetto</a>
+                </div>
+            </div>
+            <aside class="hero-panel">
+                <div class="hero-status">
+                    <span class="status-dot status-moving"></span>
+                    <div>
+                        <strong id="homeStatusLabel">In movimento</strong>
+                        <p id="homeStatusText">Tracker attivo e aggiornato.</p>
+                    </div>
+                </div>
+                <div class="hero-stats-grid">
+                    <article>
+                        <span>km percorsi</span>
+                        <strong id="homeDistance">0</strong>
+                    </article>
+                    <article>
+                        <span>km rimanenti</span>
+                        <strong id="homeRemaining">--</strong>
+                    </article>
+                    <article>
+                        <span>completato</span>
+                        <strong id="homeCompletion">--%</strong>
+                    </article>
+                    <article>
+                        <span>tempo trascorso</span>
+                        <strong id="homeTime">--</strong>
+                    </article>
+                    <article>
+                        <span>dislivello</span>
+                        <strong id="homeGain">--</strong>
+                    </article>
+                    <article>
+                        <span>passi stimati</span>
+                        <strong id="homeSteps">--</strong>
+                    </article>
+                </div>
+            </aside>
+        </section>
+        <section class="section section-intro">
+            <div class="section-title">
+                <p class="eyebrow">Esperienza immersiva</p>
+                <h2>Segui il NorthLine come se fossi sul sentiero.</h2>
+            </div>
+            <div class="feature-grid">
+                <article>
+                    <h3>Mappa Live</h3>
+                    <p>Posizione aggiornata, percorso completato e punti di interesse in un'interfaccia chiara e interattiva.</p>
+                </article>
+                <article>
+                    <h3>Statistiche avanzate</h3>
+                    <p>Distanza, velocità, altitudine, ritmi e stato atleta sempre visibili in tempo reale.</p>
+                </article>
+                <article>
+                    <h3>Diario multimediale</h3>
+                    <p>Racconti giornalieri, foto, video e geolocalizzazione di tutti i momenti più belli.</p>
+                </article>
+                <article>
+                    <h3>Replay interattivo</h3>
+                    <p>Rivivi ogni tappa con controllo della velocità, selezione giorno e statistiche dinamiche.</p>
+                </article>
+            </div>
+        </section>
+        <section class="section section-status">
+            <div class="section-title">
+                <h2>Stato dell'avventura</h2>
+            </div>
+            <div class="status-grid">
+                <article class="status-pill status-moving"><span>🟢</span> In movimento</article>
+                <article class="status-pill status-paused"><span>🟡</span> In pausa</article>
+                <article class="status-pill status-ended"><span>🔴</span> Fine giornata</article>
+                <article class="status-pill status-completed"><span>⚫</span> Sfida completata</article>
+            </div>
+        </section>
+    </main>
+    <footer class="site-footer">
+        <p>NorthLine – Monitoraggio in tempo reale dell'avventura attraverso la Svizzera. Dati Garmin LiveTrack mantenuti in memoria anche in caso di segnale interrotto.</p>
+    </footer>
+    <script src="script.js?v=20260715p"></script>
 </body>
-
 </html>
+
+
+
+
