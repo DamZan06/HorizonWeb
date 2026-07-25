@@ -14,13 +14,10 @@ let chartInstances = {};
 let activeLayer = null;
 let gpxTotalKm = null;
 let gpxCoords = [];
-let gpxWaypoints = [];
 let gpxLoadPromise = null;
 let latestLiveCoord = null;
 let latestVisitorCoord = null;
 let firebaseAppInstance = null;
-let routeMarkersEnabled = false;
-let routeMarkerGroup = null;
 const mediaModalState = {
     items: [],
     index: 0,
@@ -131,112 +128,6 @@ function readFileAsDataUrl(file) {
         reader.onerror = () => reject(reader.error || new Error('Errore lettura file'));
         reader.readAsDataURL(file);
     });
-}
-
-function createSeedGalleryImage(place, nightLabel, accentA, accentB) {
-    const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-label="${escapeHtml(nightLabel)} ${escapeHtml(place)}">
-            <defs>
-                <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="${accentA}"/>
-                    <stop offset="100%" stop-color="${accentB}"/>
-                </linearGradient>
-                <radialGradient id="glow" cx="50%" cy="35%" r="60%">
-                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.24"/>
-                    <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-                </radialGradient>
-            </defs>
-            <rect width="1200" height="900" fill="url(#bg)"/>
-            <circle cx="930" cy="180" r="260" fill="url(#glow)"/>
-            <circle cx="250" cy="720" r="180" fill="#ffffff" fill-opacity="0.08"/>
-            <path d="M0 650C130 600 250 620 360 660C480 705 590 730 720 700C870 664 980 590 1200 635V900H0Z" fill="#04111f" fill-opacity="0.32"/>
-            <path d="M0 720C160 680 290 700 410 735C540 772 650 790 780 760C915 728 1035 655 1200 690V900H0Z" fill="#02101b" fill-opacity="0.5"/>
-            <g transform="translate(80 90)">
-                <rect x="0" y="0" rx="28" ry="28" width="250" height="84" fill="#08131f" fill-opacity="0.6"/>
-                <text x="28" y="34" fill="#f7fbff" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800">${escapeHtml(nightLabel)}</text>
-                <text x="28" y="64" fill="#dbeeff" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600">${escapeHtml(place)}</text>
-            </g>
-            <g transform="translate(900 600)">
-                <path d="M110 0C74 0 45 29 45 65c0 46 65 113 65 113s65-67 65-113C175 29 146 0 110 0zm0 95c-17 0-30-13-30-30s13-30 30-30 30 13 30 30-13 30-30 30z" fill="#ffffff" fill-opacity="0.9"/>
-            </g>
-        </svg>`;
-    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-}
-
-function buildDefaultGallerySeedEntries() {
-    return [
-        {
-            id: 'seed-night-1',
-            title: 'Notte 1',
-            date: '01/08/2026',
-            time: '22:00',
-            km: '0',
-            location: 'Via al Laghetto, 6832 Chiasso',
-            tag: 'notte-1',
-            description: 'Prima notte del percorso, a Chiasso.',
-            image: createSeedGalleryImage('Via al Laghetto, 6832 Chiasso', 'Notte 1', '#1d4ed8', '#0f172a'),
-            geo: { lat: 45.8326, lng: 9.0315 }
-        },
-        {
-            id: 'seed-night-2',
-            title: 'Notte 2',
-            date: '02/08/2026',
-            time: '22:00',
-            km: '0',
-            location: 'A Tasín 2, 6702 Claro',
-            tag: 'notte-2',
-            description: 'Seconda notte del percorso, a Claro.',
-            image: createSeedGalleryImage('A Tasín 2, 6702 Claro', 'Notte 2', '#0ea5e9', '#1e3a8a'),
-            geo: { lat: 46.2829, lng: 8.9772 }
-        },
-        {
-            id: 'seed-night-3',
-            title: 'Notte 3',
-            date: '03/08/2026',
-            time: '22:00',
-            km: '0',
-            location: 'Gotthard-Strassentunnel 41, 6493 Hospental',
-            tag: 'notte-3',
-            description: 'Terza notte del percorso, in zona Hospental.',
-            image: createSeedGalleryImage('Gotthard-Strassentunnel 41, 6493 Hospental', 'Notte 3', '#7c3aed', '#111827'),
-            geo: { lat: 46.6102, lng: 8.5627 }
-        },
-        {
-            id: 'seed-night-4',
-            title: 'Notte 4',
-            date: '04/08/2026',
-            time: '22:00',
-            km: '0',
-            location: 'Rottannenstrasse, Arth',
-            tag: 'notte-4',
-            description: 'Quarta notte del percorso, ad Arth.',
-            image: createSeedGalleryImage('Rottannenstrasse, Arth', 'Notte 4', '#16a34a', '#14532d'),
-            geo: { lat: 47.0560, lng: 8.5454 }
-        },
-        {
-            id: 'seed-night-5',
-            title: 'Notte 5',
-            date: '05/08/2026',
-            time: '22:00',
-            km: '0',
-            location: 'GGPQ+RG, 8180 Bülach',
-            tag: 'notte-5',
-            description: 'Quinta notte del percorso, a Bülach.',
-            image: createSeedGalleryImage('GGPQ+RG, 8180 Bülach', 'Notte 5', '#f59e0b', '#7c2d12'),
-            geo: { lat: 47.5106, lng: 8.5418 }
-        }
-    ];
-}
-
-async function seedGalleryCollectionIfNeeded() {
-    const items = await loadCollection('gallery');
-    const seedEntries = buildDefaultGallerySeedEntries();
-    const existingIds = new Set(items.map(item => String(item?.id || '')));
-    const missingEntries = seedEntries.filter(entry => !existingIds.has(entry.id));
-    if (!missingEntries.length) return items;
-    const mergedItems = [...items, ...missingEntries];
-    await persistCollection('gallery', mergedItems);
-    return mergedItems;
 }
 function getTileProviders() {
     if (typeof L === 'undefined') return {};
@@ -864,70 +755,11 @@ function parseGpxXml(gpxText) {
         lat: Number(pt.getAttribute('lat')),
         lng: Number(pt.getAttribute('lon'))
     })).filter(c => Number.isFinite(c.lat) && Number.isFinite(c.lng));
-    const waypoints = Array.from(xml.querySelectorAll('wpt')).map((pt, index) => ({
-        lat: Number(pt.getAttribute('lat')),
-        lng: Number(pt.getAttribute('lon')),
-        name: (pt.querySelector('name')?.textContent || '').trim(),
-        index
-    })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
     let totalKm = 0;
     for (let i = 1; i < coords.length; i += 1) {
         totalKm += haversineKm(coords[i - 1].lat, coords[i - 1].lng, coords[i].lat, coords[i].lng);
     }
-    return { coords, totalKm, waypoints };
-}
-
-function buildRouteMarkerLabel(prefix, index) {
-    return `${prefix} ${index + 1}`;
-}
-
-function buildNightMarkerIcon(index) {
-    return L.divIcon({
-        className: 'route-marker route-marker--night',
-        html: `<div class="route-marker__wrap"><span class="route-marker__pin"><span>${index + 1}</span></span><span class="route-marker__label">${buildRouteMarkerLabel('Notte', index)}</span></div>`,
-        iconSize: [90, 56],
-        iconAnchor: [45, 52],
-        popupAnchor: [0, -44]
-    });
-}
-
-function buildEndpointMarkerIcon(type) {
-    const isStart = type === 'start';
-    const label = isStart ? 'Partenza' : 'Arrivo';
-    return L.divIcon({
-        className: `route-marker route-marker--${type}`,
-        html: `<div class="route-marker__wrap"><span class="route-marker__pin"><span>${isStart ? 'S' : 'F'}</span></span><span class="route-marker__label">${label}</span></div>`,
-        iconSize: [90, 56],
-        iconAnchor: [45, 52],
-        popupAnchor: [0, -44]
-    });
-}
-
-function clearRouteMarkerGroup() {
-    if (routeMarkerGroup && mapInstance) {
-        mapInstance.removeLayer(routeMarkerGroup);
-    }
-    routeMarkerGroup = null;
-}
-
-function renderRouteMarkers() {
-    if (!mapInstance || !routeMarkersEnabled || !gpxWaypoints.length || typeof L === 'undefined') return;
-    clearRouteMarkerGroup();
-    routeMarkerGroup = L.layerGroup().addTo(mapInstance);
-    gpxWaypoints.forEach((waypoint, index) => {
-        const marker = L.marker([waypoint.lat, waypoint.lng], { icon: buildNightMarkerIcon(index) });
-        const waypointName = waypoint.name || buildRouteMarkerLabel('Notte', index);
-        marker.bindPopup(`<strong>${buildRouteMarkerLabel('Notte', index)}</strong><br>${escapeHtml(waypointName)}`);
-        marker.addTo(routeMarkerGroup);
-    });
-}
-
-function fitMapToGpxBounds() {
-    if (!mapInstance || !gpxCoords.length || typeof L === 'undefined') return;
-    const bounds = L.latLngBounds(gpxCoords.map(coord => [coord.lat, coord.lng]));
-    if (bounds.isValid()) {
-        mapInstance.fitBounds(bounds, { padding: [40, 40] });
-    }
+    return { coords, totalKm };
 }
 
 async function ensureGpxDataLoaded() {
@@ -936,7 +768,7 @@ async function ensureGpxDataLoaded() {
         await gpxLoadPromise;
         return;
     }
-    gpxLoadPromise = fetch('data/NorthLine_5.gpx')
+    gpxLoadPromise = fetch('data/NorthLine_3.gpx')
         .then(response => {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response.text();
@@ -946,7 +778,6 @@ async function ensureGpxDataLoaded() {
             if (parsed.coords.length) {
                 gpxCoords = parsed.coords;
                 gpxTotalKm = parsed.totalKm;
-                gpxWaypoints = parsed.waypoints || [];
             }
         })
         .catch(error => {
@@ -1042,7 +873,7 @@ function addMapControl() {
     mapInstance.addControl(new MapControl({ position: 'topright' }));
 }
 function initMap(options = {}) {
-    routeMarkersEnabled = options.showRouteMarkers === true;
+    const withGpx = options.withGpx !== false;
     if (mapInstance) return;
     if (typeof L === 'undefined') return;
     ensureLeafletAssets();
@@ -1051,9 +882,46 @@ function initMap(options = {}) {
     activeLayer = tileProviders.osm.addTo(mapInstance);
     L.control.zoom({ position: 'topright' }).addTo(mapInstance);
     addMapControl();
-    if (routeMarkersEnabled) {
-        renderRouteMarkers();
-        fitMapToGpxBounds();
+    if (!withGpx) return;
+    const gpxUrl = 'data/NorthLine_3.gpx';
+    try {
+        new L.GPX(gpxUrl, {
+            async: true,
+            marker_options: { startIconUrl: null, endIconUrl: null, shadowUrl: null },
+            polyline_options: { color: '#ff9f1c', weight: 7, opacity: 0.95 }
+        }).on('loaded', e => {
+            const track = e.target;
+            if (track && typeof track.getBounds === 'function') {
+                mapInstance.fitBounds(track.getBounds(), { padding: [40, 40] });
+            }
+            try {
+                if (track._coords && track._coords.length) {
+                    gpxCoords = track._coords;
+                }
+                if (track._info && track._info.length) {
+                    gpxTotalKm = track._info.length / 1000;
+                }
+                if (!gpxCoords.length || !Number.isFinite(gpxTotalKm) || gpxTotalKm <= 0) {
+                    ensureGpxDataLoaded().catch(() => {});
+                }
+                if (gpxCoords.length) {
+                    const first = gpxCoords[0];
+                    const last = gpxCoords[gpxCoords.length - 1];
+                    if (!startMarker) startMarker = L.marker([first.lat, first.lng]).addTo(mapInstance);
+                    if (finishMarker) mapInstance.removeLayer(finishMarker);
+                    finishMarker = L.marker([last.lat, last.lng], { icon: L.icon({ iconUrl: 'assets/icons/finish-flag.gif', iconSize: [45,45], iconAnchor: [22,45] }) }).addTo(mapInstance);
+                    // refresh live UI using GPX total if we are on the live page
+                    fetchPoints().then(points => {
+                        const s = buildSummary(points);
+                        try { if (s) { updateLiveUI(s); refreshMapRoute(s.points); } } catch(e){}
+                    }).catch(()=>{});
+                }
+            } catch (err) { console.warn('Errore lettura GPX info', err); }
+        }).on('error', e => {
+            console.warn('Impossibile caricare GPX:', e);
+        }).addTo(mapInstance);
+    } catch (err) {
+        console.warn('GPX initialization fallita:', err);
     }
 }
 function refreshMapRoute(points) {
@@ -1063,24 +931,15 @@ function refreshMapRoute(points) {
     if (routeLine) routeLine.setLatLngs(coords);
     else routeLine = L.polyline(coords, { color: '#4fc3ff', weight: 5, opacity: 0.8 }).addTo(mapInstance);
     latestLiveCoord = coords[coords.length - 1];
-    if (routeMarkersEnabled && gpxCoords.length) {
+    // Use GPX-defined start/finish when available; no popups
+    if (!startMarker && gpxCoords.length) {
         const first = gpxCoords[0];
+        startMarker = L.marker([first.lat, first.lng]).addTo(mapInstance);
+    }
+    if (gpxCoords.length) {
         const last = gpxCoords[gpxCoords.length - 1];
-        if (!startMarker) startMarker = L.marker([first.lat, first.lng], { icon: buildEndpointMarkerIcon('start') }).addTo(mapInstance);
-        else startMarker.setLatLng([first.lat, first.lng]);
-        if (!finishMarker) finishMarker = L.marker([last.lat, last.lng], { icon: buildEndpointMarkerIcon('finish') }).addTo(mapInstance);
+        if (!finishMarker) finishMarker = L.marker([last.lat, last.lng], { icon: L.icon({ iconUrl: 'assets/icons/finish-flag.gif', iconSize: [45,45], iconAnchor: [22,45] }) }).addTo(mapInstance);
         else finishMarker.setLatLng([last.lat, last.lng]);
-        renderRouteMarkers();
-    } else {
-        if (startMarker) {
-            mapInstance.removeLayer(startMarker);
-            startMarker = null;
-        }
-        if (finishMarker) {
-            mapInstance.removeLayer(finishMarker);
-            finishMarker = null;
-        }
-        clearRouteMarkerGroup();
     }
     // live marker with popup and directions button
     if (!liveMarker) {
@@ -1149,7 +1008,7 @@ async function initLivePage() {
     initializeTheme();
     updateLiveUI(buildLivePreStartSummary());
     await ensureGpxDataLoaded();
-    initMap({ showRouteMarkers: true });
+    initMap();
     buildNav();
     const points = await fetchPoints();
     const summary = buildSummary(points) || buildLivePreStartSummary();
@@ -1413,7 +1272,6 @@ async function initGalleryPage() {
         });
         grid.appendChild(card);
     });
-    await ensureGpxDataLoaded();
     await initGalleryPhotoMap(items);
 }
 async function initDiaryPage() {
@@ -1807,7 +1665,6 @@ function initAdminPage() {
             showAdminState(true);
             initAdminFormHelpers();
             bindAdminForm('gallery');
-            await seedGalleryCollectionIfNeeded();
             await renderAdminCollection('gallery');
             loginForm.reset();
         };
@@ -1828,12 +1685,7 @@ function initAdminPage() {
     if (isAdminAuthenticated()) {
         initAdminFormHelpers();
         bindAdminForm('gallery');
-        seedGalleryCollectionIfNeeded()
-            .then(() => renderAdminCollection('gallery'))
-            .catch(error => {
-                console.warn('Seed gallery fallito:', error);
-                renderAdminCollection('gallery');
-            });
+        renderAdminCollection('gallery');
     }
 }
 function getPhotoMarkerIcon(item, zoomLevel) {
@@ -1859,7 +1711,7 @@ function bindPhotoMapFullscreen() {
     });
 }
 async function initGalleryPhotoMap(items) {
-    initMap({ showRouteMarkers: false });
+    initMap();
     if (!mapInstance) return;
     bindPhotoMapFullscreen();
 
@@ -1931,7 +1783,7 @@ async function initGalleryPhotoMap(items) {
 async function initReplayPage() {
     initializeTheme();
     await ensureGpxDataLoaded();
-    initMap({ showRouteMarkers: false });
+    initMap();
     buildNav();
     const points = await fetchPoints();
     const coords = points.length ? points.map(p => [p.coordinate.lat, p.coordinate.lon]) : [defaultCenter];
