@@ -1,6 +1,6 @@
 window.NorthLineFirebaseConfig = {
     apiKey: 'AIzaSyDQo9wBokOSgdSsXH8ZevCJtt987s7ct_M',
-    authDomain: 'INSERISCI_AUTH_DOMAIN',
+    authDomain: 'northline-a4eaa.firebaseapp.com',
     databaseURL: 'https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app',
     projectId: 'northline-a4eaa',
     storageBucket: 'northline-a4eaa.firebasestorage.app',
