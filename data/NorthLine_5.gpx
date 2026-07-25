@@ -7,26 +7,6 @@
       <link href="https://gpx.studio"/>
     </author>
   </metadata>
-  <wpt lat="46.2565465111" lon="9.0111590127">
-    <ele>246.93326850132493</ele>
-    <name>18h</name>
-  </wpt>
-  <wpt lat="46.5913747331" lon="8.5618263165">
-    <ele>1763.3</ele>
-    <name>Ziel</name>
-  </wpt>
-  <wpt lat="47.0562228192" lon="8.5364110764">
-    <ele>447.3</ele>
-    <name>Ziel</name>
-  </wpt>
-  <wpt lat="47.5263890229" lon="8.5443702332">
-    <ele>432.8</ele>
-    <name>Ziel</name>
-  </wpt>
-  <wpt lat="47.8082208779" lon="8.5676563778">
-    <ele>820.8</ele>
-    <name>Ziel</name>
-  </wpt>
   <trk>
     <name>NorthLine_4</name>
     <trkseg>

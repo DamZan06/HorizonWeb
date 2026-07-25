@@ -936,7 +936,7 @@ async function ensureGpxDataLoaded() {
         await gpxLoadPromise;
         return;
     }
-    gpxLoadPromise = fetch('data/NorthLine_4.gpx')
+    gpxLoadPromise = fetch('data/NorthLine_5.gpx')
         .then(response => {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response.text();
