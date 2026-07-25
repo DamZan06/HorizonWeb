@@ -5,7 +5,7 @@
     <title>NorthLine – Admin</title>
     <meta name="description" content="Pannello admin NorthLine per gestire la galleria condivisa.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css?v=20260725e">
+    <link rel="stylesheet" href="style.css?v=20260725f">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
     <link rel="icon" type="image/png" href="assets/favicon-v2.png?v=20260715r">
@@ -70,10 +70,22 @@
                 </div>
                 <form data-admin-form="gallery" class="admin-form-grid">
                     <label>Titolo<input type="text" name="title" required></label>
-                    <label>Data<input type="text" name="date" placeholder="01/08/2026"></label>
+                    <label>Data
+                        <span class="admin-input-with-action">
+                            <input type="text" name="date" placeholder="01/08/2026">
+                            <button id="adminGalleryNowBtn" type="button" class="button secondary">Adesso</button>
+                        </span>
+                    </label>
                     <label>Orario<input type="text" name="time" placeholder="07:30"></label>
-                    <label>Km<input type="text" name="km" placeholder="18"></label>
-                    <label>Localita<input type="text" name="location" required></label>
+                    <label>Km
+                        <span class="admin-input-with-action">
+                            <input type="text" name="km" placeholder="18">
+                            <button id="adminGalleryKmNowBtn" type="button" class="button secondary">Km attuale</button>
+                        </span>
+                    </label>
+                    <label>Localita
+                        <input type="text" name="location" placeholder="Impostata automaticamente da posizione" readonly>
+                    </label>
                     <label>Tag
                         <input type="text" name="tag" placeholder="montagna" list="adminGalleryTagList" required>
                         <datalist id="adminGalleryTagList">
@@ -95,7 +107,7 @@
                             <button type="button" class="admin-tag-chip" data-tag-suggestion="notte">notte</button>
                         </span>
                     </label>
-                    <label class="admin-form-full">Descrizione<textarea name="description" rows="4" required></textarea></label>
+                    <label class="admin-form-full">Descrizione<textarea name="description" rows="4"></textarea></label>
                     <label class="admin-form-full">Immagine<input type="file" name="image" accept="image/*" required></label>
                     <div class="admin-form-full admin-inline-row">
                         <button id="adminGalleryGeoBtn" type="button" class="button secondary">Usa posizione attuale</button>
@@ -119,6 +131,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="script.js?v=20260725e"></script>
+    <script src="script.js?v=20260725f"></script>
 </body>
 </html>

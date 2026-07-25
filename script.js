@@ -1369,89 +1369,192 @@ function setAdminFeedbackMessage(element, message, isError = false) {
 function showAdminSaveNotice(message, isError = false) {
     setAdminFeedbackMessage(document.getElementById('adminSaveNotice'), message, isError);
 }
+async function reverseGeocodeNearestLocation(lat, lng) {
+    const endpoint = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&zoom=14&addressdetails=1`;
+    const response = await fetch(endpoint, {
+        headers: {
+            'Accept': 'application/json',
+            'Accept-Language': 'it'
+        }
+    });
+    if (!response.ok) throw new Error('Servizio localita non disponibile');
+    const payload = await response.json();
+    const address = payload?.address || {};
+    const primary = address.city || address.town || address.village || address.hamlet || address.suburb || address.municipality || '';
+    const secondary = address.state || address.county || '';
+    const compact = [primary, secondary].filter(Boolean).join(', ');
+    if (compact) return compact;
+    const fallback = String(payload?.display_name || '').split(',').slice(0, 2).join(',').trim();
+    return fallback || 'Localita non trovata';
+}
 function initAdminFormHelpers() {
-    const bindGeoCapture = (formSelector, buttonId, statusId) => {
-        const form = document.querySelector(formSelector);
-        const button = document.getElementById(buttonId);
-        const status = document.getElementById(statusId);
-        const latField = form?.querySelector('[name="lat"]');
-        const lngField = form?.querySelector('[name="lng"]');
-        if (!button || button.dataset.bound === 'true') return;
-        button.addEventListener('click', () => {
-            if (!navigator.geolocation) {
-                if (status) status.textContent = 'Geolocalizzazione non supportata';
+    const form = document.querySelector('[data-admin-form="gallery"]');
+    if (!form) return;
+    const status = document.getElementById('adminGalleryGeoStatus');
+    const latField = form.querySelector('[name="lat"]');
+    const lngField = form.querySelector('[name="lng"]');
+    const locationField = form.querySelector('[name="location"]');
+    const dateField = form.querySelector('[name="date"]');
+    const timeField = form.querySelector('[name="time"]');
+    const kmField = form.querySelector('[name="km"]');
+    const geoButton = document.getElementById('adminGalleryGeoBtn');
+    const mapButton = document.getElementById('adminGalleryMapBtn');
+    const nowButton = document.getElementById('adminGalleryNowBtn');
+    const kmNowButton = document.getElementById('adminGalleryKmNowBtn');
+    const wrap = document.getElementById('adminGalleryMapPickerWrap');
+    const mapId = 'adminGalleryMapPicker';
+
+    let cachedCurrentCoords = null;
+    let pickerMap = null;
+    let pickerMarker = null;
+    let reverseRequestId = 0;
+
+    const setStatus = text => {
+        if (status) status.textContent = text;
+    };
+    const setCoords = async (lat, lng, labelPrefix = 'Posizione impostata') => {
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+        if (latField) latField.value = String(lat);
+        if (lngField) lngField.value = String(lng);
+        setStatus(`${labelPrefix}: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        if (!locationField) return;
+        locationField.value = 'Ricerca localita...';
+        const reqId = ++reverseRequestId;
+        try {
+            const locality = await reverseGeocodeNearestLocation(lat, lng);
+            if (reqId !== reverseRequestId) return;
+            locationField.value = locality;
+            setStatus(`${labelPrefix}: ${lat.toFixed(5)}, ${lng.toFixed(5)} · ${locality}`);
+        } catch {
+            if (reqId !== reverseRequestId) return;
+            locationField.value = 'Localita non trovata';
+            setStatus(`${labelPrefix}: ${lat.toFixed(5)}, ${lng.toFixed(5)} · localita non disponibile`);
+        }
+    };
+    const requestCurrentPosition = (onSuccess, onError) => {
+        if (!navigator.geolocation) {
+            onError?.();
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(position => {
+            cachedCurrentCoords = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            onSuccess?.(cachedCurrentCoords);
+        }, () => {
+            onError?.();
+        }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
+    };
+
+    if (form.dataset.preloadedGeo !== 'true') {
+        requestCurrentPosition(coords => {
+            const hasLat = Number.isFinite(Number(latField?.value));
+            const hasLng = Number.isFinite(Number(lngField?.value));
+            if (!hasLat || !hasLng) {
+                setCoords(coords.lat, coords.lng, 'Posizione attuale pronta');
+            } else {
+                setStatus('Posizione attuale pronta');
+            }
+        }, () => {
+            setStatus('Posizione attuale non disponibile');
+        });
+        form.dataset.preloadedGeo = 'true';
+    }
+
+    if (nowButton && nowButton.dataset.bound !== 'true') {
+        nowButton.addEventListener('click', () => {
+            const now = new Date();
+            const pad = value => String(value).padStart(2, '0');
+            if (dateField) dateField.value = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+            if (timeField) timeField.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        });
+        nowButton.dataset.bound = 'true';
+    }
+
+    if (kmNowButton && kmNowButton.dataset.bound !== 'true') {
+        kmNowButton.addEventListener('click', async () => {
+            if (!kmField) return;
+            const original = kmNowButton.textContent;
+            kmNowButton.disabled = true;
+            kmNowButton.textContent = 'Carico...';
+            try {
+                const points = await fetchPoints();
+                const lastPoint = points[points.length - 1];
+                const km = Number(lastPoint?.distanza?.km ?? 0);
+                kmField.value = Number.isFinite(km) ? (km === 0 ? '0' : km.toFixed(1)) : '0';
+            } catch {
+                setStatus('Km attuale non disponibile');
+            } finally {
+                kmNowButton.disabled = false;
+                kmNowButton.textContent = original || 'Km attuale';
+            }
+        });
+        kmNowButton.dataset.bound = 'true';
+    }
+
+    if (geoButton && geoButton.dataset.bound !== 'true') {
+        geoButton.addEventListener('click', () => {
+            if (cachedCurrentCoords) {
+                setCoords(cachedCurrentCoords.lat, cachedCurrentCoords.lng, 'Posizione attuale');
                 return;
             }
-            button.disabled = true;
-            button.textContent = 'Rilevo...';
-            navigator.geolocation.getCurrentPosition(position => {
-                if (latField) latField.value = String(position.coords.latitude);
-                if (lngField) lngField.value = String(position.coords.longitude);
-                if (status) status.textContent = 'Posizione acquisita';
-                button.disabled = false;
-                button.textContent = 'Usa posizione attuale';
+            geoButton.disabled = true;
+            geoButton.textContent = 'Rilevo...';
+            requestCurrentPosition(coords => {
+                setCoords(coords.lat, coords.lng, 'Posizione attuale');
+                geoButton.disabled = false;
+                geoButton.textContent = 'Usa posizione attuale';
             }, () => {
-                if (status) status.textContent = 'Posizione non disponibile';
-                button.disabled = false;
-                button.textContent = 'Usa posizione attuale';
-            }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
-        });
-        button.dataset.bound = 'true';
-    };
-    const bindMapCapture = (formSelector, buttonId, statusId, wrapId, mapId) => {
-        const form = document.querySelector(formSelector);
-        const button = document.getElementById(buttonId);
-        const status = document.getElementById(statusId);
-        const wrap = document.getElementById(wrapId);
-        const mapHost = document.getElementById(mapId);
-        const latField = form?.querySelector('[name="lat"]');
-        const lngField = form?.querySelector('[name="lng"]');
-        if (!form || !button || !wrap || !mapHost || button.dataset.bound === 'true') return;
-
-        let pickerMap = null;
-        let pickerMarker = null;
-
-        const ensurePickerMap = () => {
-            if (pickerMap) {
-                setTimeout(() => pickerMap.invalidateSize(), 80);
-                return;
-            }
-            if (typeof L === 'undefined') {
-                if (status) status.textContent = 'Cartina non disponibile';
-                return;
-            }
-            pickerMap = L.map(mapId, { zoomControl: true }).setView(defaultCenter, 11);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(pickerMap);
-
-            pickerMap.on('click', event => {
-                const { lat, lng } = event.latlng;
-                if (!pickerMarker) {
-                    pickerMarker = L.marker([lat, lng]).addTo(pickerMap);
-                } else {
-                    pickerMarker.setLatLng([lat, lng]);
-                }
-                if (latField) latField.value = String(lat);
-                if (lngField) lngField.value = String(lng);
-                if (status) status.textContent = `Posizione scelta: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                setStatus('Posizione non disponibile');
+                geoButton.disabled = false;
+                geoButton.textContent = 'Usa posizione attuale';
             });
-
-            const lat = Number(latField?.value ?? Number.NaN);
-            const lng = Number(lngField?.value ?? Number.NaN);
-            if (Number.isFinite(lat) && Number.isFinite(lng)) {
-                pickerMarker = L.marker([lat, lng]).addTo(pickerMap);
-                pickerMap.setView([lat, lng], 12);
-            }
-        };
-
-        button.addEventListener('click', () => {
-            const isHidden = wrap.hidden;
-            wrap.hidden = !isHidden;
-            button.textContent = isHidden ? 'Chiudi cartina' : 'Scegli su cartina';
-            if (isHidden) ensurePickerMap();
         });
+        geoButton.dataset.bound = 'true';
+    }
 
-        button.dataset.bound = 'true';
+    const ensurePickerMap = () => {
+        if (!wrap) return;
+        if (pickerMap) {
+            setTimeout(() => pickerMap.invalidateSize(), 80);
+            return;
+        }
+        if (typeof L === 'undefined') {
+            setStatus('Cartina non disponibile');
+            return;
+        }
+        const startCoords = cachedCurrentCoords || {
+            lat: Number(latField?.value ?? Number.NaN),
+            lng: Number(lngField?.value ?? Number.NaN)
+        };
+        const hasStartCoords = Number.isFinite(startCoords.lat) && Number.isFinite(startCoords.lng);
+        pickerMap = L.map(mapId, { zoomControl: true }).setView(
+            hasStartCoords ? [startCoords.lat, startCoords.lng] : defaultCenter,
+            hasStartCoords ? 12 : 11
+        );
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(pickerMap);
+        if (hasStartCoords) {
+            pickerMarker = L.marker([startCoords.lat, startCoords.lng]).addTo(pickerMap);
+        }
+        pickerMap.on('click', event => {
+            const { lat, lng } = event.latlng;
+            if (!pickerMarker) pickerMarker = L.marker([lat, lng]).addTo(pickerMap);
+            else pickerMarker.setLatLng([lat, lng]);
+            setCoords(lat, lng, 'Posizione scelta su cartina');
+        });
     };
+
+    if (mapButton && mapButton.dataset.bound !== 'true') {
+        mapButton.addEventListener('click', () => {
+            if (!wrap) return;
+            const isOpening = wrap.hidden;
+            wrap.hidden = !isOpening;
+            mapButton.textContent = isOpening ? 'Chiudi cartina' : 'Scegli su cartina';
+            if (isOpening) ensurePickerMap();
+        });
+        mapButton.dataset.bound = 'true';
+    }
 
     document.querySelectorAll('[data-tag-suggestion]').forEach(button => {
         if (button.dataset.bound === 'true') return;
@@ -1463,8 +1566,6 @@ function initAdminFormHelpers() {
         });
         button.dataset.bound = 'true';
     });
-    bindGeoCapture('[data-admin-form="gallery"]', 'adminGalleryGeoBtn', 'adminGalleryGeoStatus');
-    bindMapCapture('[data-admin-form="gallery"]', 'adminGalleryMapBtn', 'adminGalleryGeoStatus', 'adminGalleryMapPickerWrap', 'adminGalleryMapPicker');
 }
 async function handleAdminFormSubmit(type, form) {
     const items = await loadCollection(type);
