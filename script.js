@@ -14,10 +14,13 @@ let chartInstances = {};
 let activeLayer = null;
 let gpxTotalKm = null;
 let gpxCoords = [];
+let gpxWaypoints = [];
 let gpxLoadPromise = null;
 let latestLiveCoord = null;
 let latestVisitorCoord = null;
 let firebaseAppInstance = null;
+let routeMarkersEnabled = false;
+let routeMarkerGroup = null;
 const mediaModalState = {
     items: [],
     index: 0,
@@ -755,11 +758,70 @@ function parseGpxXml(gpxText) {
         lat: Number(pt.getAttribute('lat')),
         lng: Number(pt.getAttribute('lon'))
     })).filter(c => Number.isFinite(c.lat) && Number.isFinite(c.lng));
+    const waypoints = Array.from(xml.querySelectorAll('wpt')).map((pt, index) => ({
+        lat: Number(pt.getAttribute('lat')),
+        lng: Number(pt.getAttribute('lon')),
+        name: (pt.querySelector('name')?.textContent || '').trim(),
+        index
+    })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
     let totalKm = 0;
     for (let i = 1; i < coords.length; i += 1) {
         totalKm += haversineKm(coords[i - 1].lat, coords[i - 1].lng, coords[i].lat, coords[i].lng);
     }
-    return { coords, totalKm };
+    return { coords, totalKm, waypoints };
+}
+
+function buildRouteMarkerLabel(prefix, index) {
+    return `${prefix} ${index + 1}`;
+}
+
+function buildNightMarkerIcon(index) {
+    return L.divIcon({
+        className: 'route-marker route-marker--night',
+        html: `<div class="route-marker__wrap"><span class="route-marker__pin"><span>${index + 1}</span></span><span class="route-marker__label">${buildRouteMarkerLabel('Notte', index)}</span></div>`,
+        iconSize: [90, 56],
+        iconAnchor: [45, 52],
+        popupAnchor: [0, -44]
+    });
+}
+
+function buildEndpointMarkerIcon(type) {
+    const isStart = type === 'start';
+    const label = isStart ? 'Partenza' : 'Arrivo';
+    return L.divIcon({
+        className: `route-marker route-marker--${type}`,
+        html: `<div class="route-marker__wrap"><span class="route-marker__pin"><span>${isStart ? 'S' : 'F'}</span></span><span class="route-marker__label">${label}</span></div>`,
+        iconSize: [90, 56],
+        iconAnchor: [45, 52],
+        popupAnchor: [0, -44]
+    });
+}
+
+function clearRouteMarkerGroup() {
+    if (routeMarkerGroup && mapInstance) {
+        mapInstance.removeLayer(routeMarkerGroup);
+    }
+    routeMarkerGroup = null;
+}
+
+function renderRouteMarkers() {
+    if (!mapInstance || !routeMarkersEnabled || !gpxWaypoints.length || typeof L === 'undefined') return;
+    clearRouteMarkerGroup();
+    routeMarkerGroup = L.layerGroup().addTo(mapInstance);
+    gpxWaypoints.forEach((waypoint, index) => {
+        const marker = L.marker([waypoint.lat, waypoint.lng], { icon: buildNightMarkerIcon(index) });
+        const waypointName = waypoint.name || buildRouteMarkerLabel('Notte', index);
+        marker.bindPopup(`<strong>${buildRouteMarkerLabel('Notte', index)}</strong><br>${escapeHtml(waypointName)}`);
+        marker.addTo(routeMarkerGroup);
+    });
+}
+
+function fitMapToGpxBounds() {
+    if (!mapInstance || !gpxCoords.length || typeof L === 'undefined') return;
+    const bounds = L.latLngBounds(gpxCoords.map(coord => [coord.lat, coord.lng]));
+    if (bounds.isValid()) {
+        mapInstance.fitBounds(bounds, { padding: [40, 40] });
+    }
 }
 
 async function ensureGpxDataLoaded() {
@@ -778,6 +840,7 @@ async function ensureGpxDataLoaded() {
             if (parsed.coords.length) {
                 gpxCoords = parsed.coords;
                 gpxTotalKm = parsed.totalKm;
+                gpxWaypoints = parsed.waypoints || [];
             }
         })
         .catch(error => {
@@ -873,7 +936,7 @@ function addMapControl() {
     mapInstance.addControl(new MapControl({ position: 'topright' }));
 }
 function initMap(options = {}) {
-    const withGpx = options.withGpx !== false;
+    routeMarkersEnabled = options.showRouteMarkers === true;
     if (mapInstance) return;
     if (typeof L === 'undefined') return;
     ensureLeafletAssets();
@@ -882,46 +945,9 @@ function initMap(options = {}) {
     activeLayer = tileProviders.osm.addTo(mapInstance);
     L.control.zoom({ position: 'topright' }).addTo(mapInstance);
     addMapControl();
-    if (!withGpx) return;
-    const gpxUrl = 'data/NorthLine_4.gpx';
-    try {
-        new L.GPX(gpxUrl, {
-            async: true,
-            marker_options: { startIconUrl: null, endIconUrl: null, shadowUrl: null },
-            polyline_options: { color: '#ff9f1c', weight: 7, opacity: 0.95 }
-        }).on('loaded', e => {
-            const track = e.target;
-            if (track && typeof track.getBounds === 'function') {
-                mapInstance.fitBounds(track.getBounds(), { padding: [40, 40] });
-            }
-            try {
-                if (track._coords && track._coords.length) {
-                    gpxCoords = track._coords;
-                }
-                if (track._info && track._info.length) {
-                    gpxTotalKm = track._info.length / 1000;
-                }
-                if (!gpxCoords.length || !Number.isFinite(gpxTotalKm) || gpxTotalKm <= 0) {
-                    ensureGpxDataLoaded().catch(() => {});
-                }
-                if (gpxCoords.length) {
-                    const first = gpxCoords[0];
-                    const last = gpxCoords[gpxCoords.length - 1];
-                    if (!startMarker) startMarker = L.marker([first.lat, first.lng]).addTo(mapInstance);
-                    if (finishMarker) mapInstance.removeLayer(finishMarker);
-                    finishMarker = L.marker([last.lat, last.lng], { icon: L.icon({ iconUrl: 'assets/icons/finish-flag.gif', iconSize: [45,45], iconAnchor: [22,45] }) }).addTo(mapInstance);
-                    // refresh live UI using GPX total if we are on the live page
-                    fetchPoints().then(points => {
-                        const s = buildSummary(points);
-                        try { if (s) { updateLiveUI(s); refreshMapRoute(s.points); } } catch(e){}
-                    }).catch(()=>{});
-                }
-            } catch (err) { console.warn('Errore lettura GPX info', err); }
-        }).on('error', e => {
-            console.warn('Impossibile caricare GPX:', e);
-        }).addTo(mapInstance);
-    } catch (err) {
-        console.warn('GPX initialization fallita:', err);
+    if (routeMarkersEnabled) {
+        renderRouteMarkers();
+        fitMapToGpxBounds();
     }
 }
 function refreshMapRoute(points) {
@@ -931,15 +957,24 @@ function refreshMapRoute(points) {
     if (routeLine) routeLine.setLatLngs(coords);
     else routeLine = L.polyline(coords, { color: '#4fc3ff', weight: 5, opacity: 0.8 }).addTo(mapInstance);
     latestLiveCoord = coords[coords.length - 1];
-    // Use GPX-defined start/finish when available; no popups
-    if (!startMarker && gpxCoords.length) {
+    if (routeMarkersEnabled && gpxCoords.length) {
         const first = gpxCoords[0];
-        startMarker = L.marker([first.lat, first.lng]).addTo(mapInstance);
-    }
-    if (gpxCoords.length) {
         const last = gpxCoords[gpxCoords.length - 1];
-        if (!finishMarker) finishMarker = L.marker([last.lat, last.lng], { icon: L.icon({ iconUrl: 'assets/icons/finish-flag.gif', iconSize: [45,45], iconAnchor: [22,45] }) }).addTo(mapInstance);
+        if (!startMarker) startMarker = L.marker([first.lat, first.lng], { icon: buildEndpointMarkerIcon('start') }).addTo(mapInstance);
+        else startMarker.setLatLng([first.lat, first.lng]);
+        if (!finishMarker) finishMarker = L.marker([last.lat, last.lng], { icon: buildEndpointMarkerIcon('finish') }).addTo(mapInstance);
         else finishMarker.setLatLng([last.lat, last.lng]);
+        renderRouteMarkers();
+    } else {
+        if (startMarker) {
+            mapInstance.removeLayer(startMarker);
+            startMarker = null;
+        }
+        if (finishMarker) {
+            mapInstance.removeLayer(finishMarker);
+            finishMarker = null;
+        }
+        clearRouteMarkerGroup();
     }
     // live marker with popup and directions button
     if (!liveMarker) {
@@ -1008,7 +1043,7 @@ async function initLivePage() {
     initializeTheme();
     updateLiveUI(buildLivePreStartSummary());
     await ensureGpxDataLoaded();
-    initMap();
+    initMap({ showRouteMarkers: true });
     buildNav();
     const points = await fetchPoints();
     const summary = buildSummary(points) || buildLivePreStartSummary();
@@ -1272,6 +1307,7 @@ async function initGalleryPage() {
         });
         grid.appendChild(card);
     });
+    await ensureGpxDataLoaded();
     await initGalleryPhotoMap(items);
 }
 async function initDiaryPage() {
@@ -1711,7 +1747,7 @@ function bindPhotoMapFullscreen() {
     });
 }
 async function initGalleryPhotoMap(items) {
-    initMap();
+    initMap({ showRouteMarkers: false });
     if (!mapInstance) return;
     bindPhotoMapFullscreen();
 
@@ -1783,7 +1819,7 @@ async function initGalleryPhotoMap(items) {
 async function initReplayPage() {
     initializeTheme();
     await ensureGpxDataLoaded();
-    initMap();
+    initMap({ showRouteMarkers: false });
     buildNav();
     const points = await fetchPoints();
     const coords = points.length ? points.map(p => [p.coordinate.lat, p.coordinate.lon]) : [defaultCenter];

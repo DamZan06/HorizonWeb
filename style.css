@@ -283,6 +283,65 @@ body.mobile-nav-open {
 .runner-directions-btn:hover {
     background: #086fd6;
 }
+.route-marker {
+    background: transparent;
+    border: none;
+}
+
+.route-marker__wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transform: translateY(-2px);
+}
+
+.route-marker__pin {
+    width: 38px;
+    height: 38px;
+    border-radius: 50% 50% 50% 0;
+    background: linear-gradient(180deg, #ffb347 0%, #ff7f50 100%);
+    color: #07111c;
+    font-size: 0.92rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-45deg);
+    border: 3px solid rgba(255, 255, 255, 0.96);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.28);
+    line-height: 1;
+}
+
+.route-marker__pin > span {
+    transform: rotate(45deg);
+}
+
+.route-marker__label {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(6, 17, 31, 0.92);
+    color: #f4f8fc;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.route-marker--start .route-marker__pin {
+    background: linear-gradient(180deg, #5dd97d 0%, #2ea95c 100%);
+}
+
+.route-marker--finish .route-marker__pin {
+    background: linear-gradient(180deg, #ff9b9b 0%, #f25f5c 100%);
+}
+
+.route-marker--night .route-marker__pin {
+    background: linear-gradient(180deg, #74c0fc 0%, #3b82f6 100%);
+    color: #ffffff;
+}
 .map-wrap--fullscreen {
     position: fixed !important;
     inset: 0 !important;
