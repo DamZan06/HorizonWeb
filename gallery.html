@@ -5,7 +5,7 @@
     <title>NorthLine – Galleria</title>
     <meta name="description" content="Galleria fotografica NorthLine con filtro per giorno, checkpoint, località e bivacchi.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css?v=20260725a">
+    <link rel="stylesheet" href="style.css?v=20260725c">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
     <link rel="icon" type="image/png" href="assets/favicon-v2.png?v=20260715r">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=20260715r">
@@ -25,25 +25,20 @@
             <a href="dashboard.html">Dashboard</a>
             <a href="diary.html">Diario</a>
             <a href="gallery.html">Galleria</a>
-            <a href="timeline.html">Timeline</a>
-            <a href="replay.html">Replay</a>
+            <a href="replay.html">Cartina</a>
             <a href="progress.html">Progressi</a>
             <a href="project.html">Il progetto</a>
         </nav>
     </header>
     <main class="page page-gallery">
         <section class="section">
-            <div class="section-title">
-                <p class="eyebrow">Fotografie</p>
-                <h2>Galleria multimediale.</h2>
-                <p>Galleria azzerata: le immagini e le descrizioni verranno aggiunte solo quando inizierà la pubblicazione reale.</p>
-            </div>
-            <div class="gallery-controls gallery-filter">
-                <button class="button secondary" data-filter="all">Tutti</button>
-                <button class="button secondary" data-filter="montagna">Montagna</button>
-                <button class="button secondary" data-filter="checkpoint">Checkpoint</button>
-                <button class="button secondary" data-filter="bivacco">Bivacco</button>
-                <button class="button secondary" data-filter="città">Città</button>
+            <div class="section-title gallery-title-row">
+                <div>
+                    <p class="eyebrow">Fotografie</p>
+                    <h2>Galleria completa del viaggio.</h2>
+                    <p>Qui trovi tutte le immagini provenienti da Diario e Timeline, apribili a schermo grande con swipe.</p>
+                </div>
+                <a href="replay.html" class="button secondary">Mostra su cartina</a>
             </div>
             <div class="gallery-grid"></div>
         </section>
@@ -51,6 +46,8 @@
     <div class="modal-backdrop" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button class="modal-close" aria-label="Chiudi">×</button>
+            <button class="modal-nav modal-prev" id="modalPrev" aria-label="Immagine precedente">‹</button>
+            <button class="modal-nav modal-next" id="modalNext" aria-label="Immagine successiva">›</button>
             <img id="modalImage" src="assets/preview.png" alt="">
             <div class="modal-details">
                 <h3 id="modalTitle">Titolo immagine</h3>
@@ -60,7 +57,7 @@
         </div>
     </div>
     <script src="firebase-config.js"></script>
-    <script src="script.js?v=20260725a"></script>
+    <script src="script.js?v=20260725c"></script>
 </body>
 </html>
 

@@ -18,6 +18,17 @@ let gpxLoadPromise = null;
 let latestLiveCoord = null;
 let latestVisitorCoord = null;
 let firebaseAppInstance = null;
+const mediaModalState = {
+    items: [],
+    index: 0,
+    onChange: null,
+    bound: false,
+    touchStartX: null
+};
+const photoMapState = {
+    markerById: new Map(),
+    clusterGroup: null
+};
 function createRecordId(prefix = 'item') {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
         return `${prefix}-${crypto.randomUUID()}`;
@@ -137,6 +148,178 @@ function formatRelativeDate(timestamp) {
     if (diff < 60) return `${diff}s fa`;
     if (diff < 3600) return `${Math.floor(diff / 60)}m fa`;
     return `${Math.floor(diff / 3600)}h fa`;
+}
+function parseDateTime(dateValue = '', timeValue = '') {
+    const rawDate = String(dateValue || '').trim();
+    const rawTime = String(timeValue || '').trim();
+    if (!rawDate && !rawTime) return Number.NaN;
+    const localMatch = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$/);
+    if (localMatch) {
+        const [, d, m, y, h = '0', min = '0'] = localMatch;
+        return new Date(Number(y), Number(m) - 1, Number(d), Number(h), Number(min)).getTime();
+    }
+    const combined = rawTime ? `${rawDate} ${rawTime}` : rawDate;
+    const parsed = new Date(combined).getTime();
+    return Number.isFinite(parsed) ? parsed : Number.NaN;
+}
+function readItemGeo(item) {
+    const lat = Number(item?.geo?.lat ?? item?.lat);
+    const lng = Number(item?.geo?.lng ?? item?.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    return { lat, lng };
+}
+function buildUnifiedDiaryTimelineEntries(diaryEntries, timelineEntries) {
+    const diaryItems = diaryEntries.map((entry, index) => ({
+        ...entry,
+        _source: 'diary',
+        _sortTs: parseDateTime(entry.date),
+        _sortIndex: index,
+        _title: entry.title || `Diario ${index + 1}`,
+        _subtitle: `${entry.date || 'Data non impostata'} · ${entry.km || '0'} km`,
+        _text: entry.text || '',
+        _image: entry.image || ''
+    }));
+    const timelineItems = timelineEntries.map((entry, index) => ({
+        ...entry,
+        _source: 'timeline',
+        _sortTs: parseDateTime(entry.date, entry.time),
+        _sortIndex: index,
+        _title: entry.title || `Aggiornamento ${index + 1}`,
+        _subtitle: `${entry.date || 'Data non impostata'} ${entry.time || '--:--'}`.trim(),
+        _text: entry.description || '',
+        _image: entry.image || ''
+    }));
+    return [...diaryItems, ...timelineItems]
+        .sort((a, b) => {
+            const aTs = Number.isFinite(a._sortTs) ? a._sortTs : Number.POSITIVE_INFINITY;
+            const bTs = Number.isFinite(b._sortTs) ? b._sortTs : Number.POSITIVE_INFINITY;
+            if (aTs !== bTs) return aTs - bTs;
+            return a._sortIndex - b._sortIndex;
+        });
+}
+async function loadUnifiedMediaItems() {
+    const [diaryEntries, timelineEntries, galleryEntries] = await Promise.all([
+        loadCollection('diary'),
+        loadCollection('timeline'),
+        loadCollection('gallery')
+    ]);
+    const media = [];
+    diaryEntries.forEach((entry, index) => {
+        if (!entry.image) return;
+        media.push({
+            id: entry.id || createRecordId('media-diary'),
+            source: 'Diario',
+            title: entry.title || `Diario ${index + 1}`,
+            location: `${entry.date || 'Data non impostata'} · ${entry.km || '0'} km`,
+            description: entry.text || '',
+            image: entry.image,
+            geo: readItemGeo(entry),
+            sortTs: parseDateTime(entry.date)
+        });
+    });
+    timelineEntries.forEach((entry, index) => {
+        if (!entry.image) return;
+        media.push({
+            id: entry.id || createRecordId('media-timeline'),
+            source: 'Timeline',
+            title: entry.title || `Aggiornamento ${index + 1}`,
+            location: `${entry.date || 'Data non impostata'} ${entry.time || '--:--'}`.trim(),
+            description: entry.description || '',
+            image: entry.image,
+            geo: readItemGeo(entry),
+            sortTs: parseDateTime(entry.date, entry.time)
+        });
+    });
+    galleryEntries.forEach((entry, index) => {
+        if (!entry.image) return;
+        media.push({
+            id: entry.id || createRecordId('media-gallery'),
+            source: 'Galleria',
+            title: entry.title || `Foto ${index + 1}`,
+            location: entry.location || 'Localita non impostata',
+            description: entry.description || '',
+            image: entry.image,
+            geo: readItemGeo(entry),
+            sortTs: Number.NaN
+        });
+    });
+    return media.sort((a, b) => {
+        const aTs = Number.isFinite(a.sortTs) ? a.sortTs : Number.POSITIVE_INFINITY;
+        const bTs = Number.isFinite(b.sortTs) ? b.sortTs : Number.POSITIVE_INFINITY;
+        if (aTs !== bTs) return aTs - bTs;
+        return a.title.localeCompare(b.title, 'it');
+    });
+}
+function updateMediaModal() {
+    const { items, index, onChange } = mediaModalState;
+    const current = items[index];
+    if (!current) return;
+    const modalImage = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalLocation = document.getElementById('modalLocation');
+    const modalDescription = document.getElementById('modalDescription');
+    if (modalImage) {
+        modalImage.src = current.image;
+        modalImage.alt = current.title;
+    }
+    if (modalTitle) modalTitle.textContent = current.title;
+    if (modalLocation) modalLocation.textContent = `${current.location || ''}${current.source ? ` · ${current.source}` : ''}`;
+    if (modalDescription) modalDescription.textContent = current.description || 'Nessuna descrizione disponibile.';
+    if (typeof onChange === 'function') onChange(current, index);
+}
+function moveMediaModal(step) {
+    if (!mediaModalState.items.length) return;
+    const length = mediaModalState.items.length;
+    mediaModalState.index = (mediaModalState.index + step + length) % length;
+    updateMediaModal();
+}
+function closeMediaModal() {
+    document.querySelector('.modal-backdrop')?.classList.remove('active');
+}
+function openMediaModal(index) {
+    if (!mediaModalState.items.length) return;
+    const modal = document.querySelector('.modal-backdrop');
+    if (!modal) return;
+    mediaModalState.index = Math.max(0, Math.min(index, mediaModalState.items.length - 1));
+    updateMediaModal();
+    modal.classList.add('active');
+}
+function ensureMediaModalBindings() {
+    if (mediaModalState.bound) return;
+    const modal = document.querySelector('.modal-backdrop');
+    if (!modal) return;
+    document.querySelector('.modal-close')?.addEventListener('click', closeMediaModal);
+    modal.addEventListener('click', event => {
+        if (event.target === modal) closeMediaModal();
+    });
+    document.getElementById('modalPrev')?.addEventListener('click', () => moveMediaModal(-1));
+    document.getElementById('modalNext')?.addEventListener('click', () => moveMediaModal(1));
+    const modalImage = document.getElementById('modalImage');
+    modalImage?.addEventListener('touchstart', event => {
+        mediaModalState.touchStartX = event.changedTouches?.[0]?.screenX ?? null;
+    }, { passive: true });
+    modalImage?.addEventListener('touchend', event => {
+        const startX = mediaModalState.touchStartX;
+        const endX = event.changedTouches?.[0]?.screenX ?? null;
+        if (!Number.isFinite(startX) || !Number.isFinite(endX)) return;
+        const delta = endX - startX;
+        if (Math.abs(delta) < 35) return;
+        if (delta < 0) moveMediaModal(1);
+        else moveMediaModal(-1);
+    }, { passive: true });
+    document.addEventListener('keydown', event => {
+        if (!document.querySelector('.modal-backdrop')?.classList.contains('active')) return;
+        if (event.key === 'Escape') closeMediaModal();
+        if (event.key === 'ArrowLeft') moveMediaModal(-1);
+        if (event.key === 'ArrowRight') moveMediaModal(1);
+    });
+    mediaModalState.bound = true;
+}
+function useMediaModal(items, onChange = null) {
+    mediaModalState.items = items;
+    mediaModalState.index = 0;
+    mediaModalState.onChange = onChange;
+    ensureMediaModalBindings();
 }
 function setTheme(theme) {
     document.documentElement.dataset.theme = theme;
@@ -683,7 +866,8 @@ function addMapControl() {
     });
     mapInstance.addControl(new MapControl({ position: 'topright' }));
 }
-function initMap() {
+function initMap(options = {}) {
+    const withGpx = options.withGpx !== false;
     if (mapInstance) return;
     if (typeof L === 'undefined') return;
     ensureLeafletAssets();
@@ -692,6 +876,7 @@ function initMap() {
     activeLayer = tileProviders.osm.addTo(mapInstance);
     L.control.zoom({ position: 'topright' }).addTo(mapInstance);
     addMapControl();
+    if (!withGpx) return;
     const gpxUrl = 'data/NorthLine_3.gpx';
     try {
         new L.GPX(gpxUrl, {
@@ -1056,64 +1241,46 @@ async function initDashboardPage() {
 }
 async function initGalleryPage() {
     initializeTheme();
-    const items = await loadCollection('gallery');
+    const items = await loadUnifiedMediaItems();
     const grid = document.querySelector('.gallery-grid');
-    const modal = document.querySelector('.modal-backdrop');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalLocation = document.getElementById('modalLocation');
-    const modalDescription = document.getElementById('modalDescription');
-    const modalImage = document.getElementById('modalImage');
-    const filters = Array.from(document.querySelectorAll('.gallery-filter button'));
+    if (!grid) return;
 
     if (!items.length) {
-        filters.forEach(button => {
-            button.disabled = true;
-            button.classList.add('button-disabled');
-        });
         renderEmptyState(
             grid,
             'Galleria vuota',
             'Nessuna immagine disponibile al momento. Le foto verranno aggiunte dalla prossima pubblicazione.'
         );
-        modal?.remove();
         return;
     }
 
-    items.forEach(item => {
+    useMediaModal(items);
+
+    items.forEach((item, index) => {
         const card = document.createElement('article');
         card.className = 'gallery-item';
-        card.dataset.filter = item.tag;
-        card.innerHTML = `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}"><div class="gallery-meta"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.location)}</p></div>`;
+        card.innerHTML = `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}"><div class="gallery-meta"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.location || item.source || '')}</p></div>`;
         card.addEventListener('click', () => {
-            if (!modal || !modalTitle || !modalLocation || !modalDescription || !modalImage) return;
-            modalTitle.textContent = item.title;
-            modalLocation.textContent = item.location;
-            modalDescription.textContent = item.description;
-            modalImage.src = item.image;
-            modal.classList.add('active');
+            openMediaModal(index);
         });
         grid.appendChild(card);
     });
-    filters.forEach(button => {
-        button.addEventListener('click', () => {
-            document.querySelectorAll('.gallery-item').forEach(card => {
-                card.style.display = button.dataset.filter === 'all' || card.dataset.filter === button.dataset.filter ? 'grid' : 'none';
-            });
-        });
-    });
-    document.querySelector('.modal-close')?.addEventListener('click', () => modal?.classList.remove('active'));
-    modal?.addEventListener('click', event => { if (event.target === modal) modal.classList.remove('active'); });
 }
 async function initDiaryPage() {
     initializeTheme();
-    const entries = await loadCollection('diary');
+    const [diaryEntries, timelineEntries] = await Promise.all([
+        loadCollection('diary'),
+        loadCollection('timeline')
+    ]);
+    const entries = buildUnifiedDiaryTimelineEntries(diaryEntries, timelineEntries);
     const container = document.querySelector('.diary-list');
+    if (!container) return;
 
     if (!entries.length) {
         renderEmptyState(
             container,
             'Diario vuoto',
-            'Ancora nessuna voce pubblicata. I racconti verranno inseriti dal giorno della partenza.'
+            'Ancora nessuna voce pubblicata. I racconti e gli aggiornamenti cronologici verranno inseriti durante il percorso.'
         );
         return;
     }
@@ -1121,31 +1288,12 @@ async function initDiaryPage() {
     entries.forEach(entry => {
         const article = document.createElement('article');
         article.className = 'diary-entry';
-        article.innerHTML = `${entry.image ? `<img src="${escapeHtml(entry.image)}" alt="${escapeHtml(entry.title)}">` : ''}<div><time>${escapeHtml(entry.date)}</time><h3>${escapeHtml(entry.title)}</h3><p><strong>${escapeHtml(entry.km)} km</strong> · ${escapeHtml(entry.text)}</p></div>`;
+        article.innerHTML = `${entry._image ? `<img src="${escapeHtml(entry._image)}" alt="${escapeHtml(entry._title)}">` : ''}<div><time>${escapeHtml(entry._subtitle)}</time><h3>${escapeHtml(entry._title)}</h3><p>${escapeHtml(entry._text)}</p></div>`;
         container.appendChild(article);
     });
 }
 async function initTimelinePage() {
-    initializeTheme();
-    const events = await loadCollection('timeline');
-    const list = document.querySelector('.timeline-list');
-
-    if (!events.length) {
-        renderEmptyState(
-            list,
-            'Timeline vuota',
-            'La cronologia verra compilata automaticamente quando saranno disponibili i primi aggiornamenti.'
-        );
-        return;
-    }
-
-    events.forEach(event => {
-        const article = document.createElement('article');
-        article.className = 'timeline-event';
-        article.innerHTML = `<time>${escapeHtml(event.time)}</time><h3>${escapeHtml(event.title)}</h3><p>${escapeHtml(event.description)}</p>`;
-        article.addEventListener('click', () => alert(`Sposta la mappa su: ${event.title}`));
-        list.appendChild(article);
-    });
+    await initDiaryPage();
 }
 async function renderAdminCollection(type) {
     const list = document.querySelector(`[data-admin-list="${type}"]`);
@@ -1168,7 +1316,7 @@ async function renderAdminCollection(type) {
             ? `${item.tag || 'senza tag'} · ${item.location || 'nessuna localita'}`
             : type === 'diary'
                 ? `${item.date || 'nessuna data'} · ${item.km || '0'} km`
-                : `${item.time || '--'} · ${item.description || ''}`;
+                : `${item.date || 'nessuna data'} ${item.time || '--:--'} · ${item.description || ''}`;
         meta.append(heading, info);
         const actions = document.createElement('div');
         actions.className = 'admin-item-actions';
@@ -1222,6 +1370,34 @@ function initAdminFormHelpers() {
     const kmField = diaryForm?.querySelector('[name="km"]');
     const nowButton = document.getElementById('adminDiaryNowBtn');
     const kmNowButton = document.getElementById('adminDiaryKmNowBtn');
+    const bindGeoCapture = (formSelector, buttonId, statusId) => {
+        const form = document.querySelector(formSelector);
+        const button = document.getElementById(buttonId);
+        const status = document.getElementById(statusId);
+        const latField = form?.querySelector('[name="lat"]');
+        const lngField = form?.querySelector('[name="lng"]');
+        if (!button || button.dataset.bound === 'true') return;
+        button.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                if (status) status.textContent = 'Geolocalizzazione non supportata';
+                return;
+            }
+            button.disabled = true;
+            button.textContent = 'Rilevo...';
+            navigator.geolocation.getCurrentPosition(position => {
+                if (latField) latField.value = String(position.coords.latitude);
+                if (lngField) lngField.value = String(position.coords.longitude);
+                if (status) status.textContent = 'Posizione acquisita';
+                button.disabled = false;
+                button.textContent = 'Usa posizione attuale';
+            }, () => {
+                if (status) status.textContent = 'Posizione non disponibile';
+                button.disabled = false;
+                button.textContent = 'Usa posizione attuale';
+            }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
+        });
+        button.dataset.bound = 'true';
+    };
 
     if (nowButton && nowButton.dataset.bound !== 'true') {
         nowButton.addEventListener('click', () => {
@@ -1262,23 +1438,35 @@ function initAdminFormHelpers() {
         });
         button.dataset.bound = 'true';
     });
+
+    bindGeoCapture('[data-admin-form="diary"]', 'adminDiaryGeoBtn', 'adminDiaryGeoStatus');
+    bindGeoCapture('[data-admin-form="gallery"]', 'adminGalleryGeoBtn', 'adminGalleryGeoStatus');
+    bindGeoCapture('[data-admin-form="timeline"]', 'adminTimelineGeoBtn', 'adminTimelineGeoStatus');
 }
 async function handleAdminFormSubmit(type, form) {
     const items = await loadCollection(type);
     const id = createRecordId(type);
+    const lat = Number(form.lat?.value ?? Number.NaN);
+    const lng = Number(form.lng?.value ?? Number.NaN);
+    const geo = Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
     if (type === 'diary') {
         const image = await readFileAsDataUrl(form.querySelector('[name="image"]')?.files?.[0]);
-        items.push({ id, title: form.title.value.trim(), date: form.date.value.trim(), km: form.km.value.trim(), text: form.text.value.trim(), image });
+        items.push({ id, title: form.title.value.trim(), date: form.date.value.trim(), km: form.km.value.trim(), text: form.text.value.trim(), image, geo });
     }
     if (type === 'gallery') {
         const image = await readFileAsDataUrl(form.querySelector('[name="image"]')?.files?.[0]);
-        items.push({ id, title: form.title.value.trim(), location: form.location.value.trim(), tag: form.tag.value.trim(), description: form.description.value.trim(), image });
+        items.push({ id, title: form.title.value.trim(), location: form.location.value.trim(), tag: form.tag.value.trim(), description: form.description.value.trim(), image, geo });
     }
     if (type === 'timeline') {
-        items.push({ id, time: form.time.value.trim(), title: form.title.value.trim(), description: form.description.value.trim() });
+        const image = await readFileAsDataUrl(form.querySelector('[name="image"]')?.files?.[0]);
+        items.push({ id, date: form.date.value.trim(), time: form.time.value.trim(), title: form.title.value.trim(), description: form.description.value.trim(), image, geo });
     }
     await persistCollection(type, items);
     form.reset();
+    const nearestBlock = form.closest('.admin-block');
+    nearestBlock?.querySelectorAll('.admin-inline-note').forEach(note => {
+        note.textContent = 'Posizione non impostata';
+    });
     await renderAdminCollection(type);
 }
 function bindAdminForm(type) {
@@ -1366,42 +1554,92 @@ function initAdminPage() {
         });
     }
 }
-async function initReplayPage() {
-    initializeTheme();
-    await ensureGpxDataLoaded();
-    initMap();
-    buildNav();
-    const points = await fetchPoints();
-    const coords = points.length ? points.map(p => [p.coordinate.lat, p.coordinate.lon]) : [defaultCenter];
-    const route = L.polyline(coords, { color: '#7f7dff', weight: 5, opacity: 0.45 }).addTo(mapInstance);
-    const replayTrail = L.polyline([coords[0]], { color: '#7f7dff', weight: 6, opacity: 0.95 }).addTo(mapInstance);
-    mapInstance.fitBounds(route.getBounds() || L.latLngBounds(coords), { padding: [40, 40] });
-    let index = 0;
-    const marker = L.circleMarker(coords[0], { radius: 12, color: '#ffb347', fillColor: '#ffd382', fillOpacity: 1 }).addTo(mapInstance);
-    const statusLabel = document.getElementById('replayStatus');
-    let interval = null;
-    function updateMarker() {
-        if (index >= coords.length) {
-            clearInterval(interval);
-            statusLabel.textContent = 'Replay completato';
-            return;
-        }
-        marker.setLatLng(coords[index]);
-        replayTrail.addLatLng(coords[index]);
-        statusLabel.textContent = `Replay ${index + 1}/${coords.length}`;
-        mapInstance.panTo(coords[index], { animate: true, duration: 0.45 });
-        index += 1;
-    }
-    document.getElementById('replayPlay')?.addEventListener('click', () => { clearInterval(interval); interval = setInterval(updateMarker, Number(document.getElementById('replaySpeed')?.value || 500)); });
-    document.getElementById('replayPause')?.addEventListener('click', () => clearInterval(interval));
-    document.getElementById('replayReset')?.addEventListener('click', () => {
-        clearInterval(interval);
-        index = 0;
-        marker.setLatLng(coords[0]);
-        replayTrail.setLatLngs([coords[0]]);
-        if (statusLabel) statusLabel.textContent = 'Replay pronto';
+function getPhotoMarkerIcon(item, zoomLevel) {
+    const zoom = Number.isFinite(zoomLevel) ? zoomLevel : 12;
+    const size = Math.max(28, Math.min(74, 30 + ((zoom - 10) * 3)));
+    return L.divIcon({
+        className: 'photo-thumb-marker',
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+        html: `<span class="photo-thumb-wrap" style="width:${size}px;height:${size}px;"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}"></span>`
     });
-    document.getElementById('replaySpeed')?.addEventListener('input', event => { document.getElementById('replaySpeedLabel').textContent = `${event.target.value} ms`; });
+}
+function bindPhotoMapFullscreen() {
+    const fullscreenBtn = document.getElementById('photoMapFullscreenBtn');
+    const mapWrap = document.querySelector('.map-wrap-photo');
+    if (!fullscreenBtn || !mapWrap) return;
+    fullscreenBtn.addEventListener('click', () => {
+        mapWrap.classList.toggle('map-wrap--fullscreen');
+        const isFullscreen = mapWrap.classList.contains('map-wrap--fullscreen');
+        fullscreenBtn.textContent = isFullscreen ? '🡼' : '⛶';
+        fullscreenBtn.title = isFullscreen ? 'Esci da schermo intero' : 'Mappa a schermo intero';
+        setTimeout(() => mapInstance?.invalidateSize(), 120);
+    });
+}
+async function initPhotoMapPage() {
+    initializeTheme();
+    initMap({ withGpx: false });
+    buildNav();
+    bindPhotoMapFullscreen();
+
+    const statusLabel = document.getElementById('photoMapStatus');
+    const allMedia = await loadUnifiedMediaItems();
+    const geoItems = allMedia.filter(item => item.geo);
+
+    if (!mapInstance || !geoItems.length) {
+        if (statusLabel) {
+            statusLabel.textContent = allMedia.length
+                ? 'Nessuna foto con posizione disponibile.'
+                : 'Nessuna immagine disponibile.';
+        }
+        return;
+    }
+
+    const bounds = L.latLngBounds(geoItems.map(item => [item.geo.lat, item.geo.lng]));
+    mapInstance.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+
+    const clusterGroup = typeof L.markerClusterGroup === 'function'
+        ? L.markerClusterGroup({
+            showCoverageOnHover: false,
+            spiderfyOnMaxZoom: true,
+            maxClusterRadius: 48
+        })
+        : L.layerGroup();
+
+    photoMapState.clusterGroup = clusterGroup;
+    photoMapState.markerById.clear();
+
+    useMediaModal(geoItems, currentItem => {
+        if (!currentItem?.geo || !mapInstance) return;
+        mapInstance.panTo([currentItem.geo.lat, currentItem.geo.lng], { animate: true, duration: 0.45 });
+        const marker = photoMapState.markerById.get(currentItem.id);
+        if (marker?.openPopup) marker.openPopup();
+    });
+
+    geoItems.forEach((item, index) => {
+        const marker = L.marker([item.geo.lat, item.geo.lng], {
+            icon: getPhotoMarkerIcon(item, mapInstance.getZoom())
+        });
+        marker.bindPopup(`<strong>${escapeHtml(item.title)}</strong><br>${escapeHtml(item.location || '')}`);
+        marker.on('click', () => openMediaModal(index));
+        photoMapState.markerById.set(item.id, marker);
+        clusterGroup.addLayer(marker);
+    });
+
+    if (clusterGroup.addTo) clusterGroup.addTo(mapInstance);
+
+    mapInstance.on('zoomend', () => {
+        const zoom = mapInstance.getZoom();
+        photoMapState.markerById.forEach((marker, id) => {
+            const mediaItem = geoItems.find(item => item.id === id);
+            if (!mediaItem) return;
+            marker.setIcon(getPhotoMarkerIcon(mediaItem, zoom));
+        });
+    });
+
+    if (statusLabel) {
+        statusLabel.textContent = `${geoItems.length} foto geolocalizzate sulla cartina`;
+    }
 }
 async function initProgressPage() {
     initializeTheme();
@@ -1446,7 +1684,8 @@ function initPage() {
         case 'diary': initDiaryPage(); break;
         case 'timeline': initTimelinePage(); break;
         case 'admin': initAdminPage(); break;
-        case 'replay': initReplayPage(); break;
+        case 'replay': initPhotoMapPage(); break;
+        case 'photo-map': initPhotoMapPage(); break;
         case 'progress': initProgressPage(); break;
         default: initializeTheme(); break;
     }
