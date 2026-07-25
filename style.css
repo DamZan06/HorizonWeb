@@ -94,6 +94,7 @@ img { max-width: 100%; display: block; }
 .status-paused { background: #f3c03d; }
 .status-ended { background: #f97777; }
 .status-completed { background: #7f7dff; }
+.status-not-started { background: #98a5b3; }
 .hero-status strong { display: block; font-size: 1rem; }
 .hero-status p { margin: 2px 0 0; color: var(--muted); }
 .hero-stats-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }

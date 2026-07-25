@@ -115,7 +115,19 @@ function updateHomeSummary(summary) {
         : summary.status === 'Non partito'
             ? 'In attesa della partenza: nessun dato live disponibile.'
             : 'Dati disponibili, attesa prossima posizione.';
+    updateHomeHeroStatusDot(summary.status);
     updateHomeStateLegend(summary.status);
+}
+function updateHomeHeroStatusDot(statusLabel) {
+    const dot = document.getElementById('homeStatusDot');
+    if (!dot) return;
+    dot.classList.remove('status-not-started', 'status-moving', 'status-paused', 'status-ended', 'status-completed');
+    const activeKey = normalizeHomeStatus(statusLabel);
+    if (activeKey === 'moving') dot.classList.add('status-moving');
+    else if (activeKey === 'paused') dot.classList.add('status-paused');
+    else if (activeKey === 'ended') dot.classList.add('status-ended');
+    else if (activeKey === 'completed') dot.classList.add('status-completed');
+    else dot.classList.add('status-not-started');
 }
 function normalizeHomeStatus(status) {
     const value = String(status || '').toLowerCase();
@@ -148,6 +160,53 @@ function buildHomePreStartSummary() {
         speed: 0,
         progress: 0
     };
+}
+function buildDashboardPreStartSummary() {
+    return {
+        points: [],
+        lastPoint: null,
+        totalDistance: 0,
+        duration: 0,
+        speed: 0,
+        elevationGain: 0,
+        progress: 0,
+        status: 'Non partito'
+    };
+}
+function buildLivePreStartSummary() {
+    return {
+        points: [],
+        lastPoint: null,
+        totalDistance: 0,
+        duration: 0,
+        speed: 0,
+        elevationGain: 0,
+        progress: 0,
+        status: 'Non partito'
+    };
+}
+function updateDashboardSummary(summary) {
+    const metricDistance = document.getElementById('metricDistance');
+    const metricRemaining = document.getElementById('metricRemaining');
+    const metricCompletion = document.getElementById('metricCompletion');
+    const metricSpeed = document.getElementById('metricSpeed');
+    const metricAltitude = document.getElementById('metricAltitude');
+    const metricElevation = document.getElementById('metricElevation');
+    const metricTime = document.getElementById('metricTime');
+
+    const distanceText = summary.totalDistance === 0 ? '0' : summary.totalDistance.toFixed(1);
+    if (metricDistance) metricDistance.textContent = `${distanceText} km`;
+    const blended = computeBlendedRemaining(summary);
+    const remaining = blended !== null ? blended : Math.max(0, (gpxTotalKm || 290) - summary.totalDistance);
+    const completion = computeDynamicProgress(summary.totalDistance, remaining);
+    const completionText = completion === 0 ? '0%' : `${completion.toFixed(1)}%`;
+    if (metricRemaining) metricRemaining.textContent = `${remaining.toFixed(1)} km`;
+    if (metricCompletion) metricCompletion.textContent = completionText;
+    if (metricSpeed) metricSpeed.textContent = `${summary.speed.toFixed(1)} km/h`;
+    const altitude = Number(summary.lastPoint?.altitudine?.metri ?? 0);
+    if (metricAltitude) metricAltitude.textContent = `${altitude.toFixed(0)} m`;
+    if (metricElevation) metricElevation.textContent = `${Math.round(summary.elevationGain)} m`;
+    if (metricTime) metricTime.textContent = summary.duration > 0 ? formatTime(summary.duration) : '0';
 }
 function initHomeCountdown() {
     const dayEl = document.getElementById('countdownDays');
@@ -522,19 +581,25 @@ function refreshMapRoute(points) {
 }
 function updateLiveUI(summary) {
     if (!summary) return;
-    document.getElementById('distance').textContent = `${summary.totalDistance.toFixed(1)} km`;
+    const distanceText = summary.totalDistance === 0 ? '0' : summary.totalDistance.toFixed(1);
+    document.getElementById('distance').textContent = `${distanceText} km`;
     const blendedRemaining = computeBlendedRemaining(summary);
     const remaining = blendedRemaining !== null ? blendedRemaining : Math.max(0, (gpxTotalKm || 290) - summary.totalDistance);
     const completion = computeDynamicProgress(summary.totalDistance, remaining);
+    const completionText = completion === 0 ? '0%' : `${completion.toFixed(1)}%`;
     document.getElementById('remaining').textContent = `${remaining.toFixed(1)} km`;
-    document.getElementById('completion').textContent = `${completion.toFixed(1)}%`;
-    document.getElementById('completionText').textContent = `${completion.toFixed(1)}%`;
+    document.getElementById('completion').textContent = completionText;
+    document.getElementById('completionText').textContent = completionText;
     document.getElementById('speed').textContent = `${summary.speed.toFixed(1)} km/h`;
-    document.getElementById('altitude').textContent = `${summary.lastPoint.altitudine.metri.toFixed(0)} m`;
-    document.getElementById('lastUpdate').textContent = formatRelativeDate(summary.lastPoint.orario);
-    document.getElementById('time').textContent = formatTime(summary.duration);
+    const altitude = Number(summary.lastPoint?.altitudine?.metri ?? 0);
+    document.getElementById('altitude').textContent = `${altitude.toFixed(0)} m`;
+    document.getElementById('lastUpdate').textContent = summary.lastPoint?.orario ? formatRelativeDate(summary.lastPoint.orario) : '0';
+    document.getElementById('time').textContent = summary.duration > 0 ? formatTime(summary.duration) : '0';
     document.getElementById('elevation').textContent = `${Math.round(summary.elevationGain)} m`;
     document.getElementById('steps').textContent = computeEstimatedSteps(summary.totalDistance, summary.duration).toLocaleString();
+    if (!summary.lastPoint) {
+        document.getElementById('visitorDistance').textContent = '0 km';
+    }
     document.getElementById('progressBar').style.width = `${completion.toFixed(1)}%`;
 }
 
@@ -561,14 +626,14 @@ function updateVisitorDistance(lastPoint) {
 }
 async function initLivePage() {
     initializeTheme();
+    updateLiveUI(buildLivePreStartSummary());
     await ensureGpxDataLoaded();
     initMap();
     buildNav();
-    document.getElementById('panelToggle')?.addEventListener('click', () => document.getElementById('statsContent')?.classList.toggle('open'));
     const points = await fetchPoints();
-    const summary = buildSummary(points);
+    const summary = buildSummary(points) || buildLivePreStartSummary();
     updateLiveUI(summary);
-    if (summary) {
+    if (summary.lastPoint) {
         refreshMapRoute(summary.points);
         updateVisitorDistance(summary.lastPoint);
     }
@@ -595,9 +660,9 @@ async function initLivePage() {
     }
     setInterval(async () => {
         const points = await fetchPoints();
-        const summary = buildSummary(points);
+        const summary = buildSummary(points) || buildLivePreStartSummary();
         updateLiveUI(summary);
-        if (summary) {
+        if (summary.lastPoint) {
             refreshMapRoute(summary.points);
             updateVisitorDistance(summary.lastPoint);
         }
@@ -726,26 +791,11 @@ function buildChartData(points, summaryContext = null) {
 }
 async function initDashboardPage() {
     initializeTheme();
+    updateDashboardSummary(buildDashboardPreStartSummary());
     await ensureGpxDataLoaded();
     const points = await fetchPoints();
-    const summary = buildSummary(points) || { totalDistance: 0, speed: 0, elevationGain: 0, duration: 0, progress: 0, lastPoint: { altitudine: { metri: 0 } } };
-    const metricDistance = document.getElementById('metricDistance');
-    const metricRemaining = document.getElementById('metricRemaining');
-    const metricCompletion = document.getElementById('metricCompletion');
-    const metricSpeed = document.getElementById('metricSpeed');
-    const metricAltitude = document.getElementById('metricAltitude');
-    const metricElevation = document.getElementById('metricElevation');
-    const metricTime = document.getElementById('metricTime');
-    if (metricDistance) metricDistance.textContent = `${summary.totalDistance.toFixed(1)} km`;
-    const blended = computeBlendedRemaining(summary);
-    const remaining = blended !== null ? blended : Math.max(0, (gpxTotalKm || 290) - summary.totalDistance);
-    const completion = computeDynamicProgress(summary.totalDistance, remaining);
-    if (metricRemaining) metricRemaining.textContent = `${remaining.toFixed(1)} km`;
-    if (metricCompletion) metricCompletion.textContent = `${completion.toFixed(1)}%`;
-    if (metricSpeed) metricSpeed.textContent = `${summary.speed.toFixed(1)} km/h`;
-    if (metricAltitude) metricAltitude.textContent = `${summary.lastPoint.altitudine.metri.toFixed(0)} m`;
-    if (metricElevation) metricElevation.textContent = `${Math.round(summary.elevationGain)} m`;
-    if (metricTime) metricTime.textContent = formatTime(summary.duration);
+    const summary = buildSummary(points) || buildDashboardPreStartSummary();
+    updateDashboardSummary(summary);
     const xAxisSelect = document.getElementById('chartXAxisMode');
     const storedXAxisMode = localStorage.getItem('northline-chart-x-axis');
     const xAxisMode = storedXAxisMode === 'time' ? 'time' : 'distance';
