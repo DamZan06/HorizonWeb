@@ -38,6 +38,55 @@ img { max-width: 100%; display: block; }
 .hero-copy h1 { margin: 0; font-size: clamp(2.5rem, 5vw, 4.2rem); line-height: 1.02; }
 .hero-copy p { max-width: 640px; line-height: 1.8; color: var(--muted); }
 .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+.countdown-card {
+    display: grid;
+    gap: 14px;
+    padding: 20px;
+    border-radius: 22px;
+    background: linear-gradient(160deg, rgba(73, 168, 255, 0.18), rgba(12, 26, 42, 0.88));
+    border: 1px solid rgba(116, 203, 255, 0.34);
+    box-shadow: 0 18px 40px rgba(2, 10, 20, 0.35);
+}
+.countdown-eyebrow {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(205, 232, 255, 0.9);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+.countdown-card h2 {
+    margin: 0;
+    font-size: clamp(1.3rem, 2.3vw, 1.8rem);
+    line-height: 1.2;
+}
+.countdown-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.countdown-grid article {
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(6, 17, 31, 0.45);
+}
+.countdown-grid span {
+    display: block;
+    color: rgba(194, 219, 241, 0.9);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+}
+.countdown-grid strong {
+    display: block;
+    margin-top: 6px;
+    font-size: clamp(1.25rem, 2vw, 1.7rem);
+}
+.countdown-message {
+    margin: 0;
+    color: rgba(214, 235, 255, 0.95);
+    font-size: 0.92rem;
+}
 .hero-panel { background: var(--surface); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius); padding: 26px; display: grid; gap: 22px; align-self: center; }
 .hero-status { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 20px; background: rgba(73, 168, 255, 0.08); }
 .status-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
@@ -329,6 +378,24 @@ img { max-width: 100%; display: block; }
 .gallery-item .gallery-meta { padding: 18px; }
 .gallery-item h3 { margin: 0 0 8px; font-size: 1rem; }
 .gallery-item p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.button-disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+.empty-state {
+    padding: 24px;
+    border-radius: 22px;
+    border: 1px dashed rgba(141, 181, 216, 0.45);
+    background: rgba(255, 255, 255, 0.03);
+    min-height: 138px;
+    align-content: center;
+}
+.empty-state h3 {
+    margin: 0 0 10px;
+    font-size: 1.05rem;
+}
+.empty-state p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+}
 .modal-backdrop { position: fixed; inset: 0; background: rgba(4, 8, 18, 0.85); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 40; }
 .modal-backdrop.active { display: flex; }
 .modal-content { width: min(100%, 980px); max-height: 90vh; overflow: auto; background: var(--surface); border-radius: 28px; padding: 24px; position: relative; }
@@ -346,4 +413,4 @@ img { max-width: 100%; display: block; }
 .badge-card.unlocked { border-color: rgba(93, 217, 125, 0.5); }
 .section-white { background: rgba(255, 255, 255, 0.04); padding: 32px; border-radius: 28px; }
 @media (max-width: 1024px) { .hero, .map-layout { grid-template-columns: 1fr; } .hero-panel { order: -1; } .map-wrap { min-height: 560px; } }
-@media (max-width: 760px) { .topbar { flex-direction: column; align-items: stretch; padding: 18px 20px; } .main-nav { justify-content: center; } .hero { gap: 20px; } .page { padding: 20px 18px 50px; } .feature-grid, .status-grid, .stats-grid, .detail-grid, .gallery-grid, .badge-grid { grid-template-columns: 1fr; } .map-footer { flex-direction: column; align-items: stretch; } .map-footer button { width: 100%; } }
+@media (max-width: 760px) { .topbar { flex-direction: column; align-items: stretch; padding: 18px 20px; } .main-nav { justify-content: center; } .hero { gap: 20px; } .countdown-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .page { padding: 20px 18px 50px; } .feature-grid, .status-grid, .stats-grid, .detail-grid, .gallery-grid, .badge-grid { grid-template-columns: 1fr; } .map-footer { flex-direction: column; align-items: stretch; } .map-footer button { width: 100%; } }

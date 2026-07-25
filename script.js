@@ -111,6 +111,54 @@ function updateHomeSummary(summary) {
     document.getElementById('homeStatusLabel').textContent = summary.status;
     document.getElementById('homeStatusText').textContent = summary.status === 'In movimento' ? 'Tracker attivo e aggiornato.' : 'Dati disponibili, attesa prossima posizione.';
 }
+function initHomeCountdown() {
+    const dayEl = document.getElementById('countdownDays');
+    const hourEl = document.getElementById('countdownHours');
+    const minuteEl = document.getElementById('countdownMinutes');
+    const secondEl = document.getElementById('countdownSeconds');
+    const messageEl = document.getElementById('countdownMessage');
+    if (!dayEl || !hourEl || !minuteEl || !secondEl || !messageEl) return;
+
+    const target = new Date('2026-08-01T04:00:00+02:00').getTime();
+
+    const render = () => {
+        const diffMs = target - Date.now();
+        if (diffMs <= 0) {
+            dayEl.textContent = '0';
+            hourEl.textContent = '00';
+            minuteEl.textContent = '00';
+            secondEl.textContent = '00';
+            messageEl.textContent = 'La partenza prevista e in corso.';
+            return true;
+        }
+
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        dayEl.textContent = String(days);
+        hourEl.textContent = String(hours).padStart(2, '0');
+        minuteEl.textContent = String(minutes).padStart(2, '0');
+        secondEl.textContent = String(seconds).padStart(2, '0');
+        messageEl.textContent = 'Countdown aggiornato in tempo reale.';
+        return false;
+    };
+
+    if (render()) return;
+    const timer = setInterval(() => {
+        if (render()) clearInterval(timer);
+    }, 1000);
+}
+
+function renderEmptyState(container, title, text) {
+    if (!container) return;
+    const card = document.createElement('article');
+    card.className = 'empty-state';
+    card.innerHTML = `<h3>${title}</h3><p>${text}</p>`;
+    container.appendChild(card);
+}
 function formatHoursTick(hoursValue) {
     const totalMinutes = Math.max(0, Math.round((Number(hoursValue) || 0) * 60));
     const hh = Math.floor(totalMinutes / 60);
@@ -519,6 +567,7 @@ async function initLivePage() {
 }
 async function initHomePage() {
     initializeTheme();
+    initHomeCountdown();
     await ensureGpxDataLoaded();
     const points = await fetchPoints();
     const summary = buildSummary(points);
@@ -699,18 +748,29 @@ async function initDashboardPage() {
 }
 async function initGalleryPage() {
     initializeTheme();
-    const items = [
-        { title: 'Punto panoramico', location: 'Monte Generoso', tag: 'montagna', description: 'Vista sul Lago di Lugano al tramonto.', image: 'assets/preview.png' },
-        { title: 'Checkpoint', location: 'Passo del San Gottardo', tag: 'checkpoint', description: 'Bivacco e ristoro lungo il percorso.', image: 'assets/preview.png' },
-        { title: 'Campo notte', location: 'Valle Alpina', tag: 'bivacco', description: 'Tenda montata a quota 2100 m.', image: 'assets/preview.png' },
-        { title: 'City stop', location: 'Mendrisio', tag: 'città', description: 'Pausa tecnica prima del tratto alpino.', image: 'assets/preview.png' }
-    ];
+    const items = [];
     const grid = document.querySelector('.gallery-grid');
     const modal = document.querySelector('.modal-backdrop');
     const modalTitle = document.getElementById('modalTitle');
     const modalLocation = document.getElementById('modalLocation');
     const modalDescription = document.getElementById('modalDescription');
     const modalImage = document.getElementById('modalImage');
+    const filters = Array.from(document.querySelectorAll('.gallery-filter button'));
+
+    if (!items.length) {
+        filters.forEach(button => {
+            button.disabled = true;
+            button.classList.add('button-disabled');
+        });
+        renderEmptyState(
+            grid,
+            'Galleria vuota',
+            'Nessuna immagine disponibile al momento. Le foto verranno aggiunte dalla prossima pubblicazione.'
+        );
+        modal?.remove();
+        return;
+    }
+
     items.forEach(item => {
         const card = document.createElement('article');
         card.className = 'gallery-item';
@@ -725,24 +785,30 @@ async function initGalleryPage() {
         });
         grid.appendChild(card);
     });
-    document.querySelectorAll('.gallery-filter button').forEach(button => {
+    filters.forEach(button => {
         button.addEventListener('click', () => {
             document.querySelectorAll('.gallery-item').forEach(card => {
                 card.style.display = button.dataset.filter === 'all' || card.dataset.filter === button.dataset.filter ? 'grid' : 'none';
             });
         });
     });
-    document.querySelector('.modal-close')?.addEventListener('click', () => modal.classList.remove('active'));
-    modal.addEventListener('click', event => { if (event.target === modal) modal.classList.remove('active'); });
+    document.querySelector('.modal-close')?.addEventListener('click', () => modal?.classList.remove('active'));
+    modal?.addEventListener('click', event => { if (event.target === modal) modal.classList.remove('active'); });
 }
 async function initDiaryPage() {
     initializeTheme();
-    const entries = [
-        { title: 'Giorno 1 – Partenza', date: '07/07/2026', km: '18', text: 'Partenza da Mendrisio, clima fresco e arrivo al primo bivacco.', image: 'assets/preview.png' },
-        { title: 'Giorno 3 – Passo del San Gottardo', date: '09/07/2026', km: '36', text: 'Attraversamento del passo con panorami spettacolari.', image: 'assets/preview.png' },
-        { title: 'Giorno 5 – Valle alpina', date: '11/07/2026', km: '45', text: 'Sentieri tecnici e momenti di avventura pura.', image: 'assets/preview.png' }
-    ];
+    const entries = [];
     const container = document.querySelector('.diary-list');
+
+    if (!entries.length) {
+        renderEmptyState(
+            container,
+            'Diario vuoto',
+            'Ancora nessuna voce pubblicata. I racconti verranno inseriti dal giorno della partenza.'
+        );
+        return;
+    }
+
     entries.forEach(entry => {
         const article = document.createElement('article');
         article.className = 'diary-entry';
@@ -752,15 +818,18 @@ async function initDiaryPage() {
 }
 async function initTimelinePage() {
     initializeTheme();
-    const events = [
-        { time: '07:30', title: 'Partenza', description: 'Inizio del percorso con entusiasmo.' },
-        { time: '09:10', title: 'Mendrisio', description: 'Primo checkpoint e colazione veloce.' },
-        { time: '11:45', title: 'Panorama', description: 'Sosta per ammirare le vette.' },
-        { time: '14:00', title: 'Monte Generoso', description: 'Salita al crinale e vista sul lago.' },
-        { time: '18:20', title: 'Tramonto', description: 'Fine giornata con colori mozzafiato.' },
-        { time: '20:30', title: 'Campo notte', description: 'Arrivo al bivacco e riposo.' }
-    ];
+    const events = [];
     const list = document.querySelector('.timeline-list');
+
+    if (!events.length) {
+        renderEmptyState(
+            list,
+            'Timeline vuota',
+            'La cronologia verra compilata automaticamente quando saranno disponibili i primi aggiornamenti.'
+        );
+        return;
+    }
+
     events.forEach(event => {
         const article = document.createElement('article');
         article.className = 'timeline-event';
@@ -810,18 +879,18 @@ async function initProgressPage() {
     initializeTheme();
     const points = await fetchPoints();
     const summary = buildSummary(points) || { totalDistance: 0, progress: 0 };
-    const badges = [
-        { title: '100 km', value: 100 },
-        { title: '200 km', value: 200 },
-        { title: '500 km', value: 500 },
-        { title: '50%', value: 50 },
-        { title: '75%', value: 75 },
-        { title: '100%', value: 100 },
-        { title: 'Primo bivacco', value: 10 },
-        { title: 'Passo del San Gottardo', value: 30 },
-        { title: 'Quota massima raggiunta', value: 42 }
-    ];
+    const badges = [];
     const grid = document.querySelector('.badge-grid');
+
+    if (!badges.length) {
+        renderEmptyState(
+            grid,
+            'Badge non impostati',
+            'Nessun traguardo predefinito. Potrai aggiungere i badge quando vorrai iniziare il monitoraggio reale.'
+        );
+        return;
+    }
+
     badges.forEach(badge => {
         const article = document.createElement('article');
         article.className = 'badge-card';
