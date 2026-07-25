@@ -1,5 +1,5 @@
 ﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json";
-const plannedStartDateIso = '2026-07-25T10:25:00+02:00';
+const plannedStartDateIso = '2026-07-25T10:35:00+02:00';
 const defaultCenter = [46.0, 8.9];
 const defaultZoom = 12;
 let mapInstance = null;
@@ -52,6 +52,14 @@ function initializeMobileMenu() {
     const nav = topbar?.querySelector('.main-nav');
     if (!topbar || !nav || topbar.dataset.mobileMenuInit === 'true') return;
 
+    const brandIcon = topbar.querySelector('.brand-icon');
+    if (brandIcon) {
+        brandIcon.style.cursor = 'pointer';
+        brandIcon.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    }
+
     const toggleButton = document.createElement('button');
     toggleButton.type = 'button';
     toggleButton.className = 'topbar-menu-toggle';
@@ -60,20 +68,33 @@ function initializeMobileMenu() {
     toggleButton.setAttribute('aria-expanded', 'false');
     toggleButton.textContent = '☰';
 
-    const actions = topbar.querySelector('.topbar-actions');
-    if (actions) topbar.insertBefore(toggleButton, actions);
-    else topbar.appendChild(toggleButton);
+    topbar.appendChild(toggleButton);
+
+    let overlay = document.querySelector('.mobile-nav-overlay');
+    if (!overlay) {
+        overlay = document.createElement('button');
+        overlay.type = 'button';
+        overlay.className = 'mobile-nav-overlay';
+        overlay.setAttribute('aria-label', 'Chiudi menu');
+        document.body.appendChild(overlay);
+    }
 
     const closeMenu = () => {
-        topbar.classList.remove('nav-open');
+        document.body.classList.remove('mobile-nav-open');
         toggleButton.setAttribute('aria-expanded', 'false');
         toggleButton.textContent = '☰';
     };
 
     toggleButton.addEventListener('click', () => {
-        const isOpen = topbar.classList.toggle('nav-open');
+        const isOpen = document.body.classList.toggle('mobile-nav-open');
         toggleButton.setAttribute('aria-expanded', String(isOpen));
         toggleButton.textContent = isOpen ? '✕' : '☰';
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeMenu();
     });
 
     nav.querySelectorAll('a').forEach(link => {
@@ -255,7 +276,14 @@ function initHomeCountdown() {
     const minuteEl = document.getElementById('countdownMinutes');
     const secondEl = document.getElementById('countdownSeconds');
     const messageEl = document.getElementById('countdownMessage');
+    const countdownEl = document.getElementById('homeCountdown');
     if (!dayEl || !hourEl || !minuteEl || !secondEl || !messageEl) return;
+
+    const hideCountdown = () => {
+        if (!countdownEl) return;
+        countdownEl.hidden = true;
+        countdownEl.classList.add('is-finished');
+    };
 
     const target = new Date(plannedStartDateIso).getTime();
 
@@ -267,6 +295,7 @@ function initHomeCountdown() {
             minuteEl.textContent = '00';
             secondEl.textContent = '00';
             messageEl.textContent = 'La partenza prevista e in corso.';
+            hideCountdown();
             return true;
         }
 
@@ -294,7 +323,10 @@ function updateHomeCountdownVisibility(summary) {
     const countdown = document.getElementById('homeCountdown');
     if (!countdown) return;
     const started = Boolean(summary?.lastPoint) || Number(summary?.totalDistance || 0) > 0;
-    countdown.hidden = started;
+    const countdownFinished = Date.now() >= new Date(plannedStartDateIso).getTime();
+    const shouldHide = started || countdownFinished;
+    countdown.hidden = shouldHide;
+    countdown.classList.toggle('is-finished', shouldHide);
 }
 
 function renderEmptyState(container, title, text) {
