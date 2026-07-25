@@ -169,6 +169,11 @@ body.mobile-nav-open {
 .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .feature-grid article { padding: 24px; }
 .feature-grid article h3 { margin-top: 0; }
+.page-home .feature-grid article p,
+.page-project .feature-grid article p {
+    color: var(--muted);
+    line-height: 1.8;
+}
 .status-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .status-pill { display: flex; align-items: center; gap: 12px; padding: 20px; font-weight: 600; opacity: 0.72; transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
 .status-pill.active {
