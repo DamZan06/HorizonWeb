@@ -14,10 +14,12 @@ let chartInstances = {};
 let activeLayer = null;
 let gpxTotalKm = null;
 let gpxCoords = [];
+let gpxWaypoints = [];
 let gpxLoadPromise = null;
 let latestLiveCoord = null;
 let latestVisitorCoord = null;
 let firebaseAppInstance = null;
+let routeMarkerGroup = null;
 const mediaModalState = {
     items: [],
     index: 0,
@@ -755,11 +757,61 @@ function parseGpxXml(gpxText) {
         lat: Number(pt.getAttribute('lat')),
         lng: Number(pt.getAttribute('lon'))
     })).filter(c => Number.isFinite(c.lat) && Number.isFinite(c.lng));
+    const waypoints = Array.from(xml.querySelectorAll('wpt')).map((pt, index) => ({
+        lat: Number(pt.getAttribute('lat')),
+        lng: Number(pt.getAttribute('lon')),
+        name: (pt.querySelector('name')?.textContent || '').trim(),
+        index
+    })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
     let totalKm = 0;
     for (let i = 1; i < coords.length; i += 1) {
         totalKm += haversineKm(coords[i - 1].lat, coords[i - 1].lng, coords[i].lat, coords[i].lng);
     }
-    return { coords, totalKm };
+    return { coords, totalKm, waypoints };
+}
+
+function buildRouteLabel(prefix, index) {
+    return `${prefix} ${index + 1}`;
+}
+
+function formatWaypointLabel(name, index) {
+    const raw = String(name || '').trim();
+    if (!raw) return buildRouteLabel('Night', index);
+    return raw.replace(/_/g, ' ');
+}
+
+function buildNightMarkerIcon(label) {
+    return L.divIcon({
+        className: 'route-marker route-marker--night',
+        html: `<div class="route-marker__wrap"><span class="route-marker__pin"><span>•</span></span><span class="route-marker__label">${escapeHtml(label)}</span></div>`,
+        iconSize: [90, 56],
+        iconAnchor: [45, 52],
+        popupAnchor: [0, -44]
+    });
+}
+
+function buildStartFinishMarkerIcon(type) {
+    const isStart = type === 'start';
+    return L.divIcon({
+        className: `route-marker route-marker--${type}`,
+        html: `<div class="route-marker__wrap"><span class="route-marker__pin"><span>${isStart ? 'S' : 'F'}</span></span><span class="route-marker__label">${isStart ? 'Partenza' : 'Arrivo'}</span></div>`,
+        iconSize: [90, 56],
+        iconAnchor: [45, 52],
+        popupAnchor: [0, -44]
+    });
+}
+
+function renderRouteTrackers() {
+    if (!mapInstance || typeof L === 'undefined' || !gpxWaypoints.length) return;
+    if (routeMarkerGroup) {
+        mapInstance.removeLayer(routeMarkerGroup);
+    }
+    routeMarkerGroup = L.layerGroup().addTo(mapInstance);
+    gpxWaypoints.forEach((waypoint, index) => {
+        const label = formatWaypointLabel(waypoint.name, index);
+        const marker = L.marker([waypoint.lat, waypoint.lng], { icon: buildNightMarkerIcon(label) }).addTo(routeMarkerGroup);
+        marker.bindPopup(`<strong>${escapeHtml(label)}</strong><br>${escapeHtml(waypoint.name || label)}`);
+    });
 }
 
 async function ensureGpxDataLoaded() {
@@ -778,6 +830,7 @@ async function ensureGpxDataLoaded() {
             if (parsed.coords.length) {
                 gpxCoords = parsed.coords;
                 gpxTotalKm = parsed.totalKm;
+                gpxWaypoints = parsed.waypoints || [];
             }
         })
         .catch(error => {
@@ -873,7 +926,7 @@ function addMapControl() {
     mapInstance.addControl(new MapControl({ position: 'topright' }));
 }
 function initMap(options = {}) {
-    const withGpx = options.withGpx !== false;
+    const showRouteTrackers = options.showRouteTrackers === true;
     if (mapInstance) return;
     if (typeof L === 'undefined') return;
     ensureLeafletAssets();
@@ -882,7 +935,6 @@ function initMap(options = {}) {
     activeLayer = tileProviders.osm.addTo(mapInstance);
     L.control.zoom({ position: 'topright' }).addTo(mapInstance);
     addMapControl();
-    if (!withGpx) return;
     const gpxUrl = 'data/NorthLine_6.gpx';
     try {
         new L.GPX(gpxUrl, {
@@ -907,9 +959,10 @@ function initMap(options = {}) {
                 if (gpxCoords.length) {
                     const first = gpxCoords[0];
                     const last = gpxCoords[gpxCoords.length - 1];
-                    if (!startMarker) startMarker = L.marker([first.lat, first.lng]).addTo(mapInstance);
+                    if (!startMarker) startMarker = L.marker([first.lat, first.lng], { icon: buildStartFinishMarkerIcon('start') }).addTo(mapInstance);
                     if (finishMarker) mapInstance.removeLayer(finishMarker);
-                    finishMarker = L.marker([last.lat, last.lng], { icon: L.icon({ iconUrl: 'assets/icons/finish-flag.gif', iconSize: [45,45], iconAnchor: [22,45] }) }).addTo(mapInstance);
+                    finishMarker = L.marker([last.lat, last.lng], { icon: buildStartFinishMarkerIcon('finish') }).addTo(mapInstance);
+                    if (showRouteTrackers) renderRouteTrackers();
                     // refresh live UI using GPX total if we are on the live page
                     fetchPoints().then(points => {
                         const s = buildSummary(points);
@@ -934,11 +987,11 @@ function refreshMapRoute(points) {
     // Use GPX-defined start/finish when available; no popups
     if (!startMarker && gpxCoords.length) {
         const first = gpxCoords[0];
-        startMarker = L.marker([first.lat, first.lng]).addTo(mapInstance);
+        startMarker = L.marker([first.lat, first.lng], { icon: buildStartFinishMarkerIcon('start') }).addTo(mapInstance);
     }
     if (gpxCoords.length) {
         const last = gpxCoords[gpxCoords.length - 1];
-        if (!finishMarker) finishMarker = L.marker([last.lat, last.lng], { icon: L.icon({ iconUrl: 'assets/icons/finish-flag.gif', iconSize: [45,45], iconAnchor: [22,45] }) }).addTo(mapInstance);
+        if (!finishMarker) finishMarker = L.marker([last.lat, last.lng], { icon: buildStartFinishMarkerIcon('finish') }).addTo(mapInstance);
         else finishMarker.setLatLng([last.lat, last.lng]);
     }
     // live marker with popup and directions button
@@ -1008,7 +1061,7 @@ async function initLivePage() {
     initializeTheme();
     updateLiveUI(buildLivePreStartSummary());
     await ensureGpxDataLoaded();
-    initMap();
+    initMap({ showRouteTrackers: true });
     buildNav();
     const points = await fetchPoints();
     const summary = buildSummary(points) || buildLivePreStartSummary();
@@ -1711,7 +1764,7 @@ function bindPhotoMapFullscreen() {
     });
 }
 async function initGalleryPhotoMap(items) {
-    initMap();
+    initMap({ showRouteTrackers: false });
     if (!mapInstance) return;
     bindPhotoMapFullscreen();
 
@@ -1783,7 +1836,7 @@ async function initGalleryPhotoMap(items) {
 async function initReplayPage() {
     initializeTheme();
     await ensureGpxDataLoaded();
-    initMap();
+    initMap({ showRouteTrackers: false });
     buildNav();
     const points = await fetchPoints();
     const coords = points.length ? points.map(p => [p.coordinate.lat, p.coordinate.lon]) : [defaultCenter];
