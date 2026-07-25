@@ -1,4 +1,5 @@
 ﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json";
+const plannedStartDateIso = '2026-07-25T10:25:00+02:00';
 const defaultCenter = [46.0, 8.9];
 const defaultZoom = 12;
 let mapInstance = null;
@@ -44,6 +45,46 @@ function initializeTheme() {
     document.getElementById('themeToggle')?.addEventListener('click', () => {
         setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
     });
+    initializeMobileMenu();
+}
+function initializeMobileMenu() {
+    const topbar = document.querySelector('.topbar');
+    const nav = topbar?.querySelector('.main-nav');
+    if (!topbar || !nav || topbar.dataset.mobileMenuInit === 'true') return;
+
+    const toggleButton = document.createElement('button');
+    toggleButton.type = 'button';
+    toggleButton.className = 'topbar-menu-toggle';
+    toggleButton.id = 'topbarMenuToggle';
+    toggleButton.setAttribute('aria-label', 'Apri menu');
+    toggleButton.setAttribute('aria-expanded', 'false');
+    toggleButton.textContent = '☰';
+
+    const actions = topbar.querySelector('.topbar-actions');
+    if (actions) topbar.insertBefore(toggleButton, actions);
+    else topbar.appendChild(toggleButton);
+
+    const closeMenu = () => {
+        topbar.classList.remove('nav-open');
+        toggleButton.setAttribute('aria-expanded', 'false');
+        toggleButton.textContent = '☰';
+    };
+
+    toggleButton.addEventListener('click', () => {
+        const isOpen = topbar.classList.toggle('nav-open');
+        toggleButton.setAttribute('aria-expanded', String(isOpen));
+        toggleButton.textContent = isOpen ? '✕' : '☰';
+    });
+
+    nav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 760) closeMenu();
+    });
+
+    topbar.dataset.mobileMenuInit = 'true';
 }
 function buildNav() {
     const tileProviders = getTileProviders();
@@ -216,7 +257,7 @@ function initHomeCountdown() {
     const messageEl = document.getElementById('countdownMessage');
     if (!dayEl || !hourEl || !minuteEl || !secondEl || !messageEl) return;
 
-    const target = new Date('2026-08-01T04:00:00+02:00').getTime();
+    const target = new Date(plannedStartDateIso).getTime();
 
     const render = () => {
         const diffMs = target - Date.now();
@@ -247,6 +288,13 @@ function initHomeCountdown() {
     const timer = setInterval(() => {
         if (render()) clearInterval(timer);
     }, 1000);
+}
+
+function updateHomeCountdownVisibility(summary) {
+    const countdown = document.getElementById('homeCountdown');
+    if (!countdown) return;
+    const started = Boolean(summary?.lastPoint) || Number(summary?.totalDistance || 0) > 0;
+    countdown.hidden = started;
 }
 
 function renderEmptyState(container, title, text) {
@@ -681,6 +729,7 @@ async function initHomePage() {
     const points = await fetchPoints();
     const summary = buildSummary(points) || buildHomePreStartSummary();
     updateHomeSummary(summary);
+    updateHomeCountdownVisibility(summary);
 }
 function buildChartData(points, summaryContext = null) {
     const safePoints = points
@@ -806,10 +855,40 @@ async function initDashboardPage() {
     const storedXAxisMode = localStorage.getItem('northline-chart-x-axis');
     const xAxisMode = storedXAxisMode === 'time' ? 'time' : 'distance';
     if (xAxisSelect) xAxisSelect.value = xAxisMode;
-    const chartData = buildChartData(
-        points.length ? points : [{ velocita: { km_h: 0 }, altitudine: { metri: 0 }, distanza: { km: 0 }, orario: new Date().toISOString() }],
-        summary
-    );
+    const hasLiveData = points.length > 0;
+    const chartCards = Array.from(document.querySelectorAll('.chart-grid .metric-card'));
+    const setChartsEmpty = empty => {
+        chartCards.forEach(card => {
+            card.classList.toggle('chart-empty', empty);
+            let note = card.querySelector('.chart-empty-note');
+            if (empty && !note) {
+                note = document.createElement('p');
+                note.className = 'chart-empty-note';
+                note.textContent = 'Grafico disponibile alla partenza.';
+                card.appendChild(note);
+            }
+            if (!empty && note) note.remove();
+            const canvas = card.querySelector('canvas');
+            if (empty && canvas) {
+                const ctx = canvas.getContext('2d');
+                if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        });
+    };
+
+    if (xAxisSelect) xAxisSelect.disabled = !hasLiveData;
+
+    if (!hasLiveData) {
+        Object.keys(chartInstances).forEach(key => {
+            chartInstances[key]?.destroy();
+            delete chartInstances[key];
+        });
+        setChartsEmpty(true);
+        return;
+    }
+
+    setChartsEmpty(false);
+    const chartData = buildChartData(points, summary);
 
     const renderCharts = axisMode => {
         const mode = axisMode === 'time' ? 'time' : 'distance';
