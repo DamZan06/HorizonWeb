@@ -5,7 +5,7 @@
     <title>NorthLine – Admin</title>
     <meta name="description" content="Pannello admin NorthLine per gestire diario, galleria e timeline.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css?v=20260725a">
+    <link rel="stylesheet" href="style.css?v=20260725b">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
     <link rel="icon" type="image/png" href="assets/favicon-v2.png?v=20260715r">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=20260715r">
@@ -36,7 +36,7 @@
             <div class="section-title">
                 <p class="eyebrow">Accesso riservato</p>
                 <h2>Pannello amministrazione</h2>
-                <p>Pagina non collegata alla navigazione pubblica. Inserisci email/password Firebase per un accesso condiviso, oppure usa la password locale di emergenza.</p>
+                <p>Pagina non collegata alla navigazione pubblica. Inserisci email/password Firebase per accedere e pubblicare contenuti condivisi.</p>
                 <p id="adminModeLabel"></p>
             </div>
             <form id="adminLoginForm" class="admin-login-form">
@@ -49,6 +49,7 @@
                     <input type="password" name="password" autocomplete="current-password" required>
                 </label>
                 <button type="submit" class="button primary">Entra</button>
+                <p id="adminLoginSuccess" class="admin-feedback"></p>
                 <p id="adminLoginError" class="admin-error"></p>
             </form>
         </section>
@@ -60,6 +61,7 @@
                 <p>Da qui puoi aggiungere, cancellare e spostare gli elementi pubblicati nelle sezioni del sito.</p>
             </div>
             <div class="admin-toolbar">
+                <p id="adminSaveNotice" class="admin-feedback"></p>
                 <button id="adminLogoutBtn" type="button" class="button ghost">Esci</button>
             </div>
 
@@ -69,8 +71,18 @@
                 </div>
                 <form data-admin-form="diary" class="admin-form-grid">
                     <label>Titolo<input type="text" name="title" required></label>
-                    <label>Data<input type="text" name="date" placeholder="01/08/2026" required></label>
-                    <label>Km<input type="text" name="km" placeholder="18" required></label>
+                    <label>Data
+                        <span class="admin-input-with-action">
+                            <input type="text" name="date" placeholder="01/08/2026 07:30" required>
+                            <button id="adminDiaryNowBtn" type="button" class="button secondary">Adesso</button>
+                        </span>
+                    </label>
+                    <label>Km
+                        <span class="admin-input-with-action">
+                            <input type="text" name="km" placeholder="18" required>
+                            <button id="adminDiaryKmNowBtn" type="button" class="button secondary">Km attuale</button>
+                        </span>
+                    </label>
                     <label class="admin-form-full">Testo<textarea name="text" rows="4" required></textarea></label>
                     <label class="admin-form-full">Immagine<input type="file" name="image" accept="image/*"></label>
                     <button type="submit" class="button primary">Aggiungi al diario</button>
@@ -85,7 +97,27 @@
                 <form data-admin-form="gallery" class="admin-form-grid">
                     <label>Titolo<input type="text" name="title" required></label>
                     <label>Localita<input type="text" name="location" required></label>
-                    <label>Tag<input type="text" name="tag" placeholder="montagna" required></label>
+                    <label>Tag
+                        <input type="text" name="tag" placeholder="montagna" list="adminGalleryTagList" required>
+                        <datalist id="adminGalleryTagList">
+                            <option value="montagna"></option>
+                            <option value="checkpoint"></option>
+                            <option value="panorama"></option>
+                            <option value="bivacco"></option>
+                            <option value="citta"></option>
+                            <option value="lago"></option>
+                            <option value="notte"></option>
+                        </datalist>
+                        <span class="admin-tag-suggestions" aria-label="Tag suggeriti">
+                            <button type="button" class="admin-tag-chip" data-tag-suggestion="montagna">montagna</button>
+                            <button type="button" class="admin-tag-chip" data-tag-suggestion="checkpoint">checkpoint</button>
+                            <button type="button" class="admin-tag-chip" data-tag-suggestion="panorama">panorama</button>
+                            <button type="button" class="admin-tag-chip" data-tag-suggestion="bivacco">bivacco</button>
+                            <button type="button" class="admin-tag-chip" data-tag-suggestion="citta">citta</button>
+                            <button type="button" class="admin-tag-chip" data-tag-suggestion="lago">lago</button>
+                            <button type="button" class="admin-tag-chip" data-tag-suggestion="notte">notte</button>
+                        </span>
+                    </label>
                     <label class="admin-form-full">Descrizione<textarea name="description" rows="4" required></textarea></label>
                     <label class="admin-form-full">Immagine<input type="file" name="image" accept="image/*" required></label>
                     <button type="submit" class="button primary">Aggiungi alla galleria</button>
@@ -111,6 +143,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
-    <script src="script.js?v=20260725a"></script>
+    <script src="script.js?v=20260725b"></script>
 </body>
 </html>

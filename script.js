@@ -1,14 +1,8 @@
 ﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json";
 const plannedStartDateIso = '2026-08-01T00:04:00+02:00';
-const adminPassword = 'northline-admin-2026';
 const contentDatabasePath = 'content';
 const defaultCenter = [46.0, 8.9];
 const defaultZoom = 12;
-const contentStorageKeys = {
-    diary: 'northline-content-diary',
-    gallery: 'northline-content-gallery',
-    timeline: 'northline-content-timeline'
-};
 const adminSessionKey = 'northline-admin-authenticated';
 let mapInstance = null;
 let routeLine = null;
@@ -37,23 +31,6 @@ function escapeHtml(value) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
-}
-function readCollection(type) {
-    const storageKey = contentStorageKeys[type];
-    if (!storageKey) return [];
-    try {
-        const raw = localStorage.getItem(storageKey);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-        console.warn(`Impossibile leggere la collezione ${type}:`, error);
-        return [];
-    }
-}
-function saveCollection(type, items) {
-    const storageKey = contentStorageKeys[type];
-    if (!storageKey) return;
-    localStorage.setItem(storageKey, JSON.stringify(items));
 }
 function getFirebaseClientConfig() {
     return window.NorthLineFirebaseConfig || null;
@@ -90,28 +67,23 @@ function getFirebaseAuth() {
 }
 async function loadCollection(type) {
     const publicUrl = getFirebaseContentUrl(type);
-    if (publicUrl) {
-        try {
-            const response = await fetch(publicUrl, { cache: 'no-store' });
-            if (response.ok) {
-                const data = await response.json();
-                if (Array.isArray(data)) return data;
-            }
-        } catch (error) {
-            console.warn(`Impossibile leggere ${type} da Firebase, uso fallback locale:`, error);
-        }
+    if (!publicUrl) return [];
+    try {
+        const response = await fetch(publicUrl, { cache: 'no-store' });
+        if (!response.ok) return [];
+        const data = await response.json();
+        if (Array.isArray(data)) return data;
+    } catch (error) {
+        console.warn(`Impossibile leggere ${type} da Firebase:`, error);
     }
-    return readCollection(type);
+    return [];
 }
 async function persistCollection(type, items) {
-    saveCollection(type, items);
     const database = getFirebaseDatabase();
-    if (!database) return;
-    try {
-        await database.ref(`${contentDatabasePath}/${type}`).set(items);
-    } catch (error) {
-        console.warn(`Impossibile salvare ${type} su Firebase, contenuto mantenuto in locale:`, error);
+    if (!database) {
+        throw new Error('Firebase non disponibile. Verifica configurazione e login admin.');
     }
+    await database.ref(`${contentDatabasePath}/${type}`).set(items);
 }
 function isAdminAuthenticated() {
     return sessionStorage.getItem(adminSessionKey) === 'true';
@@ -1231,6 +1203,66 @@ async function renderAdminCollection(type) {
         list.append(article);
     });
 }
+function formatAdminNow() {
+    const now = new Date();
+    const pad = value => String(value).padStart(2, '0');
+    return `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+function setAdminFeedbackMessage(element, message, isError = false) {
+    if (!element) return;
+    element.textContent = message || '';
+    element.classList.toggle('is-error', Boolean(message) && isError);
+}
+function showAdminSaveNotice(message, isError = false) {
+    setAdminFeedbackMessage(document.getElementById('adminSaveNotice'), message, isError);
+}
+function initAdminFormHelpers() {
+    const diaryForm = document.querySelector('[data-admin-form="diary"]');
+    const dateField = diaryForm?.querySelector('[name="date"]');
+    const kmField = diaryForm?.querySelector('[name="km"]');
+    const nowButton = document.getElementById('adminDiaryNowBtn');
+    const kmNowButton = document.getElementById('adminDiaryKmNowBtn');
+
+    if (nowButton && nowButton.dataset.bound !== 'true') {
+        nowButton.addEventListener('click', () => {
+            if (!dateField) return;
+            dateField.value = formatAdminNow();
+        });
+        nowButton.dataset.bound = 'true';
+    }
+
+    if (kmNowButton && kmNowButton.dataset.bound !== 'true') {
+        kmNowButton.addEventListener('click', async () => {
+            if (!kmField) return;
+            const defaultLabel = 'Km attuale';
+            kmNowButton.disabled = true;
+            kmNowButton.textContent = 'Carico...';
+            try {
+                const points = await fetchPoints();
+                const lastPoint = points[points.length - 1];
+                const km = Number(lastPoint?.distanza?.km ?? 0);
+                kmField.value = Number.isFinite(km) ? (km === 0 ? '0' : km.toFixed(1)) : '0';
+            } catch (error) {
+                showAdminSaveNotice(`Km live non disponibile: ${error.message || 'errore sconosciuto'}.`, true);
+            } finally {
+                kmNowButton.disabled = false;
+                kmNowButton.textContent = defaultLabel;
+            }
+        });
+        kmNowButton.dataset.bound = 'true';
+    }
+
+    document.querySelectorAll('[data-tag-suggestion]').forEach(button => {
+        if (button.dataset.bound === 'true') return;
+        button.addEventListener('click', () => {
+            const galleryTagInput = document.querySelector('[data-admin-form="gallery"] [name="tag"]');
+            if (!galleryTagInput) return;
+            galleryTagInput.value = button.dataset.tagSuggestion || '';
+            galleryTagInput.focus();
+        });
+        button.dataset.bound = 'true';
+    });
+}
 async function handleAdminFormSubmit(type, form) {
     const items = await loadCollection(type);
     const id = createRecordId(type);
@@ -1254,7 +1286,12 @@ function bindAdminForm(type) {
     if (!form || form.dataset.bound === 'true') return;
     form.addEventListener('submit', async event => {
         event.preventDefault();
-        await handleAdminFormSubmit(type, form);
+        try {
+            await handleAdminFormSubmit(type, form);
+            showAdminSaveNotice('Salvataggio completato su Firebase.');
+        } catch (error) {
+            showAdminSaveNotice(`Salvataggio fallito: ${error.message || 'errore sconosciuto'}.`, true);
+        }
     });
     form.dataset.bound = 'true';
 }
@@ -1269,47 +1306,60 @@ function initAdminPage() {
     showAdminState(isAdminAuthenticated());
     const loginForm = document.getElementById('adminLoginForm');
     const errorBox = document.getElementById('adminLoginError');
+    const successBox = document.getElementById('adminLoginSuccess');
     const auth = getFirebaseAuth();
     const modeLabel = document.getElementById('adminModeLabel');
+    const firebaseReady = Boolean(auth && hasUsableFirebaseConfig());
     if (modeLabel) {
-        modeLabel.textContent = auth && hasUsableFirebaseConfig()
-            ? 'Autenticazione Firebase attiva'
-            : 'Modalita locale attiva: inserisci la password oppure configura Firebase';
+        modeLabel.textContent = firebaseReady
+            ? 'Autenticazione Firebase attiva. I salvataggi avvengono solo su Firebase.'
+            : 'Configurazione Firebase non valida: accesso admin non disponibile finche non completi firebase-config.js.';
     }
     loginForm?.addEventListener('submit', event => {
         event.preventDefault();
-        const password = loginForm.querySelector('[name="password"]')?.value || '';
         const email = loginForm.querySelector('[name="email"]')?.value || '';
+        const password = loginForm.querySelector('[name="password"]')?.value || '';
+        if (errorBox) errorBox.textContent = '';
+        setAdminFeedbackMessage(successBox, '', false);
+
+        if (!firebaseReady) {
+            if (errorBox) errorBox.textContent = 'Completa la configurazione Firebase per poter accedere.';
+            return;
+        }
+
+        if (!email || !password) {
+            if (errorBox) errorBox.textContent = 'Inserisci email e password Firebase.';
+            return;
+        }
+
         const unlockAdmin = async () => {
             setAdminAuthenticated(true);
             if (errorBox) errorBox.textContent = '';
+            setAdminFeedbackMessage(successBox, 'Accesso riuscito: pannello admin sbloccato.', false);
             showAdminState(true);
+            initAdminFormHelpers();
             for (const type of ['diary', 'gallery', 'timeline']) {
                 bindAdminForm(type);
                 await renderAdminCollection(type);
             }
             loginForm.reset();
         };
-        if (auth && hasUsableFirebaseConfig() && email && password) {
-            auth.signInWithEmailAndPassword(email, password)
-                .then(unlockAdmin)
-                .catch(error => {
-                    if (errorBox) errorBox.textContent = `Login Firebase fallito: ${error.message}`;
-                });
-            return;
-        }
-        if (password === adminPassword) {
-            unlockAdmin();
-            return;
-        }
-        if (errorBox) errorBox.textContent = auth ? 'Inserisci email/password Firebase valide oppure la password locale.' : 'Password non corretta.';
+
+        auth.signInWithEmailAndPassword(email, password)
+            .then(unlockAdmin)
+            .catch(error => {
+                if (errorBox) errorBox.textContent = `Login Firebase fallito: ${error.message}`;
+            });
     });
     document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
         getFirebaseAuth()?.signOut().catch(() => {});
         setAdminAuthenticated(false);
+        showAdminSaveNotice('', false);
+        setAdminFeedbackMessage(successBox, '', false);
         showAdminState(false);
     });
     if (isAdminAuthenticated()) {
+        initAdminFormHelpers();
         ['diary', 'gallery', 'timeline'].forEach(async type => {
             bindAdminForm(type);
             await renderAdminCollection(type);
