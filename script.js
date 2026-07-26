@@ -1292,8 +1292,28 @@ async function fetchPoints() {
         const data = await response.json();
         if (!data) return [];
         return Object.values(data)
+            .map(point => {
+                const coordinate = point?.coordinate || point?.coordinates || null;
+                const speedMs = Number(point?.velocita?.m_s ?? point?.velocita?.mps ?? Number.NaN);
+                const speedKmh = Number(point?.velocita?.km_h ?? point?.velocita?.kmh ?? (Number.isFinite(speedMs) ? speedMs * 3.6 : Number.NaN));
+                return {
+                    ...point,
+                    coordinate,
+                    velocita: {
+                        ...(point?.velocita || {}),
+                        m_s: Number.isFinite(speedMs) ? speedMs : null,
+                        km_h: Number.isFinite(speedKmh) ? Number(speedKmh.toFixed(1)) : null
+                    },
+                    stato: point?.stato ?? point?.status ?? point?.pointStatus ?? null
+                };
+            })
             .filter(point => point && point.coordinate && Number.isFinite(point.coordinate.lat) && Number.isFinite(point.coordinate.lon) && point.distanza)
-            .sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
+            .sort((a, b) => {
+                const aId = Number(a?.id ?? 0);
+                const bId = Number(b?.id ?? 0);
+                if (Number.isFinite(aId) && Number.isFinite(bId) && aId !== bId) return aId - bId;
+                return new Date(a?.orario ?? 0).getTime() - new Date(b?.orario ?? 0).getTime();
+            });
     } catch (error) {
         console.warn('Impossibile leggere i dati live:', error);
         return [];
@@ -1339,13 +1359,13 @@ async function ensureLiveStatusControl(force = false) {
     return liveStatusControlFetchPromise;
 }
 function getPointStatusKey(point) {
-    const fromTracker = normalizeHomeStatus(point?.stato ?? point?.status ?? '');
+    const fromTracker = normalizeHomeStatus(point?.stato ?? point?.status ?? point?.pointStatus ?? '');
     if (fromTracker !== 'not-started') return fromTracker;
 
-    const speedKmh = Number(point?.velocita?.kmh ?? point?.velocita ?? Number.NaN);
+    const speedKmh = Number(point?.velocita?.km_h ?? point?.velocita?.kmh ?? point?.velocita ?? Number.NaN);
     if (Number.isFinite(speedKmh)) return speedKmh > 0.5 ? 'moving' : 'paused';
 
-    const speedMps = Number(point?.velocita?.mps ?? Number.NaN);
+    const speedMps = Number(point?.velocita?.m_s ?? point?.velocita?.mps ?? Number.NaN);
     if (Number.isFinite(speedMps)) return speedMps > 0.14 ? 'moving' : 'paused';
 
     return 'not-started';
@@ -1391,7 +1411,14 @@ function buildSummary(points) {
         ? Math.floor((endTs - startTs) / 1000)
         : null;
     const duration = elapsedFromTimestamps ?? (lastPoint.tempo_trascorso?.secondi ?? 0);
-    const speed = duration > 0 ? ((lastPoint.distanza?.metri ?? 0) / duration) * 3.6 : 0;
+    const speedFromPoint = Number(lastPoint?.velocita?.km_h ?? lastPoint?.velocita?.kmh ?? Number.NaN);
+    const speedFromMs = Number(lastPoint?.velocita?.m_s ?? lastPoint?.velocita?.mps ?? Number.NaN);
+    const speedFallback = duration > 0 ? ((lastPoint.distanza?.metri ?? 0) / duration) * 3.6 : 0;
+    const speed = Number.isFinite(speedFromPoint)
+        ? speedFromPoint
+        : Number.isFinite(speedFromMs)
+            ? speedFromMs * 3.6
+            : speedFallback;
     const elevationGain = points.reduce((acc, point, index) => {
         if (index === 0) return 0;
         const currentAlt = Number(point.altitudine?.metri ?? 0);
@@ -1445,7 +1472,9 @@ function updateHomeHeroStatusDot(statusLabel) {
 }
 function normalizeHomeStatus(status) {
     const value = String(status || '').toLowerCase();
+    if (value.includes('station') || value.includes('fermo') || value.includes('stop')) return 'paused';
     if (value.includes('mov')) return 'moving';
+    if (value.includes('cycl') || value.includes('run') || value.includes('walk')) return 'moving';
     if (value.includes('paus')) return 'paused';
     if (value.includes('fine')) return 'ended';
     if (value.includes('complet')) return 'completed';
@@ -1672,6 +1701,7 @@ function computeBlendedRemaining(summary) {
     if (!summary.lastPoint || !gpxCoords || !gpxCoords.length) return remainingGpx;
     const last = summary.lastPoint;
     const dest = gpxCoords[gpxCoords.length - 1];
+    if (!Number.isFinite(last?.coordinate?.lat) || !Number.isFinite(last?.coordinate?.lon)) return remainingGpx;
     const remainingLive = haversineKm(last.coordinate.lat, last.coordinate.lon, dest.lat, dest.lng);
     // progress fraction (0..1)
     const progressFrac = Math.min(Math.max(totalDistance / gpxtotal, 0), 1);
@@ -2095,6 +2125,13 @@ async function initHomePage() {
     const summary = buildSummary(points) || buildHomePreStartSummary();
     updateHomeSummary(summary);
     updateHomeCountdownVisibility(summary);
+    setInterval(async () => {
+        await ensureLiveStatusControl(true);
+        const latestPoints = await fetchPoints();
+        const latestSummary = buildSummary(latestPoints) || buildHomePreStartSummary();
+        updateHomeSummary(latestSummary);
+        updateHomeCountdownVisibility(latestSummary);
+    }, 8000);
 }
 function buildChartData(points, summaryContext = null) {
     const safePoints = points
