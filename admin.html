@@ -66,6 +66,24 @@
 
             <section class="section-white admin-block">
                 <div class="section-title">
+                    <h2>Stato live</h2>
+                    <p>Puoi forzare manualmente Fine giornata. Se Garmin invia MOVING in modo continuo per almeno 2 minuti, lo stato torna automaticamente a In movimento.</p>
+                </div>
+                <form id="adminLiveStatusForm" class="admin-form-grid">
+                    <label class="admin-form-full">Modalita stato
+                        <select name="forcedStatus">
+                            <option value="">Automatico da Garmin/Firebase</option>
+                            <option value="ended">Fine giornata</option>
+                        </select>
+                    </label>
+                    <p id="adminLiveStatusCurrent" class="admin-inline-note admin-form-full">Stato attivo: caricamento...</p>
+                    <button type="submit" class="button primary">Salva stato live</button>
+                    <p id="adminLiveStatusNotice" class="admin-feedback admin-form-full"></p>
+                </form>
+            </section>
+
+            <section class="section-white admin-block">
+                <div class="section-title">
                     <h2>Galleria</h2>
                 </div>
                 <form data-admin-form="gallery" class="admin-form-grid">

@@ -1,4 +1,4 @@
-﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json";
+﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/lietrack/points.json";
 const plannedStartDateIso = '2026-08-01T04:00:00+02:00';
 const contentDatabasePath = 'content';
 const trackerDataUrl = 'data/NorthLine_trackers.json';
@@ -490,6 +490,14 @@ let latestLiveCoord = null;
 let latestVisitorCoord = null;
 let firebaseAppInstance = null;
 let routeMarkerGroup = null;
+const movingStatusRecoveryMs = 2 * 60 * 1000;
+const liveStatusControlRefreshMs = 15000;
+let liveStatusControlCache = {
+    forcedStatus: null,
+    updatedAt: null
+};
+let liveStatusControlLastFetchTs = 0;
+let liveStatusControlFetchPromise = null;
 const mediaModalState = {
     items: [],
     index: 0,
@@ -1291,6 +1299,87 @@ async function fetchPoints() {
         return [];
     }
 }
+async function ensureLiveStatusControl(force = false) {
+    const now = Date.now();
+    if (!force && liveStatusControlLastFetchTs && (now - liveStatusControlLastFetchTs) < liveStatusControlRefreshMs) {
+        return liveStatusControlCache;
+    }
+    if (liveStatusControlFetchPromise) return liveStatusControlFetchPromise;
+
+    liveStatusControlFetchPromise = (async () => {
+        const fallback = { forcedStatus: null, updatedAt: null };
+        const publicUrl = getFirebaseContentUrl('liveStatus');
+        if (!publicUrl) {
+            liveStatusControlCache = fallback;
+            liveStatusControlLastFetchTs = Date.now();
+            return liveStatusControlCache;
+        }
+        try {
+            const response = await fetch(publicUrl, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const payload = await response.json();
+            const forcedStatusRaw = payload && typeof payload === 'object'
+                ? (payload.forcedStatus ?? payload.status ?? null)
+                : null;
+            const forcedStatus = normalizeHomeStatus(forcedStatusRaw) === 'not-started' ? null : String(forcedStatusRaw);
+            liveStatusControlCache = {
+                forcedStatus,
+                updatedAt: payload && typeof payload === 'object' ? (payload.updatedAt ?? null) : null
+            };
+        } catch (error) {
+            console.warn('Impossibile leggere il controllo stato live:', error);
+            liveStatusControlCache = fallback;
+        }
+        liveStatusControlLastFetchTs = Date.now();
+        return liveStatusControlCache;
+    })().finally(() => {
+        liveStatusControlFetchPromise = null;
+    });
+
+    return liveStatusControlFetchPromise;
+}
+function getPointStatusKey(point) {
+    const fromTracker = normalizeHomeStatus(point?.stato ?? point?.status ?? '');
+    if (fromTracker !== 'not-started') return fromTracker;
+
+    const speedKmh = Number(point?.velocita?.kmh ?? point?.velocita ?? Number.NaN);
+    if (Number.isFinite(speedKmh)) return speedKmh > 0.5 ? 'moving' : 'paused';
+
+    const speedMps = Number(point?.velocita?.mps ?? Number.NaN);
+    if (Number.isFinite(speedMps)) return speedMps > 0.14 ? 'moving' : 'paused';
+
+    return 'not-started';
+}
+function hasMovingStreakLongEnough(points, minMs = movingStatusRecoveryMs) {
+    if (!Array.isArray(points) || points.length < 2) return false;
+    const lastPoint = points[points.length - 1];
+    if (getPointStatusKey(lastPoint) !== 'moving') return false;
+
+    const newestTs = new Date(lastPoint?.orario ?? '').getTime();
+    if (!Number.isFinite(newestTs)) return false;
+
+    let oldestMovingTs = newestTs;
+    for (let index = points.length - 1; index >= 0; index -= 1) {
+        const point = points[index];
+        if (getPointStatusKey(point) !== 'moving') break;
+        const pointTs = new Date(point?.orario ?? '').getTime();
+        if (Number.isFinite(pointTs)) oldestMovingTs = pointTs;
+    }
+    return (newestTs - oldestMovingTs) >= minMs;
+}
+function resolveSummaryStatus(points, lastPoint, speedKmh) {
+    const inferredStatus = speedKmh > 0.5 ? 'moving' : 'paused';
+    const trackerStatus = getPointStatusKey(lastPoint);
+    const baseStatus = trackerStatus !== 'not-started' ? trackerStatus : inferredStatus;
+
+    const forcedStatus = normalizeHomeStatus(liveStatusControlCache?.forcedStatus ?? '');
+    if (forcedStatus === 'ended') {
+        return hasMovingStreakLongEnough(points) ? 'moving' : 'ended';
+    }
+    if (forcedStatus !== 'not-started') return forcedStatus;
+
+    return baseStatus;
+}
 function buildSummary(points) {
     if (!points.length) return null;
     const lastPoint = points[points.length - 1];
@@ -1318,7 +1407,7 @@ function buildSummary(points) {
         speed,
         elevationGain,
         progress: Math.min(totalDistance / (gpxTotalKm || 290) * 100, 100),
-        status: speed > 0.5 ? 'In movimento' : 'In pausa'
+        status: resolveSummaryStatus(points, lastPoint, speed)
     };
 }
 function updateHomeSummary(summary) {
@@ -1333,14 +1422,15 @@ function updateHomeSummary(summary) {
     document.getElementById('homeTime').textContent = summary.duration > 0 ? formatTime(summary.duration) : '0';
     document.getElementById('homeGain').textContent = Math.round(summary.elevationGain);
     document.getElementById('homeSteps').textContent = computeEstimatedSteps(summary.totalDistance, summary.duration).toLocaleString();
-    document.getElementById('homeStatusLabel').textContent = translateStatus(summary.status);
-    document.getElementById('homeStatusText').textContent = summary.status === 'In movimento'
+    const statusKey = normalizeHomeStatus(summary.status);
+    document.getElementById('homeStatusLabel').textContent = translateStatus(statusKey);
+    document.getElementById('homeStatusText').textContent = statusKey === 'moving'
         ? t('dynamic.liveTrackingActive')
-        : summary.status === 'Non partito'
+        : statusKey === 'not-started'
             ? t('dynamic.liveNotAvailable')
             : t('dynamic.waitingNextPoint');
-    updateHomeHeroStatusDot(summary.status);
-    updateHomeStateLegend(summary.status);
+    updateHomeHeroStatusDot(statusKey);
+    updateHomeStateLegend(statusKey);
 }
 function updateHomeHeroStatusDot(statusLabel) {
     const dot = document.getElementById('homeStatusDot');
@@ -1363,7 +1453,7 @@ function normalizeHomeStatus(status) {
 }
 
 function updateHomeStateLegend(statusLabel) {
-    const label = statusLabel || 'Non partito';
+    const label = statusLabel || 'not-started';
     const stateLabel = document.getElementById('homeAdventureState');
     if (stateLabel) stateLabel.textContent = translateStatus(label);
 
@@ -1378,7 +1468,7 @@ function buildHomePreStartSummary() {
         totalDistance: 0,
         duration: 0,
         elevationGain: 0,
-        status: 'Non partito',
+        status: 'not-started',
         lastPoint: null,
         points: [],
         speed: 0,
@@ -1394,7 +1484,7 @@ function buildDashboardPreStartSummary() {
         speed: 0,
         elevationGain: 0,
         progress: 0,
-        status: 'Non partito'
+        status: 'not-started'
     };
 }
 function buildLivePreStartSummary() {
@@ -1406,7 +1496,7 @@ function buildLivePreStartSummary() {
         speed: 0,
         elevationGain: 0,
         progress: 0,
-        status: 'Non partito'
+        status: 'not-started'
     };
 }
 function updateDashboardSummary(summary) {
@@ -1954,6 +2044,7 @@ async function initLivePage() {
     initializeTheme();
     updateLiveUI(buildLivePreStartSummary());
     await Promise.all([ensureGpxDataLoaded(), ensureRouteTrackersLoaded()]);
+    await ensureLiveStatusControl(true);
     initMap({ showRouteTrackers: true });
     buildNav();
     const points = await fetchPoints();
@@ -1985,6 +2076,7 @@ async function initLivePage() {
         });
     }
     setInterval(async () => {
+        await ensureLiveStatusControl(true);
         const points = await fetchPoints();
         const summary = buildSummary(points) || buildLivePreStartSummary();
         updateLiveUI(summary);
@@ -1998,6 +2090,7 @@ async function initHomePage() {
     initializeTheme();
     initHomeCountdown();
     await ensureGpxDataLoaded();
+    await ensureLiveStatusControl(true);
     const points = await fetchPoints();
     const summary = buildSummary(points) || buildHomePreStartSummary();
     updateHomeSummary(summary);
@@ -2568,6 +2661,68 @@ function bindAdminForm(type) {
     });
     form.dataset.bound = 'true';
 }
+async function persistLiveStatusControl(forcedStatus) {
+    const database = getFirebaseDatabase();
+    if (!database) {
+        throw new Error('Firebase non disponibile. Verifica configurazione e login admin.');
+    }
+    const statusKey = normalizeHomeStatus(forcedStatus);
+    const reference = database.ref(`${contentDatabasePath}/liveStatus`);
+    if (statusKey === 'not-started') {
+        await reference.set(null);
+        liveStatusControlCache = { forcedStatus: null, updatedAt: null };
+        liveStatusControlLastFetchTs = Date.now();
+        return;
+    }
+    const payload = {
+        forcedStatus: statusKey === 'ended' ? 'Fine giornata' : forcedStatus,
+        updatedAt: new Date().toISOString()
+    };
+    await reference.set(payload);
+    liveStatusControlCache = payload;
+    liveStatusControlLastFetchTs = Date.now();
+}
+function bindAdminLiveStatusForm() {
+    const form = document.getElementById('adminLiveStatusForm');
+    if (!form || form.dataset.bound === 'true') return;
+    const select = form.querySelector('[name="forcedStatus"]');
+    const notice = document.getElementById('adminLiveStatusNotice');
+    const current = document.getElementById('adminLiveStatusCurrent');
+
+    const renderCurrent = () => {
+        const forcedKey = normalizeHomeStatus(liveStatusControlCache?.forcedStatus ?? '');
+        if (select) select.value = forcedKey === 'ended' ? 'ended' : '';
+        if (current) {
+            current.textContent = forcedKey === 'ended'
+                ? 'Stato attivo: Fine giornata (forzato da admin)'
+                : 'Stato attivo: Automatico da Garmin/Firebase';
+        }
+    };
+
+    ensureLiveStatusControl(true)
+        .then(renderCurrent)
+        .catch(() => renderCurrent());
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        setAdminFeedbackMessage(notice, '', false);
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) submitButton.disabled = true;
+        try {
+            const selected = select?.value === 'ended' ? 'Fine giornata' : null;
+            await persistLiveStatusControl(selected);
+            await ensureLiveStatusControl(true);
+            renderCurrent();
+            setAdminFeedbackMessage(notice, 'Stato live aggiornato.', false);
+        } catch (error) {
+            setAdminFeedbackMessage(notice, `Aggiornamento stato fallito: ${error.message || 'errore sconosciuto'}.`, true);
+        } finally {
+            if (submitButton) submitButton.disabled = false;
+        }
+    });
+
+    form.dataset.bound = 'true';
+}
 function showAdminState(unlocked) {
     const locked = document.getElementById('adminLocked');
     const app = document.getElementById('adminApp');
@@ -2612,6 +2767,7 @@ function initAdminPage() {
             showAdminState(true);
             initAdminFormHelpers();
             bindAdminForm('gallery');
+            bindAdminLiveStatusForm();
             await syncNightGalleryEntriesToFirebase();
             await renderAdminCollection('gallery');
             loginForm.reset();
@@ -2633,6 +2789,7 @@ function initAdminPage() {
     if (isAdminAuthenticated()) {
         initAdminFormHelpers();
         bindAdminForm('gallery');
+        bindAdminLiveStatusForm();
         syncNightGalleryEntriesToFirebase()
             .then(() => renderAdminCollection('gallery'))
             .catch(() => renderAdminCollection('gallery'));
