@@ -8,6 +8,468 @@ const adminSessionKey = 'northline-admin-authenticated';
 const supportedLanguages = ['it', 'en', 'de'];
 const defaultLanguage = 'it';
 const languageStorageKey = 'northline-language';
+const i18nCatalog = {
+    it: {
+        common: {
+            languageLabel: 'Lingua',
+            languageAria: 'Seleziona lingua',
+            navAria: 'Navigazione principale',
+            nav: ['Home', 'Live', 'Dashboard', 'Galleria', 'Replay', 'Progressi', 'Il progetto'],
+            brands: {
+                home: 'Adventure Tracker',
+                live: 'Live Tracker',
+                dashboard: 'Dashboard',
+                gallery: 'Galleria',
+                replay: 'Replay',
+                progress: 'Progressi',
+                project: 'Il progetto',
+                admin: 'Admin'
+            },
+            menuOpen: 'Apri menu',
+            menuClose: 'Chiudi menu',
+            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' }
+        },
+        pages: {
+            home: {
+                title: 'NorthLine | Traversata della Svizzera in tempo reale',
+                countdownEyebrow: 'Partenza prevista',
+                countdownMessage: 'Calcolo del tempo rimanente in corso...',
+                labels: ['Giorni', 'Ore', 'Minuti', 'Secondi'],
+                heroEyebrow: 'NorthLine · Attraversando la Svizzera a piedi',
+                heroTitle: '333 chilometri. Un solo obiettivo.',
+                heroDescription: 'NorthLine e una traversata della Svizzera percorsa interamente a piedi, condivisa in tempo reale attraverso una piattaforma sviluppata appositamente per questa avventura. Qui potrai seguire ogni passo, osservare la posizione live, analizzare le statistiche e vivere il viaggio come se fossi sul sentiero insieme a noi.',
+                heroButtons: ['Segui il Live', 'Scopri il progetto'],
+                statsLabels: ['km percorsi', 'km rimanenti', 'completato', 'tempo trascorso', 'dislivello', 'passi stimati'],
+                sectionEyebrow: 'Segui ogni passo',
+                sectionTitle: 'Non osservare solamente il viaggio. Vivilo.',
+                sectionDescription: 'NorthLine ti permette di seguire l\'intera traversata della Svizzera attraverso mappe live, statistiche aggiornate, racconti quotidiani e contenuti esclusivi. Ogni giornata portera nuove sfide, nuovi paesaggi e una nuova storia da raccontare.',
+                featureTitles: ['Mappa Live', 'Statistiche Live', 'Diario di bordo', 'Replay del percorso'],
+                featureTexts: [
+                    'Segui in tempo reale la mia posizione lungo il percorso. Ogni aggiornamento mostra dove mi trovo, quanti chilometri sono stati percorsi e quanto manca al traguardo.',
+                    'Velocita, distanza, altitudine, dislivello, tempo di percorrenza e molti altri dati vengono aggiornati automaticamente durante tutta l\'avventura.',
+                    'Ogni giornata verra raccontata attraverso fotografie, impressioni, difficolta, emozioni e curiosita incontrate lungo il cammino.',
+                    'Rivivi l\'intera traversata sulla mappa e osserva ogni tappa del viaggio grazie a una timeline interattiva sincronizzata con il percorso reale.'
+                ],
+                statusTitle: 'Stato attuale',
+                footer: 'NorthLine © 2026 · Una traversata della Svizzera raccontata in tempo reale attraverso mappe, dati e storie. Ogni passo, una nuova avventura.'
+            },
+            live: {
+                title: 'NorthLine – Mappa Live',
+                eyebrow: 'Live Map',
+                heading: 'La NorthLine in diretta sulla mappa.',
+                description: 'Segui la posizione attuale, il percorso completato e le statistiche dell\'atleta con una mappa a schermo intero.',
+                statsEyebrow: 'Statistiche Live',
+                statsTitle: 'Stato attuale',
+                statsLabels: ['Distanza', 'Rimanenti', 'Completato', 'Velocita', 'Altitudine', 'Ultimo aggiornamento', 'Progresso del percorso', 'Tempo', 'Dislivello', 'Passi', 'Distanza dalla partenza'],
+                mapControlAria: 'Controlli mappa',
+                centerUser: 'Centra sulla tua posizione',
+                centerLive: 'Centra sulla posizione live',
+                fullscreenMap: 'Mappa a schermo intero',
+                exitFullscreenMap: 'Esci da schermo intero'
+            },
+            dashboard: {
+                title: 'NorthLine – Dashboard',
+                eyebrow: 'Analisi avanzata',
+                heading: 'Dashboard delle statistiche.',
+                description: 'Statistiche sportive complete con grafici per velocita, altitudine, andamento giornaliero e progressione.',
+                statLabels: ['Distanza percorsa', 'Distanza rimanente', 'Percentuale completata', 'Velocita attuale', 'Altitudine attuale', 'Dislivello positivo', 'Tempo totale'],
+                chartsTitle: 'Grafici live',
+                xAxis: 'Asse X',
+                xDistance: 'Km',
+                xTime: 'Tempo',
+                chartTitles: ['Velocita', 'Altitudine', 'Km cumulati', 'Dislivello cumulato'],
+                chartEmpty: 'Grafico disponibile alla partenza.'
+            },
+            gallery: {
+                title: 'NorthLine – Galleria',
+                eyebrow: 'Fotografie',
+                heading: 'Galleria completa del viaggio',
+                mapEyebrow: 'Cartina foto',
+                mapTitle: 'Posizione delle immagini.',
+                mapWaiting: 'In attesa di immagini geolocalizzate...',
+                fullscreenMap: 'Mappa a schermo intero',
+                exitFullscreenMap: 'Esci da schermo intero',
+                modalClose: 'Chiudi',
+                modalPrev: 'Immagine precedente',
+                modalNext: 'Immagine successiva',
+                modalTitle: 'Titolo immagine',
+                modalLocation: 'Localita',
+                modalDescription: 'Descrizione della foto e posizione sulla mappa.'
+            },
+            replay: {
+                title: 'NorthLine – Replay',
+                eyebrow: 'Replay',
+                heading: 'Rivivi il percorso.',
+                description: 'Riproduci l\'intero tracciato, metti in pausa, accelera e controlla i punti piu significativi.',
+                play: 'Riproduci',
+                pause: 'Pausa',
+                reset: 'Reset',
+                speed: 'Velocita:',
+                ready: 'Replay pronto',
+                complete: 'Replay completato'
+            },
+            progress: {
+                title: 'NorthLine – Progressi',
+                eyebrow: 'Obiettivi',
+                heading: 'Badge e progressi.',
+                description: 'Sezione pronta da zero: i badge verranno definiti e sbloccati con i dati reali della traversata.'
+            },
+            project: {
+                title: 'NorthLine – Il progetto',
+                heading: 'Cos\'e il progetto NorthLine?'
+            },
+            admin: {
+                title: 'NorthLine – Admin'
+            }
+        },
+        status: {
+            notStarted: 'Non partito',
+            moving: 'In movimento',
+            paused: 'In pausa',
+            ended: 'Fine giornata',
+            completed: 'Sfida completata'
+        },
+        dynamic: {
+            noDescription: 'Nessuna descrizione disponibile.',
+            dateUnset: 'Data non impostata',
+            update: 'Aggiornamento',
+            photo: 'Foto',
+            locationUnset: 'Localita non impostata',
+            galleryEmptyTitle: 'Galleria vuota',
+            galleryEmptyText: 'Nessuna immagine disponibile al momento. Le foto verranno aggiunte dalla prossima pubblicazione.',
+            diaryEmptyTitle: 'Diario vuoto',
+            diaryEmptyText: 'Ancora nessuna voce pubblicata. I racconti e gli aggiornamenti cronologici verranno inseriti durante il percorso.',
+            countdownUpdated: 'Countdown aggiornato in tempo reale.',
+            countdownStarted: 'La partenza prevista e in corso.',
+            liveNotAvailable: 'In attesa della partenza: nessun dato live disponibile.',
+            liveTrackingActive: 'Tracker attivo e aggiornato.',
+            waitingNextPoint: 'Dati disponibili, attesa prossima posizione.',
+            visitorDistance: 'Distanza visitatore',
+            visitorFromStart: 'Distanza dalla partenza',
+            notSupported: 'Non supportato',
+            permissionDenied: 'Permesso negato',
+            replayProgress: 'Replay {current}/{total}',
+            progressEmptyTitle: 'Badge non impostati',
+            progressEmptyText: 'Nessun traguardo predefinito. Potrai aggiungere i badge quando vorrai iniziare il monitoraggio reale.',
+            badgeUnlocked: 'Sbloccato',
+            badgePending: 'In attesa'
+        }
+    },
+    en: {
+        common: {
+            languageLabel: 'Language',
+            languageAria: 'Select language',
+            navAria: 'Main navigation',
+            nav: ['Home', 'Live', 'Dashboard', 'Gallery', 'Replay', 'Progress', 'Project'],
+            brands: {
+                home: 'Adventure Tracker',
+                live: 'Live Tracker',
+                dashboard: 'Dashboard',
+                gallery: 'Gallery',
+                replay: 'Replay',
+                progress: 'Progress',
+                project: 'Project',
+                admin: 'Admin'
+            },
+            menuOpen: 'Open menu',
+            menuClose: 'Close menu',
+            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' }
+        },
+        pages: {
+            home: {
+                title: 'NorthLine | Switzerland crossing in real time',
+                countdownEyebrow: 'Planned departure',
+                countdownMessage: 'Calculating remaining time...',
+                labels: ['Days', 'Hours', 'Minutes', 'Seconds'],
+                heroEyebrow: 'NorthLine · Crossing Switzerland on foot',
+                heroTitle: '333 kilometers. One goal.',
+                heroDescription: 'NorthLine is a full crossing of Switzerland completed entirely on foot, shared live through a platform built specifically for this adventure. Here you can follow every step, watch the live position, analyze the stats, and experience the journey as if you were on the trail with us.',
+                heroButtons: ['Follow Live', 'Discover the project'],
+                statsLabels: ['km covered', 'km remaining', 'completed', 'time elapsed', 'elevation gain', 'estimated steps'],
+                sectionEyebrow: 'Follow every step',
+                sectionTitle: 'Do not just watch the journey. Live it.',
+                sectionDescription: 'NorthLine lets you follow the full crossing of Switzerland through live maps, updated stats, daily stories, and exclusive content. Each day brings new challenges, new landscapes, and a new story to tell.',
+                featureTitles: ['Live Map', 'Live Stats', 'Travel Diary', 'Route Replay'],
+                featureTexts: [
+                    'Follow my position along the route in real time. Each update shows where I am, how many kilometers are done, and how far is left to the finish.',
+                    'Speed, distance, altitude, elevation gain, travel time, and many other values are updated automatically throughout the adventure.',
+                    'Each day is told through photos, impressions, challenges, emotions, and curiosities encountered on the trail.',
+                    'Relive the full crossing on the map and watch every stage through an interactive timeline synced with the real route.'
+                ],
+                statusTitle: 'Current status',
+                footer: 'NorthLine © 2026 · A Switzerland crossing told in real time through maps, data, and stories. Every step, a new adventure.'
+            },
+            live: {
+                title: 'NorthLine – Live Map',
+                eyebrow: 'Live Map',
+                heading: 'NorthLine live on the map.',
+                description: 'Follow the current position, completed route, and athlete statistics with a fullscreen map.',
+                statsEyebrow: 'Live Statistics',
+                statsTitle: 'Current status',
+                statsLabels: ['Distance', 'Remaining', 'Completed', 'Speed', 'Altitude', 'Last update', 'Route progress', 'Time', 'Elevation', 'Steps', 'Distance from start'],
+                mapControlAria: 'Map controls',
+                centerUser: 'Center on your position',
+                centerLive: 'Center on live position',
+                fullscreenMap: 'Fullscreen map',
+                exitFullscreenMap: 'Exit fullscreen'
+            },
+            dashboard: {
+                title: 'NorthLine – Dashboard',
+                eyebrow: 'Advanced analysis',
+                heading: 'Statistics dashboard.',
+                description: 'Complete sport statistics with charts for speed, altitude, daily trend, and progression.',
+                statLabels: ['Distance covered', 'Distance remaining', 'Completion rate', 'Current speed', 'Current altitude', 'Positive elevation', 'Total time'],
+                chartsTitle: 'Live charts',
+                xAxis: 'X axis',
+                xDistance: 'Km',
+                xTime: 'Time',
+                chartTitles: ['Speed', 'Altitude', 'Cumulative km', 'Cumulative elevation'],
+                chartEmpty: 'Chart available at departure.'
+            },
+            gallery: {
+                title: 'NorthLine – Gallery',
+                eyebrow: 'Photos',
+                heading: 'Complete journey gallery',
+                mapEyebrow: 'Photo map',
+                mapTitle: 'Image positions.',
+                mapWaiting: 'Waiting for geolocated images...',
+                fullscreenMap: 'Fullscreen map',
+                exitFullscreenMap: 'Exit fullscreen',
+                modalClose: 'Close',
+                modalPrev: 'Previous image',
+                modalNext: 'Next image',
+                modalTitle: 'Image title',
+                modalLocation: 'Location',
+                modalDescription: 'Photo description and map position.'
+            },
+            replay: {
+                title: 'NorthLine – Replay',
+                eyebrow: 'Replay',
+                heading: 'Relive the route.',
+                description: 'Replay the full track, pause, speed up, and inspect key points.',
+                play: 'Play',
+                pause: 'Pause',
+                reset: 'Reset',
+                speed: 'Speed:',
+                ready: 'Replay ready',
+                complete: 'Replay completed'
+            },
+            progress: {
+                title: 'NorthLine – Progress',
+                eyebrow: 'Goals',
+                heading: 'Badges and progress.',
+                description: 'Section ready from scratch: badges will be defined and unlocked with real crossing data.'
+            },
+            project: {
+                title: 'NorthLine – Project',
+                eyebrow: 'NorthLine',
+                heading: 'What is the NorthLine project?',
+                intro: 'NorthLine is much more than a simple crossing of Switzerland. It is a project born from the desire to test limits, explore the territory step by step, and share every moment in real time.',
+                cardTitles: ['What NorthLine is', 'Motivation', 'Preparation', 'Equipment', 'Nutrition', 'Route', 'Support', 'Curiosities'],
+                cardTexts: [
+                    'NorthLine is a south-to-north crossing of Switzerland on foot, about 333 km and over 6,000 meters of positive elevation gain.',
+                    'This project was created to leave the comfort zone and prove that consistency and preparation make difficult goals achievable.',
+                    'Months of training, route study, elevation analysis, logistics and platform development were essential before departure.',
+                    'Every gram matters: the backpack balances lightness, safety and autonomy with GPS, emergency gear, batteries and technical clothing.',
+                    'Long walking days require careful energy management with hydration, minerals and high-energy foods.',
+                    'The route crosses lakes, valleys, forests, alpine passes and high-altitude trails with continuous adaptation to terrain and weather.',
+                    'Even if every step is on foot, the adventure includes constant logistical and emotional support throughout the journey.',
+                    'NorthLine also shares photos, local stories and encounters to make followers feel part of the adventure.'
+                ]
+            },
+            admin: { title: 'NorthLine – Admin' }
+        },
+        status: {
+            notStarted: 'Not started',
+            moving: 'Moving',
+            paused: 'Paused',
+            ended: 'Day ended',
+            completed: 'Challenge completed'
+        },
+        dynamic: {
+            noDescription: 'No description available.',
+            dateUnset: 'Date not set',
+            update: 'Update',
+            photo: 'Photo',
+            locationUnset: 'Location not set',
+            galleryEmptyTitle: 'Empty gallery',
+            galleryEmptyText: 'No images available yet. Photos will be added in the next publication.',
+            diaryEmptyTitle: 'Empty diary',
+            diaryEmptyText: 'No entries have been published yet. Stories and timeline updates will be added during the journey.',
+            countdownUpdated: 'Countdown updated in real time.',
+            countdownStarted: 'Planned start is now in progress.',
+            liveNotAvailable: 'Waiting for departure: no live data available yet.',
+            liveTrackingActive: 'Tracker active and updated.',
+            waitingNextPoint: 'Data available, waiting for next position.',
+            visitorDistance: 'Visitor distance',
+            visitorFromStart: 'Distance from start',
+            notSupported: 'Not supported',
+            permissionDenied: 'Permission denied',
+            replayProgress: 'Replay {current}/{total}',
+            progressEmptyTitle: 'No badges configured',
+            progressEmptyText: 'No milestone is currently defined. You can add badges when real tracking starts.',
+            badgeUnlocked: 'Unlocked',
+            badgePending: 'Pending'
+        }
+    },
+    de: {
+        common: {
+            languageLabel: 'Sprache',
+            languageAria: 'Sprache waehlen',
+            navAria: 'Hauptnavigation',
+            nav: ['Start', 'Live', 'Dashboard', 'Galerie', 'Replay', 'Fortschritt', 'Projekt'],
+            brands: {
+                home: 'Adventure Tracker',
+                live: 'Live Tracker',
+                dashboard: 'Dashboard',
+                gallery: 'Galerie',
+                replay: 'Replay',
+                progress: 'Fortschritt',
+                project: 'Projekt',
+                admin: 'Admin'
+            },
+            menuOpen: 'Menue oeffnen',
+            menuClose: 'Menue schliessen',
+            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' }
+        },
+        pages: {
+            home: {
+                title: 'NorthLine | Schweiz-Durchquerung in Echtzeit',
+                countdownEyebrow: 'Geplanter Start',
+                countdownMessage: 'Verbleibende Zeit wird berechnet...',
+                labels: ['Tage', 'Stunden', 'Minuten', 'Sekunden'],
+                heroEyebrow: 'NorthLine · Die Schweiz zu Fuss durchqueren',
+                heroTitle: '333 Kilometer. Ein Ziel.',
+                heroDescription: 'NorthLine ist eine komplette Schweiz-Durchquerung zu Fuss, live geteilt ueber eine Plattform, die speziell fuer dieses Abenteuer entwickelt wurde. Hier kannst du jeden Schritt verfolgen, die Live-Position sehen, Daten analysieren und die Reise erleben, als waerst du mit uns auf dem Weg.',
+                heroButtons: ['Live verfolgen', 'Projekt entdecken'],
+                statsLabels: ['km gelaufen', 'km verbleibend', 'abgeschlossen', 'verstrichene Zeit', 'Hoehenmeter', 'geschaetzte Schritte'],
+                sectionEyebrow: 'Jeden Schritt verfolgen',
+                sectionTitle: 'Die Reise nicht nur ansehen. Erleben.',
+                sectionDescription: 'NorthLine laesst dich die gesamte Schweiz-Durchquerung ueber Live-Karten, aktuelle Statistiken, taegliche Berichte und exklusive Inhalte verfolgen. Jeder Tag bringt neue Herausforderungen, neue Landschaften und eine neue Geschichte.',
+                featureTitles: ['Live-Karte', 'Live-Statistiken', 'Reisetagebuch', 'Strecken-Replay'],
+                featureTexts: [
+                    'Verfolge meine Position entlang der Strecke in Echtzeit. Jedes Update zeigt, wo ich bin, wie viele Kilometer geschafft sind und was bis zum Ziel fehlt.',
+                    'Geschwindigkeit, Distanz, Hoehe, Hoehengewinn, Gehzeit und viele weitere Werte werden waehrend des Abenteuers automatisch aktualisiert.',
+                    'Jeder Tag wird mit Fotos, Eindruecken, Herausforderungen, Emotionen und Entdeckungen auf dem Weg erzaehlt.',
+                    'Erlebe die gesamte Durchquerung auf der Karte neu und beobachte jede Etappe mit einer interaktiven Timeline, synchron zur realen Strecke.'
+                ],
+                statusTitle: 'Aktueller Status',
+                footer: 'NorthLine © 2026 · Eine Schweiz-Durchquerung in Echtzeit mit Karten, Daten und Geschichten. Jeder Schritt, ein neues Abenteuer.'
+            },
+            live: {
+                title: 'NorthLine – Live-Karte',
+                eyebrow: 'Live-Karte',
+                heading: 'NorthLine live auf der Karte.',
+                description: 'Verfolge aktuelle Position, absolvierte Strecke und Athleten-Daten mit einer Vollbildkarte.',
+                statsEyebrow: 'Live-Statistiken',
+                statsTitle: 'Aktueller Status',
+                statsLabels: ['Distanz', 'Verbleibend', 'Abgeschlossen', 'Geschwindigkeit', 'Hoehe', 'Letztes Update', 'Streckenfortschritt', 'Zeit', 'Hoehenmeter', 'Schritte', 'Distanz vom Start'],
+                mapControlAria: 'Kartensteuerung',
+                centerUser: 'Auf deine Position zentrieren',
+                centerLive: 'Auf Live-Position zentrieren',
+                fullscreenMap: 'Karte im Vollbild',
+                exitFullscreenMap: 'Vollbild verlassen'
+            },
+            dashboard: {
+                title: 'NorthLine – Dashboard',
+                eyebrow: 'Erweiterte Analyse',
+                heading: 'Statistik-Dashboard.',
+                description: 'Vollstaendige Sportstatistiken mit Diagrammen fuer Tempo, Hoehe, Tagesverlauf und Fortschritt.',
+                statLabels: ['Gelaufene Distanz', 'Verbleibende Distanz', 'Abschlussquote', 'Aktuelle Geschwindigkeit', 'Aktuelle Hoehe', 'Positiver Hoehengewinn', 'Gesamtzeit'],
+                chartsTitle: 'Live-Diagramme',
+                xAxis: 'X-Achse',
+                xDistance: 'Km',
+                xTime: 'Zeit',
+                chartTitles: ['Geschwindigkeit', 'Hoehe', 'Kumulierte km', 'Kumulierter Hoehengewinn'],
+                chartEmpty: 'Diagramm zum Start verfuegbar.'
+            },
+            gallery: {
+                title: 'NorthLine – Galerie',
+                eyebrow: 'Fotos',
+                heading: 'Komplette Reisegalerie',
+                mapEyebrow: 'Fotokarte',
+                mapTitle: 'Positionen der Bilder.',
+                mapWaiting: 'Warte auf geolokalisierte Bilder...',
+                fullscreenMap: 'Karte im Vollbild',
+                exitFullscreenMap: 'Vollbild verlassen',
+                modalClose: 'Schliessen',
+                modalPrev: 'Vorheriges Bild',
+                modalNext: 'Naechstes Bild',
+                modalTitle: 'Bildtitel',
+                modalLocation: 'Ort',
+                modalDescription: 'Fotobeschreibung und Position auf der Karte.'
+            },
+            replay: {
+                title: 'NorthLine – Replay',
+                eyebrow: 'Replay',
+                heading: 'Strecke erneut erleben.',
+                description: 'Die gesamte Route abspielen, pausieren, beschleunigen und Schluesselpunkte ansehen.',
+                play: 'Abspielen',
+                pause: 'Pause',
+                reset: 'Reset',
+                speed: 'Geschwindigkeit:',
+                ready: 'Replay bereit',
+                complete: 'Replay abgeschlossen'
+            },
+            progress: {
+                title: 'NorthLine – Fortschritt',
+                eyebrow: 'Ziele',
+                heading: 'Badges und Fortschritt.',
+                description: 'Bereich von Grund auf bereit: Badges werden mit echten Streckendaten definiert und freigeschaltet.'
+            },
+            project: {
+                title: 'NorthLine – Projekt',
+                eyebrow: 'NorthLine',
+                heading: 'Was ist das NorthLine-Projekt?',
+                intro: 'NorthLine ist viel mehr als eine einfache Schweiz-Durchquerung. Es ist ein Projekt aus dem Wunsch, Grenzen zu testen, das Land Schritt fuer Schritt zu erkunden und jeden Moment in Echtzeit zu teilen.',
+                cardTitles: ['Was NorthLine ist', 'Motivation', 'Vorbereitung', 'Ausrustung', 'Ernaehrung', 'Route', 'Support', 'Besonderheiten'],
+                cardTexts: [
+                    'NorthLine ist eine Sued-Nord-Durchquerung der Schweiz zu Fuss, etwa 333 km und ueber 6.000 positive Hoehenmeter.',
+                    'Das Projekt entstand, um die Komfortzone zu verlassen und zu zeigen, dass Konstanz und Vorbereitung grosse Ziele erreichbar machen.',
+                    'Monate mit Training, Streckenstudium, Hoehenanalyse, Logistik und Plattformentwicklung waren vor dem Start entscheidend.',
+                    'Jedes Gramm zaehlt: Der Rucksack kombiniert Leichtigkeit, Sicherheit und Autonomie mit GPS, Notfallausrustung, Batterien und Funktionskleidung.',
+                    'Lange Gehtage brauchen eine sorgfaeltige Energieplanung mit Wasser, Mineralien und energiereicher Nahrung.',
+                    'Die Route fuehrt durch Seen, Taeler, Waelder, Alpenpaesse und Hoehenwege mit staendiger Anpassung an Gelaende und Wetter.',
+                    'Auch wenn jeder Schritt zu Fuss ist, gibt es waehrend der ganzen Reise laufende logistische und menschliche Unterstuetzung.',
+                    'NorthLine teilt ausserdem Fotos, lokale Geschichten und Begegnungen, damit die Community Teil des Abenteuers wird.'
+                ]
+            },
+            admin: { title: 'NorthLine – Admin' }
+        },
+        status: {
+            notStarted: 'Nicht gestartet',
+            moving: 'In Bewegung',
+            paused: 'Pausiert',
+            ended: 'Tag beendet',
+            completed: 'Challenge abgeschlossen'
+        },
+        dynamic: {
+            noDescription: 'Keine Beschreibung verfuegbar.',
+            dateUnset: 'Datum nicht gesetzt',
+            update: 'Update',
+            photo: 'Foto',
+            locationUnset: 'Ort nicht gesetzt',
+            galleryEmptyTitle: 'Leere Galerie',
+            galleryEmptyText: 'Noch keine Bilder verfuegbar. Fotos werden mit der naechsten Veroeffentlichung hinzugefuegt.',
+            diaryEmptyTitle: 'Leeres Tagebuch',
+            diaryEmptyText: 'Noch keine Eintraege veroeffentlicht. Berichte und Timeline-Updates folgen waehrend der Reise.',
+            countdownUpdated: 'Countdown in Echtzeit aktualisiert.',
+            countdownStarted: 'Der geplante Start laeuft jetzt.',
+            liveNotAvailable: 'Warten auf den Start: noch keine Live-Daten verfuegbar.',
+            liveTrackingActive: 'Tracker aktiv und aktualisiert.',
+            waitingNextPoint: 'Daten verfuegbar, warte auf naechste Position.',
+            visitorDistance: 'Besucherabstand',
+            visitorFromStart: 'Abstand vom Start',
+            notSupported: 'Nicht unterstuetzt',
+            permissionDenied: 'Berechtigung verweigert',
+            replayProgress: 'Replay {current}/{total}',
+            progressEmptyTitle: 'Keine Badges definiert',
+            progressEmptyText: 'Aktuell sind keine Meilensteine definiert. Du kannst Badges beim echten Tracking hinzufuegen.',
+            badgeUnlocked: 'Freigeschaltet',
+            badgePending: 'Ausstehend'
+        }
+    }
+};
 let mapInstance = null;
 let routeLine = null;
 let startMarker = null;
@@ -36,95 +498,244 @@ const photoMapState = {
     markerById: new Map(),
     clusterGroup: null
 };
-let googleTranslateScriptPromise = null;
+let currentLanguage = defaultLanguage;
 function normalizeLanguage(value) {
     const code = String(value || '').trim().toLowerCase();
     return supportedLanguages.includes(code) ? code : defaultLanguage;
 }
-function readCookieValue(name) {
-    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
-    return match ? decodeURIComponent(match[1]) : '';
-}
-function parseLanguageFromGoogTransCookie() {
-    const raw = readCookieValue('googtrans');
-    const parts = raw.split('/').filter(Boolean);
-    if (!parts.length) return defaultLanguage;
-    return normalizeLanguage(parts[parts.length - 1]);
+function getDictionary() {
+    return i18nCatalog[currentLanguage] || i18nCatalog[defaultLanguage];
 }
 function getPreferredLanguage() {
     try {
         const stored = localStorage.getItem(languageStorageKey);
-        if (supportedLanguages.includes(stored)) return stored;
+        if (supportedLanguages.includes(stored)) return normalizeLanguage(stored);
     } catch (error) {
-        // ignore storage access issues and rely on cookies/default
+        // ignore storage access issues
     }
-    return parseLanguageFromGoogTransCookie();
+    return defaultLanguage;
 }
 function persistPreferredLanguage(lang) {
     try {
-        localStorage.setItem(languageStorageKey, lang);
+        localStorage.setItem(languageStorageKey, normalizeLanguage(lang));
     } catch (error) {
         // ignore storage access issues
     }
 }
-function setGoogleTranslateCookie(targetLanguage) {
-    const language = normalizeLanguage(targetLanguage);
-    const cookieValue = `/it/${language}`;
-    const cookie = `googtrans=${encodeURIComponent(cookieValue)};path=/;max-age=31536000`;
-    document.cookie = cookie;
-    if (location.hostname) {
-        document.cookie = `${cookie};domain=${location.hostname}`;
+function resolveText(key) {
+    const dictionary = getDictionary();
+    const fallbackDictionary = i18nCatalog[defaultLanguage];
+    const chunks = String(key || '').split('.').filter(Boolean);
+    const drill = source => chunks.reduce((acc, chunk) => (acc && Object.prototype.hasOwnProperty.call(acc, chunk) ? acc[chunk] : undefined), source);
+    const translated = drill(dictionary);
+    if (translated !== undefined && translated !== null) return translated;
+    const fallback = drill(fallbackDictionary);
+    return fallback !== undefined && fallback !== null ? fallback : key;
+}
+function t(key, params = {}) {
+    const raw = resolveText(key);
+    if (typeof raw !== 'string') return raw;
+    return raw.replace(/\{(\w+)\}/g, (_, token) => String(params[token] ?? ''));
+}
+function setText(selector, value) {
+    const node = document.querySelector(selector);
+    if (node && value !== undefined) node.textContent = value;
+}
+function setAttribute(selector, attribute, value) {
+    const node = document.querySelector(selector);
+    if (node && value !== undefined) node.setAttribute(attribute, value);
+}
+function applyNavigationTranslations() {
+    const nav = document.querySelector('.main-nav');
+    const labels = resolveText('common.nav');
+    if (nav && Array.isArray(labels)) {
+        nav.querySelectorAll('a').forEach((link, index) => {
+            if (labels[index]) link.textContent = labels[index];
+        });
+    }
+    const navAria = t('common.navAria');
+    if (nav && navAria) nav.setAttribute('aria-label', navAria);
+}
+function applyStaticTranslations() {
+    const page = document.body?.dataset?.page || '';
+    applyNavigationTranslations();
+    const subtitle = resolveText(`common.brands.${page}`);
+    setText('.brand-subtitle', subtitle);
+    const pageTitle = resolveText(`pages.${page}.title`);
+    if (typeof pageTitle === 'string' && pageTitle) document.title = pageTitle;
+
+    if (page === 'home') {
+        const home = getDictionary().pages.home || {};
+        if (home.countdownEyebrow) setText('.countdown-eyebrow', home.countdownEyebrow);
+        if (home.countdownMessage) setText('#countdownMessage', home.countdownMessage);
+        if (Array.isArray(home.labels)) {
+            const labels = document.querySelectorAll('.countdown-grid article span');
+            labels.forEach((node, index) => {
+                if (home.labels[index]) node.textContent = home.labels[index];
+            });
+        }
+        if (home.heroEyebrow) setText('.hero-copy .eyebrow', home.heroEyebrow);
+        if (home.heroTitle) setText('.hero-copy h1', home.heroTitle);
+        if (home.heroDescription) setText('.hero-copy p:not(.eyebrow)', home.heroDescription);
+        if (Array.isArray(home.heroButtons)) {
+            const buttons = document.querySelectorAll('.hero-actions .button');
+            buttons.forEach((button, index) => {
+                if (home.heroButtons[index]) button.textContent = home.heroButtons[index];
+            });
+        }
+        if (Array.isArray(home.statsLabels)) {
+            const stats = document.querySelectorAll('.hero-stats-grid article span');
+            stats.forEach((node, index) => {
+                if (home.statsLabels[index]) node.textContent = home.statsLabels[index];
+            });
+        }
+        if (home.sectionEyebrow) setText('.section-intro .section-title .eyebrow', home.sectionEyebrow);
+        if (home.sectionTitle) setText('.section-intro .section-title h2', home.sectionTitle);
+        if (home.sectionDescription) setText('.section-intro .section-title p:not(.eyebrow)', home.sectionDescription);
+        if (Array.isArray(home.featureTitles)) {
+            const titles = document.querySelectorAll('.section-intro .feature-grid article h3');
+            titles.forEach((node, index) => {
+                if (home.featureTitles[index]) node.textContent = home.featureTitles[index];
+            });
+        }
+        if (Array.isArray(home.featureTexts)) {
+            const texts = document.querySelectorAll('.section-intro .feature-grid article p');
+            texts.forEach((node, index) => {
+                if (home.featureTexts[index]) node.textContent = home.featureTexts[index];
+            });
+        }
+        if (home.statusTitle) setText('.section-status .section-title h2', home.statusTitle);
+        setText('#homeState-not-started', `⚪ ${t('status.notStarted')}`);
+        setText('#homeState-moving', `🟢 ${t('status.moving')}`);
+        setText('#homeState-paused', `🟡 ${t('status.paused')}`);
+        setText('#homeState-ended', `🔴 ${t('status.ended')}`);
+        setText('#homeState-completed', `⚫ ${t('status.completed')}`);
+        if (home.footer) setText('.site-footer p', home.footer);
+    }
+
+    if (page === 'live') {
+        const live = getDictionary().pages.live || {};
+        if (live.eyebrow) setText('.page-live .page-header .eyebrow', live.eyebrow);
+        if (live.heading) setText('.page-live .page-header h1', live.heading);
+        if (live.description) setText('.page-live .page-header p:not(.eyebrow)', live.description);
+        if (live.statsEyebrow) setText('.page-live .panel-head .eyebrow', live.statsEyebrow);
+        if (live.statsTitle) setText('.page-live .panel-head h2', live.statsTitle);
+        if (Array.isArray(live.statsLabels)) {
+            const liveStats = document.querySelectorAll('.page-live .stats-grid article span');
+            liveStats.forEach((node, index) => {
+                if (live.statsLabels[index]) node.textContent = live.statsLabels[index];
+            });
+            setText('.page-live .progress-meta span', live.statsLabels[6]);
+            const detailLabels = document.querySelectorAll('.page-live .detail-grid article span');
+            detailLabels.forEach((node, index) => {
+                const sourceIndex = index + 7;
+                if (live.statsLabels[sourceIndex]) node.textContent = live.statsLabels[sourceIndex];
+            });
+        }
+        if (live.mapControlAria) setAttribute('.page-live .map-actions', 'aria-label', live.mapControlAria);
+        if (live.centerUser) {
+            setAttribute('#centerUserBtn', 'title', live.centerUser);
+            setAttribute('#centerUserBtn', 'aria-label', live.centerUser);
+        }
+        if (live.centerLive) setAttribute('#centerLiveBtn', 'title', live.centerLive);
+        if (live.fullscreenMap) setAttribute('#mapFullscreenBtn', 'title', live.fullscreenMap);
+    }
+
+    if (page === 'dashboard') {
+        const dashboard = getDictionary().pages.dashboard || {};
+        if (dashboard.eyebrow) setText('.page-dashboard .section-title .eyebrow', dashboard.eyebrow);
+        if (dashboard.heading) setText('.page-dashboard .section-title h2', dashboard.heading);
+        if (dashboard.description) setText('.page-dashboard .section-title p:not(.eyebrow)', dashboard.description);
+        if (Array.isArray(dashboard.statLabels)) {
+            const stats = document.querySelectorAll('.page-dashboard .stats-grid article span');
+            stats.forEach((node, index) => {
+                if (dashboard.statLabels[index]) node.textContent = dashboard.statLabels[index];
+            });
+        }
+        if (dashboard.chartsTitle) setText('.page-dashboard .chart-header h2', dashboard.chartsTitle);
+        if (dashboard.xAxis) {
+            const axisLabel = document.querySelector('.page-dashboard .chart-axis-control');
+            if (axisLabel && axisLabel.childNodes.length) {
+                axisLabel.childNodes[0].textContent = `${dashboard.xAxis} `;
+            }
+        }
+        if (dashboard.xDistance) setText('#chartXAxisMode option[value="distance"]', dashboard.xDistance);
+        if (dashboard.xTime) setText('#chartXAxisMode option[value="time"]', dashboard.xTime);
+        if (Array.isArray(dashboard.chartTitles)) {
+            const chartTitles = document.querySelectorAll('.page-dashboard .chart-grid .metric-card h3');
+            chartTitles.forEach((node, index) => {
+                if (dashboard.chartTitles[index]) node.textContent = dashboard.chartTitles[index];
+            });
+        }
+    }
+
+    if (page === 'gallery') {
+        const gallery = getDictionary().pages.gallery || {};
+        if (gallery.eyebrow) setText('.page-gallery .section .section-title .eyebrow', gallery.eyebrow);
+        if (gallery.heading) setText('.page-gallery .section .section-title h2', gallery.heading);
+        if (gallery.mapEyebrow) setText('.page-gallery .section-white .section-title .eyebrow', gallery.mapEyebrow);
+        if (gallery.mapTitle) setText('.page-gallery .section-white .section-title h2', gallery.mapTitle);
+        if (gallery.mapWaiting) setText('#galleryPhotoMapStatus', gallery.mapWaiting);
+        if (gallery.fullscreenMap) setAttribute('#galleryPhotoMapFullscreenBtn', 'title', gallery.fullscreenMap);
+        if (gallery.modalClose) setAttribute('.modal-close', 'aria-label', gallery.modalClose);
+        if (gallery.modalPrev) setAttribute('#modalPrev', 'aria-label', gallery.modalPrev);
+        if (gallery.modalNext) setAttribute('#modalNext', 'aria-label', gallery.modalNext);
+        if (gallery.modalTitle) setText('#modalTitle', gallery.modalTitle);
+        if (gallery.modalLocation) setText('#modalLocation', gallery.modalLocation);
+        if (gallery.modalDescription) setText('#modalDescription', gallery.modalDescription);
+    }
+
+    if (page === 'replay') {
+        const replay = getDictionary().pages.replay || {};
+        if (replay.eyebrow) setText('.page-replay .section-title .eyebrow', replay.eyebrow);
+        if (replay.heading) setText('.page-replay .section-title h2', replay.heading);
+        if (replay.description) setText('.page-replay .section-title p:not(.eyebrow)', replay.description);
+        if (replay.play) setText('#replayPlay', replay.play);
+        if (replay.pause) setText('#replayPause', replay.pause);
+        if (replay.reset) setText('#replayReset', replay.reset);
+        if (replay.speed) setText('label[for="replaySpeed"]', replay.speed);
+        if (replay.ready) setText('#replayStatus', replay.ready);
+    }
+
+    if (page === 'progress') {
+        const progress = getDictionary().pages.progress || {};
+        if (progress.eyebrow) setText('.page-progress .section-title .eyebrow', progress.eyebrow);
+        if (progress.heading) setText('.page-progress .section-title h2', progress.heading);
+        if (progress.description) setText('.page-progress .section-title p:not(.eyebrow)', progress.description);
+    }
+
+    if (page === 'project') {
+        const project = getDictionary().pages.project || {};
+        if (project.eyebrow) setText('.page-project .section-title .eyebrow', project.eyebrow);
+        if (project.heading) setText('.page-project .section-title h2', project.heading);
+        if (project.intro) setText('.page-project .section-title p:not(.eyebrow)', project.intro);
+        if (Array.isArray(project.cardTitles)) {
+            const titles = document.querySelectorAll('.page-project .feature-grid article h3');
+            titles.forEach((node, index) => {
+                if (project.cardTitles[index]) node.textContent = project.cardTitles[index];
+            });
+        }
+        if (Array.isArray(project.cardTexts)) {
+            const texts = document.querySelectorAll('.page-project .feature-grid article p');
+            texts.forEach((node, index) => {
+                if (project.cardTexts[index]) node.textContent = project.cardTexts[index];
+            });
+        }
     }
 }
-function ensureGoogleTranslateContainer() {
-    let container = document.getElementById('google_translate_element');
-    if (container) return container;
-    container = document.createElement('div');
-    container.id = 'google_translate_element';
-    container.setAttribute('aria-hidden', 'true');
-    container.style.display = 'none';
-    document.body.appendChild(container);
-    return container;
-}
-function ensureGoogleTranslateScript() {
-    if (googleTranslateScriptPromise) return googleTranslateScriptPromise;
-    ensureGoogleTranslateContainer();
-    googleTranslateScriptPromise = new Promise((resolve, reject) => {
-        window.googleTranslateElementInit = () => {
-            try {
-                if (window.google?.translate?.TranslateElement) {
-                    new window.google.translate.TranslateElement({
-                        pageLanguage: 'it',
-                        includedLanguages: supportedLanguages.join(','),
-                        autoDisplay: false
-                    }, 'google_translate_element');
-                }
-                resolve();
-            } catch (error) {
-                reject(error);
-            }
-        };
-
-        const existingScript = document.querySelector('script[data-google-translate="true"]');
-        if (existingScript) return;
-
-        const script = document.createElement('script');
-        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-        script.async = true;
-        script.defer = true;
-        script.dataset.googleTranslate = 'true';
-        script.onerror = () => reject(new Error('Impossibile caricare Google Translate'));
-        document.head.appendChild(script);
-    });
-    return googleTranslateScriptPromise;
+function translateStatus(label) {
+    const normalized = normalizeHomeStatus(label);
+    if (normalized === 'moving') return t('status.moving');
+    if (normalized === 'paused') return t('status.paused');
+    if (normalized === 'ended') return t('status.ended');
+    if (normalized === 'completed') return t('status.completed');
+    return t('status.notStarted');
 }
 function onLanguageSelected(targetLanguage) {
     const language = normalizeLanguage(targetLanguage);
     const current = getPreferredLanguage();
     if (language === current) return;
     persistPreferredLanguage(language);
-    setGoogleTranslateCookie(language);
     window.location.reload();
 }
 function buildLanguageSwitcher(className) {
@@ -133,16 +744,16 @@ function buildLanguageSwitcher(className) {
 
     const label = document.createElement('label');
     label.className = 'lang-switcher-label';
-    label.textContent = 'Lingua';
+    label.textContent = t('common.languageLabel');
 
     const select = document.createElement('select');
     select.className = 'lang-switcher-select';
-    select.setAttribute('aria-label', 'Seleziona lingua');
+    select.setAttribute('aria-label', t('common.languageAria'));
 
     const options = [
-        { value: 'it', label: 'Italiano' },
-        { value: 'en', label: 'English' },
-        { value: 'de', label: 'Deutsch' }
+        { value: 'it', label: t('common.languageNames.it') },
+        { value: 'en', label: t('common.languageNames.en') },
+        { value: 'de', label: t('common.languageNames.de') }
     ];
     options.forEach(option => {
         const element = document.createElement('option');
@@ -184,16 +795,11 @@ function initializeLanguageSwitcher() {
     topbar.dataset.languageSwitcherInit = 'true';
 }
 function initializeLanguageSupport() {
-    const preferred = getPreferredLanguage();
-    persistPreferredLanguage(preferred);
-    document.documentElement.lang = preferred;
-    setGoogleTranslateCookie(preferred);
+    currentLanguage = getPreferredLanguage();
+    persistPreferredLanguage(currentLanguage);
+    document.documentElement.lang = currentLanguage;
     initializeLanguageSwitcher();
-    if (preferred !== defaultLanguage) {
-        ensureGoogleTranslateScript().catch(error => {
-            console.warn('Google Translate non disponibile:', error);
-        });
-    }
+    applyStaticTranslations();
 }
 function createRecordId(prefix = 'item') {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -311,6 +917,16 @@ function formatTime(seconds) {
 function formatRelativeDate(timestamp) {
     const date = new Date(timestamp);
     const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (currentLanguage === 'en') {
+        if (diff < 60) return `${diff}s ago`;
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        return `${Math.floor(diff / 3600)}h ago`;
+    }
+    if (currentLanguage === 'de') {
+        if (diff < 60) return `vor ${diff}s`;
+        if (diff < 3600) return `vor ${Math.floor(diff / 60)}m`;
+        return `vor ${Math.floor(diff / 3600)}h`;
+    }
     if (diff < 60) return `${diff}s fa`;
     if (diff < 3600) return `${Math.floor(diff / 60)}m fa`;
     return `${Math.floor(diff / 3600)}h fa`;
@@ -460,9 +1076,9 @@ async function loadUnifiedMediaItems() {
         if (!entry.image) return;
         media.push({
             id: entry.id || createRecordId('media-diary'),
-            source: 'Diario',
+            source: currentLanguage === 'en' ? 'Diary' : currentLanguage === 'de' ? 'Tagebuch' : 'Diario',
             title: entry.title || `Diario ${index + 1}`,
-            location: `${entry.date || 'Data non impostata'} · ${entry.km || '0'} km`,
+            location: `${entry.date || t('dynamic.dateUnset')} · ${entry.km || '0'} km`,
             description: entry.text || '',
             image: entry.image,
             geo: readItemGeo(entry),
@@ -474,8 +1090,8 @@ async function loadUnifiedMediaItems() {
         media.push({
             id: entry.id || createRecordId('media-timeline'),
             source: 'Timeline',
-            title: entry.title || `Aggiornamento ${index + 1}`,
-            location: `${entry.date || 'Data non impostata'} ${entry.time || '--:--'}`.trim(),
+            title: entry.title || `${t('dynamic.update')} ${index + 1}`,
+            location: `${entry.date || t('dynamic.dateUnset')} ${entry.time || '--:--'}`.trim(),
             description: entry.description || '',
             image: entry.image,
             geo: readItemGeo(entry),
@@ -489,9 +1105,9 @@ async function loadUnifiedMediaItems() {
         const locationLine = [entry.location, dateSegment, kmSegment].filter(Boolean).join(' · ');
         media.push({
             id: entry.id || createRecordId('media-gallery'),
-            source: 'Galleria',
-            title: entry.title || `Foto ${index + 1}`,
-            location: locationLine || 'Localita non impostata',
+            source: currentLanguage === 'en' ? 'Gallery' : currentLanguage === 'de' ? 'Galerie' : 'Galleria',
+            title: entry.title || `${t('dynamic.photo')} ${index + 1}`,
+            location: locationLine || t('dynamic.locationUnset'),
             description: entry.description || '',
             image: entry.image,
             geo: readItemGeo(entry),
@@ -502,7 +1118,7 @@ async function loadUnifiedMediaItems() {
         const aTs = Number.isFinite(a.sortTs) ? a.sortTs : Number.POSITIVE_INFINITY;
         const bTs = Number.isFinite(b.sortTs) ? b.sortTs : Number.POSITIVE_INFINITY;
         if (aTs !== bTs) return bTs - aTs;
-        return a.title.localeCompare(b.title, 'it');
+        return a.title.localeCompare(b.title, currentLanguage);
     });
 }
 function updateMediaModal() {
@@ -519,7 +1135,7 @@ function updateMediaModal() {
     }
     if (modalTitle) modalTitle.textContent = current.title;
     if (modalLocation) modalLocation.textContent = `${current.location || ''}${current.source ? ` · ${current.source}` : ''}`;
-    if (modalDescription) modalDescription.textContent = current.description || 'Nessuna descrizione disponibile.';
+    if (modalDescription) modalDescription.textContent = current.description || t('dynamic.noDescription');
     if (typeof onChange === 'function') onChange(current, index);
 }
 function moveMediaModal(step) {
@@ -606,7 +1222,7 @@ function initializeMobileMenu() {
     toggleButton.type = 'button';
     toggleButton.className = 'topbar-menu-toggle';
     toggleButton.id = 'topbarMenuToggle';
-    toggleButton.setAttribute('aria-label', 'Apri menu');
+    toggleButton.setAttribute('aria-label', t('common.menuOpen'));
     toggleButton.setAttribute('aria-expanded', 'false');
     toggleButton.textContent = '☰';
 
@@ -617,7 +1233,7 @@ function initializeMobileMenu() {
         overlay = document.createElement('button');
         overlay.type = 'button';
         overlay.className = 'mobile-nav-overlay';
-        overlay.setAttribute('aria-label', 'Chiudi menu');
+        overlay.setAttribute('aria-label', t('common.menuClose'));
         document.body.appendChild(overlay);
     }
 
@@ -713,12 +1329,12 @@ function updateHomeSummary(summary) {
     document.getElementById('homeTime').textContent = summary.duration > 0 ? formatTime(summary.duration) : '0';
     document.getElementById('homeGain').textContent = Math.round(summary.elevationGain);
     document.getElementById('homeSteps').textContent = computeEstimatedSteps(summary.totalDistance, summary.duration).toLocaleString();
-    document.getElementById('homeStatusLabel').textContent = summary.status;
+    document.getElementById('homeStatusLabel').textContent = translateStatus(summary.status);
     document.getElementById('homeStatusText').textContent = summary.status === 'In movimento'
-        ? 'Tracker attivo e aggiornato.'
+        ? t('dynamic.liveTrackingActive')
         : summary.status === 'Non partito'
-            ? 'In attesa della partenza: nessun dato live disponibile.'
-            : 'Dati disponibili, attesa prossima posizione.';
+            ? t('dynamic.liveNotAvailable')
+            : t('dynamic.waitingNextPoint');
     updateHomeHeroStatusDot(summary.status);
     updateHomeStateLegend(summary.status);
 }
@@ -745,7 +1361,7 @@ function normalizeHomeStatus(status) {
 function updateHomeStateLegend(statusLabel) {
     const label = statusLabel || 'Non partito';
     const stateLabel = document.getElementById('homeAdventureState');
-    if (stateLabel) stateLabel.textContent = label;
+    if (stateLabel) stateLabel.textContent = translateStatus(label);
 
     const activeKey = normalizeHomeStatus(label);
     document.querySelectorAll('.status-grid .status-pill').forEach(pill => pill.classList.remove('active'));
@@ -836,7 +1452,7 @@ function initHomeCountdown() {
             hourEl.textContent = '00';
             minuteEl.textContent = '00';
             secondEl.textContent = '00';
-            messageEl.textContent = 'La partenza prevista e in corso.';
+            messageEl.textContent = t('dynamic.countdownStarted');
             hideCountdown();
             return true;
         }
@@ -851,7 +1467,7 @@ function initHomeCountdown() {
         hourEl.textContent = String(hours).padStart(2, '0');
         minuteEl.textContent = String(minutes).padStart(2, '0');
         secondEl.textContent = String(seconds).padStart(2, '0');
-        messageEl.textContent = 'Countdown aggiornato in tempo reale.';
+        messageEl.textContent = t('dynamic.countdownUpdated');
         return false;
     };
 
@@ -1304,7 +1920,7 @@ function updateVisitorDistance(lastPoint) {
     const referenceLon = hasLivePosition ? lastPoint.coordinate.lon : startCoord?.lng;
 
     if (label) {
-        label.textContent = hasLivePosition ? 'Distanza visitatore' : 'Distanza dalla partenza';
+        label.textContent = hasLivePosition ? t('dynamic.visitorDistance') : t('dynamic.visitorFromStart');
     }
 
     if (!Number.isFinite(referenceLat) || !Number.isFinite(referenceLon)) {
@@ -1313,7 +1929,7 @@ function updateVisitorDistance(lastPoint) {
     }
 
     if (!navigator.geolocation) {
-        if (visitorDistanceField) visitorDistanceField.textContent = 'Non supportato';
+        if (visitorDistanceField) visitorDistanceField.textContent = t('dynamic.notSupported');
         return;
     }
 
@@ -1322,7 +1938,7 @@ function updateVisitorDistance(lastPoint) {
         const distanceKm = haversineKm(position.coords.latitude, position.coords.longitude, referenceLat, referenceLon);
         if (visitorDistanceField) visitorDistanceField.textContent = `${distanceKm.toFixed(1)} km`;
     }, () => {
-        if (visitorDistanceField) visitorDistanceField.textContent = 'Permesso negato';
+        if (visitorDistanceField) visitorDistanceField.textContent = t('dynamic.permissionDenied');
     });
 }
 async function initLivePage() {
@@ -1355,7 +1971,7 @@ async function initLivePage() {
             mapWrap.classList.toggle('map-wrap--fullscreen');
             const isFullscreen = mapWrap.classList.contains('map-wrap--fullscreen');
             fullscreenBtn.textContent = isFullscreen ? '🡼' : '⛶';
-            fullscreenBtn.title = isFullscreen ? 'Esci da schermo intero' : 'Mappa a schermo intero';
+            fullscreenBtn.title = isFullscreen ? t('pages.live.exitFullscreenMap') : t('pages.live.fullscreenMap');
             setTimeout(() => mapInstance?.invalidateSize(), 120);
         });
     }
@@ -1511,7 +2127,7 @@ async function initDashboardPage() {
             if (empty && !note) {
                 note = document.createElement('p');
                 note.className = 'chart-empty-note';
-                note.textContent = 'Grafico disponibile alla partenza.';
+                note.textContent = t('pages.dashboard.chartEmpty');
                 card.appendChild(note);
             }
             if (!empty && note) note.remove();
@@ -1551,10 +2167,11 @@ async function initDashboardPage() {
         const axisConfig = mode === 'time'
             ? { min: xMin, max: xMax, label: 'Tempo', tickCallback: value => formatHoursTick(value) }
             : { min: xMin, max: xMax, label: 'Km', tickCallback: value => Number(value).toFixed(0) };
-        createChart('chartSpeed', 'Velocità', speedSeries, '#49a8ff', 'Km/h', axisConfig);
-        createChart('chartAltitude', 'Altitudine', altitudeSeries, '#7f7dff', 'm', axisConfig);
-        createChart('chartKm', 'Km cumulati', kmSeries, '#5dd97d', 'Km', axisConfig);
-        createChart('chartElevation', 'Dislivello cumulato', elevationSeries, '#f3c03d', 'm', axisConfig);
+        const chartTitles = resolveText('pages.dashboard.chartTitles');
+        createChart('chartSpeed', Array.isArray(chartTitles) ? chartTitles[0] : 'Velocita', speedSeries, '#49a8ff', 'Km/h', axisConfig);
+        createChart('chartAltitude', Array.isArray(chartTitles) ? chartTitles[1] : 'Altitudine', altitudeSeries, '#7f7dff', 'm', axisConfig);
+        createChart('chartKm', Array.isArray(chartTitles) ? chartTitles[2] : 'Km cumulati', kmSeries, '#5dd97d', 'Km', axisConfig);
+        createChart('chartElevation', Array.isArray(chartTitles) ? chartTitles[3] : 'Dislivello cumulato', elevationSeries, '#f3c03d', 'm', axisConfig);
     };
 
     renderCharts(xAxisMode);
@@ -1575,8 +2192,8 @@ async function initGalleryPage() {
     if (!items.length) {
         renderEmptyState(
             grid,
-            'Galleria vuota',
-            'Nessuna immagine disponibile al momento. Le foto verranno aggiunte dalla prossima pubblicazione.'
+            t('dynamic.galleryEmptyTitle'),
+            t('dynamic.galleryEmptyText')
         );
         await initGalleryPhotoMap([]);
         return;
@@ -1608,8 +2225,8 @@ async function initDiaryPage() {
     if (!entries.length) {
         renderEmptyState(
             container,
-            'Diario vuoto',
-            'Ancora nessuna voce pubblicata. I racconti e gli aggiornamenti cronologici verranno inseriti durante il percorso.'
+            t('dynamic.diaryEmptyTitle'),
+            t('dynamic.diaryEmptyText')
         );
         return;
     }
@@ -2030,7 +2647,7 @@ function bindPhotoMapFullscreen() {
         mapWrap.classList.toggle('map-wrap--fullscreen');
         const isFullscreen = mapWrap.classList.contains('map-wrap--fullscreen');
         fullscreenBtn.textContent = isFullscreen ? '🡼' : '⛶';
-        fullscreenBtn.title = isFullscreen ? 'Esci da schermo intero' : 'Mappa a schermo intero';
+            fullscreenBtn.title = isFullscreen ? t('pages.gallery.exitFullscreenMap') : t('pages.gallery.fullscreenMap');
         setTimeout(() => mapInstance?.invalidateSize(), 120);
     });
 }
@@ -2046,8 +2663,8 @@ async function initGalleryPhotoMap(items) {
     if (!geoItems.length) {
         if (statusLabel) {
             statusLabel.textContent = items.length
-                ? 'Nessuna foto con posizione disponibile.'
-                : 'Nessuna immagine disponibile.';
+                ? (currentLanguage === 'en' ? 'No photo with location available.' : currentLanguage === 'de' ? 'Keine Fotos mit Position verfuegbar.' : 'Nessuna foto con posizione disponibile.')
+                : (currentLanguage === 'en' ? 'No image available.' : currentLanguage === 'de' ? 'Keine Bilder verfuegbar.' : 'Nessuna immagine disponibile.');
         }
         if (points.length) refreshMapRoute(points);
         return;
@@ -2101,7 +2718,11 @@ async function initGalleryPhotoMap(items) {
     });
 
     if (statusLabel) {
-        statusLabel.textContent = `${geoItems.length} foto geolocalizzate · percorso live visibile`;
+        statusLabel.textContent = currentLanguage === 'en'
+            ? `${geoItems.length} geolocated photos · live route visible`
+            : currentLanguage === 'de'
+                ? `${geoItems.length} geolokalisierte Fotos · Live-Route sichtbar`
+                : `${geoItems.length} foto geolocalizzate · percorso live visibile`;
     }
 }
 async function initReplayPage() {
@@ -2121,12 +2742,12 @@ async function initReplayPage() {
     function updateMarker() {
         if (index >= coords.length) {
             clearInterval(interval);
-            statusLabel.textContent = 'Replay completato';
+            statusLabel.textContent = t('pages.replay.complete');
             return;
         }
         marker.setLatLng(coords[index]);
         replayTrail.addLatLng(coords[index]);
-        statusLabel.textContent = `Replay ${index + 1}/${coords.length}`;
+        statusLabel.textContent = t('dynamic.replayProgress', { current: index + 1, total: coords.length });
         mapInstance.panTo(coords[index], { animate: true, duration: 0.45 });
         index += 1;
     }
@@ -2137,7 +2758,7 @@ async function initReplayPage() {
         index = 0;
         marker.setLatLng(coords[0]);
         replayTrail.setLatLngs([coords[0]]);
-        if (statusLabel) statusLabel.textContent = 'Replay pronto';
+        if (statusLabel) statusLabel.textContent = t('pages.replay.ready');
     });
     document.getElementById('replaySpeed')?.addEventListener('input', event => { document.getElementById('replaySpeedLabel').textContent = `${event.target.value} ms`; });
 }
@@ -2151,8 +2772,8 @@ async function initProgressPage() {
     if (!badges.length) {
         renderEmptyState(
             grid,
-            'Badge non impostati',
-            'Nessun traguardo predefinito. Potrai aggiungere i badge quando vorrai iniziare il monitoraggio reale.'
+            t('dynamic.progressEmptyTitle'),
+            t('dynamic.progressEmptyText')
         );
         return;
     }
@@ -2162,7 +2783,7 @@ async function initProgressPage() {
         article.className = 'badge-card';
         const unlocked = badge.value <= summary.totalDistance || badge.value <= summary.progress;
         if (unlocked) article.classList.add('unlocked');
-        article.innerHTML = `<h3>${badge.title}</h3><p>${unlocked ? 'Sbloccato' : 'In attesa'}</p>`;
+        article.innerHTML = `<h3>${badge.title}</h3><p>${unlocked ? t('dynamic.badgeUnlocked') : t('dynamic.badgePending')}</p>`;
         grid.appendChild(article);
     });
 }
@@ -2171,7 +2792,7 @@ function showVisitorMarker(position) {
     const coords = [position.coords.latitude, position.coords.longitude];
     latestVisitorCoord = L.latLng(coords[0], coords[1]);
     if (visitorMarker) visitorMarker.setLatLng(coords);
-    else visitorMarker = L.marker(coords, { icon: L.divIcon({ className: 'visitor-icon', html: '<span class="user-location-icon" aria-hidden="true">👤</span>', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(mapInstance).bindPopup('La tua posizione');
+    else visitorMarker = L.marker(coords, { icon: L.divIcon({ className: 'visitor-icon', html: '<span class="user-location-icon" aria-hidden="true">👤</span>', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(mapInstance).bindPopup(currentLanguage === 'en' ? 'Your position' : currentLanguage === 'de' ? 'Deine Position' : 'La tua posizione');
 }
 function initPage() {
     const page = document.body.dataset.page;
