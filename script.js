@@ -363,7 +363,7 @@ const i18nCatalog = {
                 title: 'NorthLine – Live-Karte',
                 eyebrow: 'Live-Karte',
                 heading: 'NorthLine live auf der Karte.',
-                description: 'Verfolge aktuelle Position, absolvierte Strecke und Athleten-Daten mit einer Vollbildkarte.',
+                description: 'Verfolge die aktuelle Position, die bereits zurückgelegte Strecke und die Statistiken des Athleten auf einer Vollbildkarte.',
                 statsEyebrow: 'Live-Statistiken',
                 statsTitle: 'Aktueller Status',
                 statsLabels: ['Distanz', 'Verbleibend', 'Abgeschlossen', 'Geschwindigkeit', 'Höhe', 'Letztes Update', 'Streckenfortschritt', 'Zeit', 'Höhenmeter', 'Schritte', 'Distanz vom Start'],
@@ -424,17 +424,17 @@ const i18nCatalog = {
                 title: 'NorthLine – Projekt',
                 eyebrow: 'NorthLine',
                 heading: 'Was ist das NorthLine-Projekt?',
-                intro: 'NorthLine ist viel mehr als eine einfache Schweiz-Durchquerung. Es ist ein Projekt aus dem Wunsch, Grenzen zu testen, das Land Schritt für Schritt zu erkunden und jeden Moment in Echtzeit zu teilen.',
+                intro: 'NorthLine ist weit mehr als eine einfache Durchquerung der Schweiz. Es ist ein Projekt, das aus dem Wunsch entstanden ist, sich selbst herauszufordern, das Land Schritt für Schritt zu erkunden und jeden Moment in Echtzeit zu teilen. Über eine vollständig von mir entwickelte Plattform kann jeder die Reise verfolgen, den Fortschritt beobachten, die Daten analysieren und dieses Abenteuer erleben, als wäre er selbst mit uns auf dem Weg.',
                 cardTitles: ['Was NorthLine ist', 'Motivation', 'Vorbereitung', 'Ausrüstung', 'Ernährung', 'Route', 'Support', 'Besonderheiten'],
                 cardTexts: [
-                    'NorthLine ist eine Süd-Nord-Durchquerung der Schweiz zu Fuss, etwa 333 km und über 6.000 positive Höhenmeter.',
-                    'Das Projekt entstand, um die Komfortzone zu verlassen und zu zeigen, dass Konstanz und Vorbereitung grosse Ziele erreichbar machen.',
-                    'Monate mit Training, Streckenstudium, Höhenanalyse, Logistik und Plattformentwicklung waren vor dem Start entscheidend.',
-                    'Jedes Gramm zählt: Der Rucksack kombiniert Leichtigkeit, Sicherheit und Autonomie mit GPS, Notfallausrüstung, Batterien und Funktionskleidung.',
-                    'Lange Gehtage brauchen eine sorgfältige Energieplanung mit Wasser, Mineralien und energiereicher Nahrung.',
-                    'Die Route führt durch Seen, Täler, Wälder, Alpenpässe und Höhenwege mit ständiger Anpassung an Gelände und Wetter.',
-                    'Auch wenn jeder Schritt zu Fuss ist, gibt es während der ganzen Reise laufende logistische und menschliche Unterstützung.',
-                    'NorthLine teilt ausserdem Fotos, lokale Geschichten und Begegnungen, damit die Community Teil des Abenteuers wird.'
+                    'NorthLine ist eine Weitwanderung, die die gesamte Schweiz von Süden nach Norden auf einer rund 333 Kilometer langen Strecke mit über 6\'000 Höhenmetern durchquert. Eine ununterbrochene Reise durch Ebenen, Täler, Alpenpässe und Berge, die in festgelegten Etappen bewältigt und vollständig live dokumentiert wird.',
+                    'Dieses Projekt entstand aus dem Wunsch, die eigene Komfortzone zu verlassen und zu zeigen, dass mit Ausdauer, Vorbereitung und Entschlossenheit selbst Herausforderungen gemeistert werden können, die zunächst unmöglich erscheinen. Es ist kein Wettkampf gegen andere, sondern ein persönlicher Weg, auf dem jeder Kilometer einen Erfolg darstellt und jede Schwierigkeit eine Gelegenheit ist, daran zu wachsen.',
+                    'Hinter jedem Wandertag stecken Monate der Vorbereitung. Körperliches Training, Wanderungen mit Rucksack, die Planung der Route, die Analyse der Höhenmeter, die logistische Organisation und die Entwicklung der Webplattform waren entscheidend, um am Starttag bestens vorbereitet zu sein.',
+                    'Jedes Gramm zählt. Der Rucksack wurde so zusammengestellt, dass er die optimale Balance zwischen Leichtigkeit, Sicherheit und Eigenständigkeit bietet. GPS, Notfallausrüstung, Batterien, funktionelle Kleidung und alles Weitere, was nötig ist, um den unterschiedlichsten Wetterbedingungen entlang der Strecke gewachsen zu sein.',
+                    'Viele Stunden pro Tag zu wandern erfordert ein sorgfältiges Energiemanagement. Während der Tour werden regelmässig Wasser, Mineralstoffe und energiereiche Lebensmittel aufgenommen, um die Leistungsfähigkeit konstant zu halten und die Erholung zwischen den einzelnen Etappen zu fördern.',
+                    'Die Strecke führt durch einige der eindrucksvollsten Landschaften der Schweiz: Seen, Täler, Wälder, Alpenpässe und hochalpine Wanderwege. Jede Etappe bringt neue Herausforderungen mit sich und erfordert eine ständige Anpassung an Gelände und Wetterbedingungen.',
+                    'Auch wenn jeder Schritt zu Fuss zurückgelegt wird, werde ich dieses Abenteuer nicht allein bestreiten. Während der gesamten Reise begleitet mich meine Freundin im Auto und kümmert sich um die logistische Unterstützung, die Versorgung mit Wasser und Verpflegung sowie alles, was für ein sicheres Weiterkommen erforderlich ist. Ihr wichtigster Beitrag ist jedoch menschlicher Natur: In den schwierigsten Momenten wird ihre Anwesenheit mich daran erinnern, warum es sich lohnt, weiterzugehen.',
+                    'NorthLine soll nicht nur Zahlen erzählen. Während der Reise werden Fotos, interessante Informationen über die bereisten Regionen, Begegnungen unterwegs und viele weitere Eindrücke geteilt, die dieses Erlebnis einzigartig machen. Ziel ist es, allen, die das Projekt verfolgen, das Gefühl zu geben, Teil des Abenteuers zu sein – Schritt für Schritt.'
                 ]
             },
             admin: { title: 'NorthLine – Admin' }
