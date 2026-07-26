@@ -1370,7 +1370,7 @@ function getPointStatusKey(point) {
 
     return 'not-started';
 }
-function hasMovingStreakLongEnough(points, minMs = movingStatusRecoveryMs) {
+function hasMovingStreakLongEnough(points, minMs = movingStatusRecoveryMs, sinceTs = null) {
     if (!Array.isArray(points) || points.length < 2) return false;
     const lastPoint = points[points.length - 1];
     if (getPointStatusKey(lastPoint) !== 'moving') return false;
@@ -1378,11 +1378,14 @@ function hasMovingStreakLongEnough(points, minMs = movingStatusRecoveryMs) {
     const newestTs = new Date(lastPoint?.orario ?? '').getTime();
     if (!Number.isFinite(newestTs)) return false;
 
+    if (Number.isFinite(sinceTs) && newestTs < sinceTs) return false;
+
     let oldestMovingTs = newestTs;
     for (let index = points.length - 1; index >= 0; index -= 1) {
         const point = points[index];
-        if (getPointStatusKey(point) !== 'moving') break;
         const pointTs = new Date(point?.orario ?? '').getTime();
+        if (Number.isFinite(sinceTs) && Number.isFinite(pointTs) && pointTs < sinceTs) break;
+        if (getPointStatusKey(point) !== 'moving') break;
         if (Number.isFinite(pointTs)) oldestMovingTs = pointTs;
     }
     return (newestTs - oldestMovingTs) >= minMs;
@@ -1394,7 +1397,13 @@ function resolveSummaryStatus(points, lastPoint, speedKmh) {
 
     const forcedStatus = normalizeHomeStatus(liveStatusControlCache?.forcedStatus ?? '');
     if (forcedStatus === 'ended') {
-        return hasMovingStreakLongEnough(points) ? 'moving' : 'ended';
+        const forcedAtTs = new Date(liveStatusControlCache?.updatedAt ?? '').getTime();
+        const recoveredToMoving = hasMovingStreakLongEnough(
+            points,
+            movingStatusRecoveryMs,
+            Number.isFinite(forcedAtTs) ? forcedAtTs : null
+        );
+        return recoveredToMoving ? 'moving' : 'ended';
     }
     if (forcedStatus !== 'not-started') return forcedStatus;
 
