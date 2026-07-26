@@ -343,7 +343,7 @@ const i18nCatalog = {
                 labels: ['Tage', 'Stunden', 'Minuten', 'Sekunden'],
                 heroEyebrow: 'NorthLine · Die Schweiz zu Fuss durchqueren',
                 heroTitle: '333 Kilometer. Ein Ziel.',
-                heroDescription: 'NorthLine ist eine komplette Schweiz-Durchquerung zu Fuss, live geteilt über eine Plattform, die speziell für dieses Abenteuer entwickelt wurde. Hier kannst du jeden Schritt verfolgen, die Live-Position sehen, Daten analysieren und die Reise erleben, als waerst du mit uns auf dem Weg.',
+                heroDescription: 'NorthLine ist eine komplette Schweiz-Durchquerung zu Fuss, live geteilt über eine Plattform, die speziell für dieses Abenteuer entwickelt wurde. Hier kannst du jeden Schritt verfolgen, die Live-Position sehen, Daten analysieren und die Reise erleben, als wärst du mit uns auf dem Weg.',
                 heroButtons: ['Live verfolgen', 'Projekt entdecken'],
                 statsLabels: ['km gelaufen', 'km verbleibend', 'abgeschlossen', 'verstrichene Zeit', 'Höhenmeter', 'geschätzte Schritte'],
                 sectionEyebrow: 'Jeden Schritt verfolgen',
