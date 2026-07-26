@@ -1014,7 +1014,7 @@ function buildNightGallerySeedEntries() {
             date: '05/08/2026',
             time: '22:00',
             km: '0',
-            location: 'GGPQ+RG, 8180 Bülach',
+            location: 'GGPQ+RG, 8180 Buelach',
             tag: 'night',
             description: 'Quinta notte del percorso',
             image: 'data/Night_5.jpg',
@@ -1437,9 +1437,13 @@ function initHomeCountdown() {
     const hourEl = document.getElementById('countdownHours');
     const minuteEl = document.getElementById('countdownMinutes');
     const secondEl = document.getElementById('countdownSeconds');
+    const titleEl = document.getElementById('countdownTitle');
     const messageEl = document.getElementById('countdownMessage');
     const countdownEl = document.getElementById('homeCountdown');
     if (!dayEl || !hourEl || !minuteEl || !secondEl || !messageEl) return;
+
+    const translatedTitle = t('pages.home.countdownTitle');
+    if (titleEl && translatedTitle) titleEl.textContent = translatedTitle;
 
     const hideCountdown = () => {
         if (!countdownEl) return;
@@ -1450,6 +1454,7 @@ function initHomeCountdown() {
     const target = new Date(plannedStartDateIso).getTime();
 
     const render = () => {
+        if (titleEl && translatedTitle) titleEl.textContent = translatedTitle;
         const diffMs = target - Date.now();
         if (diffMs <= 0) {
             dayEl.textContent = '0';
