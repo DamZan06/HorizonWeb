@@ -73,7 +73,7 @@ const i18nCatalog = {
                 eyebrow: 'Analisi avanzata',
                 heading: 'Dashboard delle statistiche.',
                 description: 'Statistiche sportive complete con grafici per velocita, altitudine, andamento giornaliero e progressione.',
-                statLabels: ['Distanza percorsa', 'Distanza rimanente', 'Percentuale completata', 'Velocita attuale', 'Altitudine attuale', 'Dislivello positivo', 'Tempo totale'],
+                statLabels: ['Distanza percorsa', 'Distanza rimanente', 'Percentuale completata', 'Velocita attuale', 'Altitudine attuale', 'Dislivello positivo', 'Tempo totale', 'Tempo in movimento', 'Frequenza cardiaca'],
                 chartsTitle: 'Grafici live',
                 xAxis: 'Asse X',
                 xDistance: 'Km',
@@ -220,7 +220,7 @@ const i18nCatalog = {
                 eyebrow: 'Advanced analysis',
                 heading: 'Statistics dashboard.',
                 description: 'Complete sport statistics with charts for speed, altitude, daily trend, and progression.',
-                statLabels: ['Distance covered', 'Distance remaining', 'Completion rate', 'Current speed', 'Current altitude', 'Positive elevation', 'Total time'],
+                statLabels: ['Distance covered', 'Distance remaining', 'Completion rate', 'Current speed', 'Current altitude', 'Positive elevation', 'Total time', 'Moving time', 'Heart rate'],
                 chartsTitle: 'Live charts',
                 xAxis: 'X axis',
                 xDistance: 'Km',
@@ -378,7 +378,7 @@ const i18nCatalog = {
                 eyebrow: 'Erweiterte Analyse',
                 heading: 'Statistik-Dashboard.',
                 description: 'Vollständige Sportstatistiken mit Diagrammen für Tempo, Höhe, Tagesverlauf und Fortschritt.',
-                statLabels: ['Gelaufene Distanz', 'Verbleibende Distanz', 'Abschlussquote', 'Aktuelle Geschwindigkeit', 'Aktuelle Höhe', 'Positiver Höhengewinn', 'Gesamtzeit'],
+                statLabels: ['Gelaufene Distanz', 'Verbleibende Distanz', 'Abschlussquote', 'Aktuelle Geschwindigkeit', 'Aktuelle Höhe', 'Positiver Höhengewinn', 'Gesamtzeit', 'Bewegungszeit', 'Herzfrequenz'],
                 chartsTitle: 'Live-Diagramme',
                 xAxis: 'X-Achse',
                 xDistance: 'Km',
@@ -492,6 +492,7 @@ let firebaseAppInstance = null;
 let routeMarkerGroup = null;
 const movingStatusRecoveryMs = 2 * 60 * 1000;
 const liveStatusControlRefreshMs = 15000;
+const homeRefreshMs = 5000;
 let liveStatusControlCache = {
     forcedStatus: null,
     updatedAt: null
@@ -841,8 +842,13 @@ function hasUsableFirebaseConfig() {
 }
 function getFirebaseContentUrl(type) {
     const config = getFirebaseClientConfig();
-    if (!config?.databaseURL) return null;
-    return `${String(config.databaseURL).replace(/\/$/, '')}/${contentDatabasePath}/${type}.json`;
+    const configBase = String(config?.databaseURL || '').replace(/\/$/, '');
+    const fallbackBase = String(firebaseURL || '')
+        .replace(/\/$/, '')
+        .replace(/\/livetrack\/points\.json$/i, '');
+    const databaseBase = configBase || fallbackBase;
+    if (!databaseBase) return null;
+    return `${databaseBase}/${contentDatabasePath}/${type}.json`;
 }
 function ensureFirebaseClient() {
     const config = getFirebaseClientConfig();
@@ -1327,7 +1333,8 @@ async function ensureLiveStatusControl(force = false) {
     if (liveStatusControlFetchPromise) return liveStatusControlFetchPromise;
 
     liveStatusControlFetchPromise = (async () => {
-        const fallback = { forcedStatus: null, updatedAt: null };
+        const previous = liveStatusControlCache;
+        const fallback = previous || { forcedStatus: null, updatedAt: null };
         const publicUrl = getFirebaseContentUrl('liveStatus');
         if (!publicUrl) {
             liveStatusControlCache = fallback;
@@ -1357,6 +1364,28 @@ async function ensureLiveStatusControl(force = false) {
     });
 
     return liveStatusControlFetchPromise;
+}
+function extractCurrentSpeedKmh(point) {
+    const speedKmh = Number(point?.velocita?.km_h ?? point?.velocita?.kmh ?? Number.NaN);
+    if (Number.isFinite(speedKmh)) return speedKmh;
+    const speedMps = Number(point?.velocita?.m_s ?? point?.velocita?.mps ?? Number.NaN);
+    if (Number.isFinite(speedMps)) return speedMps * 3.6;
+    return null;
+}
+function computeLastSegmentSpeedKmh(points) {
+    if (!Array.isArray(points) || points.length < 2) return null;
+    const last = points[points.length - 1];
+    const prev = points[points.length - 2];
+    const lastTs = new Date(last?.orario ?? '').getTime();
+    const prevTs = new Date(prev?.orario ?? '').getTime();
+    const lastMeters = Number(last?.distanza?.metri ?? Number.NaN);
+    const prevMeters = Number(prev?.distanza?.metri ?? Number.NaN);
+    if (!Number.isFinite(lastTs) || !Number.isFinite(prevTs) || lastTs <= prevTs) return null;
+    if (!Number.isFinite(lastMeters) || !Number.isFinite(prevMeters) || lastMeters < prevMeters) return null;
+    const deltaSeconds = (lastTs - prevTs) / 1000;
+    if (deltaSeconds <= 0) return null;
+    const deltaMeters = lastMeters - prevMeters;
+    return (deltaMeters / deltaSeconds) * 3.6;
 }
 function getPointStatusKey(point) {
     const fromTracker = normalizeHomeStatus(point?.stato ?? point?.status ?? point?.pointStatus ?? '');
@@ -1390,6 +1419,23 @@ function hasMovingStreakLongEnough(points, minMs = movingStatusRecoveryMs, since
     }
     return (newestTs - oldestMovingTs) >= minMs;
 }
+function hasRecoveredAfterForcedEnded(points, sinceTs, minMs = movingStatusRecoveryMs) {
+    if (!Array.isArray(points) || points.length < 2 || !Number.isFinite(sinceTs)) return false;
+    let streakStartTs = null;
+    for (let index = 0; index < points.length; index += 1) {
+        const point = points[index];
+        const pointTs = new Date(point?.orario ?? '').getTime();
+        if (!Number.isFinite(pointTs) || pointTs < sinceTs) continue;
+        const isMoving = getPointStatusKey(point) === 'moving';
+        if (!isMoving) {
+            streakStartTs = null;
+            continue;
+        }
+        if (!Number.isFinite(streakStartTs)) streakStartTs = pointTs;
+        if ((pointTs - streakStartTs) >= minMs) return true;
+    }
+    return false;
+}
 function resolveSummaryStatus(points, lastPoint, speedKmh) {
     const inferredStatus = speedKmh > 0.5 ? 'moving' : 'paused';
     const trackerStatus = getPointStatusKey(lastPoint);
@@ -1398,6 +1444,8 @@ function resolveSummaryStatus(points, lastPoint, speedKmh) {
     const forcedStatus = normalizeHomeStatus(liveStatusControlCache?.forcedStatus ?? '');
     if (forcedStatus === 'ended') {
         const forcedAtTs = new Date(liveStatusControlCache?.updatedAt ?? '').getTime();
+        const alreadyRecovered = hasRecoveredAfterForcedEnded(points, forcedAtTs, movingStatusRecoveryMs);
+        if (alreadyRecovered) return baseStatus;
         const recoveredToMoving = hasMovingStreakLongEnough(
             points,
             movingStatusRecoveryMs,
@@ -1408,6 +1456,22 @@ function resolveSummaryStatus(points, lastPoint, speedKmh) {
     if (forcedStatus !== 'not-started') return forcedStatus;
 
     return baseStatus;
+}
+function extractHeartRateBpm(point) {
+    const direct = Number(point?.frequenza_cardiaca?.bpm ?? point?.heartRateBeatsPerMin ?? point?.heartRate ?? Number.NaN);
+    return Number.isFinite(direct) && direct > 0 ? Math.round(direct) : null;
+}
+function computeMovingDuration(points) {
+    if (!Array.isArray(points) || points.length < 2) return 0;
+    let movingSeconds = 0;
+    for (let index = 1; index < points.length; index += 1) {
+        const prevTs = new Date(points[index - 1]?.orario ?? '').getTime();
+        const currentTs = new Date(points[index]?.orario ?? '').getTime();
+        if (!Number.isFinite(prevTs) || !Number.isFinite(currentTs) || currentTs <= prevTs) continue;
+        if (getPointStatusKey(points[index]) !== 'moving') continue;
+        movingSeconds += Math.floor((currentTs - prevTs) / 1000);
+    }
+    return movingSeconds;
 }
 function buildSummary(points) {
     if (!points.length) return null;
@@ -1420,14 +1484,29 @@ function buildSummary(points) {
         ? Math.floor((endTs - startTs) / 1000)
         : null;
     const duration = elapsedFromTimestamps ?? (lastPoint.tempo_trascorso?.secondi ?? 0);
-    const speedFromPoint = Number(lastPoint?.velocita?.km_h ?? lastPoint?.velocita?.kmh ?? Number.NaN);
-    const speedFromMs = Number(lastPoint?.velocita?.m_s ?? lastPoint?.velocita?.mps ?? Number.NaN);
-    const speedFallback = duration > 0 ? ((lastPoint.distanza?.metri ?? 0) / duration) * 3.6 : 0;
-    const speed = Number.isFinite(speedFromPoint)
-        ? speedFromPoint
-        : Number.isFinite(speedFromMs)
-            ? speedFromMs * 3.6
-            : speedFallback;
+    const speedFromLatest = extractCurrentSpeedKmh(lastPoint);
+    const speedFromRecentPoint = speedFromLatest ?? (() => {
+        for (let index = points.length - 2; index >= 0; index -= 1) {
+            const value = extractCurrentSpeedKmh(points[index]);
+            if (value !== null) return value;
+        }
+        return null;
+    })();
+    const speedFromLastSegment = computeLastSegmentSpeedKmh(points);
+    const speed = Number.isFinite(speedFromRecentPoint)
+        ? Number(speedFromRecentPoint)
+        : Number.isFinite(speedFromLastSegment)
+            ? Number(speedFromLastSegment)
+            : 0;
+    const movingDuration = computeMovingDuration(points);
+    const heartRateBpm = extractHeartRateBpm(lastPoint)
+        ?? (() => {
+            for (let index = points.length - 1; index >= 0; index -= 1) {
+                const value = extractHeartRateBpm(points[index]);
+                if (value !== null) return value;
+            }
+            return null;
+        })();
     const elevationGain = points.reduce((acc, point, index) => {
         if (index === 0) return 0;
         const currentAlt = Number(point.altitudine?.metri ?? 0);
@@ -1440,7 +1519,9 @@ function buildSummary(points) {
         lastPoint,
         totalDistance,
         duration,
+        movingDuration,
         speed,
+        heartRateBpm,
         elevationGain,
         progress: Math.min(totalDistance / (gpxTotalKm || 290) * 100, 100),
         status: resolveSummaryStatus(points, lastPoint, speed)
@@ -1481,6 +1562,11 @@ function updateHomeHeroStatusDot(statusLabel) {
 }
 function normalizeHomeStatus(status) {
     const value = String(status || '').toLowerCase();
+    if (value === 'moving') return 'moving';
+    if (value === 'paused') return 'paused';
+    if (value === 'ended') return 'ended';
+    if (value === 'completed') return 'completed';
+    if (value === 'not-started' || value === 'not started') return 'not-started';
     if (value.includes('station') || value.includes('fermo') || value.includes('stop')) return 'paused';
     if (value.includes('mov')) return 'moving';
     if (value.includes('cycl') || value.includes('run') || value.includes('walk')) return 'moving';
@@ -1519,7 +1605,9 @@ function buildDashboardPreStartSummary() {
         lastPoint: null,
         totalDistance: 0,
         duration: 0,
+        movingDuration: 0,
         speed: 0,
+        heartRateBpm: null,
         elevationGain: 0,
         progress: 0,
         status: 'not-started'
@@ -1545,6 +1633,8 @@ function updateDashboardSummary(summary) {
     const metricAltitude = document.getElementById('metricAltitude');
     const metricElevation = document.getElementById('metricElevation');
     const metricTime = document.getElementById('metricTime');
+    const metricMovingTime = document.getElementById('metricMovingTime');
+    const metricHeartRate = document.getElementById('metricHeartRate');
 
     const distanceText = summary.totalDistance === 0 ? '0' : summary.totalDistance.toFixed(1);
     if (metricDistance) metricDistance.textContent = `${distanceText} km`;
@@ -1559,6 +1649,8 @@ function updateDashboardSummary(summary) {
     if (metricAltitude) metricAltitude.textContent = `${altitude.toFixed(0)} m`;
     if (metricElevation) metricElevation.textContent = `${Math.round(summary.elevationGain)} m`;
     if (metricTime) metricTime.textContent = summary.duration > 0 ? formatTime(summary.duration) : '0';
+    if (metricMovingTime) metricMovingTime.textContent = summary.movingDuration > 0 ? formatTime(summary.movingDuration) : '0';
+    if (metricHeartRate) metricHeartRate.textContent = Number.isFinite(summary.heartRateBpm) ? `${summary.heartRateBpm} bpm` : '-- bpm';
 }
 function initHomeCountdown() {
     const dayEl = document.getElementById('countdownDays');
@@ -2140,7 +2232,7 @@ async function initHomePage() {
         const latestSummary = buildSummary(latestPoints) || buildHomePreStartSummary();
         updateHomeSummary(latestSummary);
         updateHomeCountdownVisibility(latestSummary);
-    }, 8000);
+    }, homeRefreshMs);
 }
 function buildChartData(points, summaryContext = null) {
     const safePoints = points
