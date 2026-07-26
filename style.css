@@ -56,6 +56,22 @@ img { max-width: 100%; display: block; }
     border-color: rgba(73, 168, 255, 0.72);
     box-shadow: 0 0 0 2px rgba(73, 168, 255, 0.2);
 }
+.lang-switcher-desktop .lang-switcher-label {
+    color: #a3a3a3;
+}
+.lang-switcher-desktop .lang-switcher-select {
+    background: #d1d5db;
+    border-color: #9ca3af;
+    color: #6b7280;
+}
+.lang-switcher-desktop .lang-switcher-select option {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+.lang-switcher-desktop .lang-switcher-select option:checked {
+    color: #111827;
+    font-weight: 700;
+}
 .topbar-menu-toggle {
     display: none;
     border: 1px solid rgba(255, 255, 255, 0.2);

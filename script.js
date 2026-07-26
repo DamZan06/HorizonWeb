@@ -33,6 +33,7 @@ const i18nCatalog = {
             home: {
                 title: 'NorthLine | Traversata della Svizzera in tempo reale',
                 countdownEyebrow: 'Partenza prevista',
+                countdownTitle: '1 Agosto · ore 04:00',
                 countdownMessage: 'Calcolo del tempo rimanente in corso...',
                 labels: ['Giorni', 'Ore', 'Minuti', 'Secondi'],
                 heroEyebrow: 'NorthLine · Attraversando la Svizzera a piedi',
@@ -179,6 +180,7 @@ const i18nCatalog = {
             home: {
                 title: 'NorthLine | Switzerland crossing in real time',
                 countdownEyebrow: 'Planned departure',
+                countdownTitle: '1 August · 04:00',
                 countdownMessage: 'Calculating remaining time...',
                 labels: ['Days', 'Hours', 'Minutes', 'Seconds'],
                 heroEyebrow: 'NorthLine · Crossing Switzerland on foot',
@@ -336,6 +338,7 @@ const i18nCatalog = {
             home: {
                 title: 'NorthLine | Schweiz-Durchquerung in Echtzeit',
                 countdownEyebrow: 'Geplanter Start',
+                countdownTitle: '1. August · 04:00 Uhr',
                 countdownMessage: 'Verbleibende Zeit wird berechnet...',
                 labels: ['Tage', 'Stunden', 'Minuten', 'Sekunden'],
                 heroEyebrow: 'NorthLine · Die Schweiz zu Fuss durchqueren',
@@ -567,6 +570,7 @@ function applyStaticTranslations() {
     if (page === 'home') {
         const home = getDictionary().pages.home || {};
         if (home.countdownEyebrow) setText('.countdown-eyebrow', home.countdownEyebrow);
+        if (home.countdownTitle) setText('#countdownTitle', home.countdownTitle);
         if (home.countdownMessage) setText('#countdownMessage', home.countdownMessage);
         if (Array.isArray(home.labels)) {
             const labels = document.querySelectorAll('.countdown-grid article span');
