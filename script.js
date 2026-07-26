@@ -317,7 +317,7 @@ const i18nCatalog = {
     de: {
         common: {
             languageLabel: 'Sprache',
-            languageAria: 'Sprache waehlen',
+            languageAria: 'Sprache wählen',
             navAria: 'Hauptnavigation',
             nav: ['Start', 'Live', 'Dashboard', 'Galerie', 'Replay', 'Fortschritt', 'Projekt'],
             brands: {
@@ -330,8 +330,8 @@ const i18nCatalog = {
                 project: 'Projekt',
                 admin: 'Admin'
             },
-            menuOpen: 'Menue oeffnen',
-            menuClose: 'Menue schliessen',
+            menuOpen: 'Menü öffnen',
+            menuClose: 'Menü schliessen',
             languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' }
         },
         pages: {
@@ -343,17 +343,17 @@ const i18nCatalog = {
                 labels: ['Tage', 'Stunden', 'Minuten', 'Sekunden'],
                 heroEyebrow: 'NorthLine · Die Schweiz zu Fuss durchqueren',
                 heroTitle: '333 Kilometer. Ein Ziel.',
-                heroDescription: 'NorthLine ist eine komplette Schweiz-Durchquerung zu Fuss, live geteilt ueber eine Plattform, die speziell fuer dieses Abenteuer entwickelt wurde. Hier kannst du jeden Schritt verfolgen, die Live-Position sehen, Daten analysieren und die Reise erleben, als waerst du mit uns auf dem Weg.',
+                heroDescription: 'NorthLine ist eine komplette Schweiz-Durchquerung zu Fuss, live geteilt über eine Plattform, die speziell für dieses Abenteuer entwickelt wurde. Hier kannst du jeden Schritt verfolgen, die Live-Position sehen, Daten analysieren und die Reise erleben, als waerst du mit uns auf dem Weg.',
                 heroButtons: ['Live verfolgen', 'Projekt entdecken'],
-                statsLabels: ['km gelaufen', 'km verbleibend', 'abgeschlossen', 'verstrichene Zeit', 'Hoehenmeter', 'geschaetzte Schritte'],
+                statsLabels: ['km gelaufen', 'km verbleibend', 'abgeschlossen', 'verstrichene Zeit', 'Höhenmeter', 'geschätzte Schritte'],
                 sectionEyebrow: 'Jeden Schritt verfolgen',
                 sectionTitle: 'Die Reise nicht nur ansehen. Erleben.',
-                sectionDescription: 'NorthLine laesst dich die gesamte Schweiz-Durchquerung ueber Live-Karten, aktuelle Statistiken, taegliche Berichte und exklusive Inhalte verfolgen. Jeder Tag bringt neue Herausforderungen, neue Landschaften und eine neue Geschichte.',
+                sectionDescription: 'NorthLine lässt dich die gesamte Schweiz-Durchquerung über Live-Karten, aktuelle Statistiken, tägliche Berichte und exklusive Inhalte verfolgen. Jeder Tag bringt neue Herausforderungen, neue Landschaften und eine neue Geschichte.',
                 featureTitles: ['Live-Karte', 'Live-Statistiken', 'Reisetagebuch', 'Strecken-Replay'],
                 featureTexts: [
                     'Verfolge meine Position entlang der Strecke in Echtzeit. Jedes Update zeigt, wo ich bin, wie viele Kilometer geschafft sind und was bis zum Ziel fehlt.',
-                    'Geschwindigkeit, Distanz, Hoehe, Hoehengewinn, Gehzeit und viele weitere Werte werden waehrend des Abenteuers automatisch aktualisiert.',
-                    'Jeder Tag wird mit Fotos, Eindruecken, Herausforderungen, Emotionen und Entdeckungen auf dem Weg erzaehlt.',
+                    'Geschwindigkeit, Distanz, Höhe, Höhengewinn, Gehzeit und viele weitere Werte werden während des Abenteuers automatisch aktualisiert.',
+                    'Jeder Tag wird mit Fotos, Eindrücken, Herausforderungen, Emotionen und Entdeckungen auf dem Weg erzählt.',
                     'Erlebe die gesamte Durchquerung auf der Karte neu und beobachte jede Etappe mit einer interaktiven Timeline, synchron zur realen Strecke.'
                 ],
                 statusTitle: 'Aktueller Status',
@@ -366,7 +366,7 @@ const i18nCatalog = {
                 description: 'Verfolge aktuelle Position, absolvierte Strecke und Athleten-Daten mit einer Vollbildkarte.',
                 statsEyebrow: 'Live-Statistiken',
                 statsTitle: 'Aktueller Status',
-                statsLabels: ['Distanz', 'Verbleibend', 'Abgeschlossen', 'Geschwindigkeit', 'Hoehe', 'Letztes Update', 'Streckenfortschritt', 'Zeit', 'Hoehenmeter', 'Schritte', 'Distanz vom Start'],
+                statsLabels: ['Distanz', 'Verbleibend', 'Abgeschlossen', 'Geschwindigkeit', 'Höhe', 'Letztes Update', 'Streckenfortschritt', 'Zeit', 'Höhenmeter', 'Schritte', 'Distanz vom Start'],
                 mapControlAria: 'Kartensteuerung',
                 centerUser: 'Auf deine Position zentrieren',
                 centerLive: 'Auf Live-Position zentrieren',
@@ -377,14 +377,14 @@ const i18nCatalog = {
                 title: 'NorthLine – Dashboard',
                 eyebrow: 'Erweiterte Analyse',
                 heading: 'Statistik-Dashboard.',
-                description: 'Vollstaendige Sportstatistiken mit Diagrammen fuer Tempo, Hoehe, Tagesverlauf und Fortschritt.',
-                statLabels: ['Gelaufene Distanz', 'Verbleibende Distanz', 'Abschlussquote', 'Aktuelle Geschwindigkeit', 'Aktuelle Hoehe', 'Positiver Hoehengewinn', 'Gesamtzeit'],
+                description: 'Vollständige Sportstatistiken mit Diagrammen für Tempo, Höhe, Tagesverlauf und Fortschritt.',
+                statLabels: ['Gelaufene Distanz', 'Verbleibende Distanz', 'Abschlussquote', 'Aktuelle Geschwindigkeit', 'Aktuelle Höhe', 'Positiver Höhengewinn', 'Gesamtzeit'],
                 chartsTitle: 'Live-Diagramme',
                 xAxis: 'X-Achse',
                 xDistance: 'Km',
                 xTime: 'Zeit',
-                chartTitles: ['Geschwindigkeit', 'Hoehe', 'Kumulierte km', 'Kumulierter Hoehengewinn'],
-                chartEmpty: 'Diagramm zum Start verfuegbar.'
+                chartTitles: ['Geschwindigkeit', 'Höhe', 'Kumulierte km', 'Kumulierter Höhengewinn'],
+                chartEmpty: 'Diagramm zum Start verfügbar.'
             },
             gallery: {
                 title: 'NorthLine – Galerie',
@@ -397,7 +397,7 @@ const i18nCatalog = {
                 exitFullscreenMap: 'Vollbild verlassen',
                 modalClose: 'Schliessen',
                 modalPrev: 'Vorheriges Bild',
-                modalNext: 'Naechstes Bild',
+                modalNext: 'Nächstes Bild',
                 modalTitle: 'Bildtitel',
                 modalLocation: 'Ort',
                 modalDescription: 'Fotobeschreibung und Position auf der Karte.'
@@ -406,7 +406,7 @@ const i18nCatalog = {
                 title: 'NorthLine – Replay',
                 eyebrow: 'Replay',
                 heading: 'Strecke erneut erleben.',
-                description: 'Die gesamte Route abspielen, pausieren, beschleunigen und Schluesselpunkte ansehen.',
+                description: 'Die gesamte Route abspielen, pausieren, beschleunigen und Schlüsselpunkte ansehen.',
                 play: 'Abspielen',
                 pause: 'Pause',
                 reset: 'Reset',
@@ -424,16 +424,16 @@ const i18nCatalog = {
                 title: 'NorthLine – Projekt',
                 eyebrow: 'NorthLine',
                 heading: 'Was ist das NorthLine-Projekt?',
-                intro: 'NorthLine ist viel mehr als eine einfache Schweiz-Durchquerung. Es ist ein Projekt aus dem Wunsch, Grenzen zu testen, das Land Schritt fuer Schritt zu erkunden und jeden Moment in Echtzeit zu teilen.',
-                cardTitles: ['Was NorthLine ist', 'Motivation', 'Vorbereitung', 'Ausrustung', 'Ernaehrung', 'Route', 'Support', 'Besonderheiten'],
+                intro: 'NorthLine ist viel mehr als eine einfache Schweiz-Durchquerung. Es ist ein Projekt aus dem Wunsch, Grenzen zu testen, das Land Schritt für Schritt zu erkunden und jeden Moment in Echtzeit zu teilen.',
+                cardTitles: ['Was NorthLine ist', 'Motivation', 'Vorbereitung', 'Ausrüstung', 'Ernährung', 'Route', 'Support', 'Besonderheiten'],
                 cardTexts: [
-                    'NorthLine ist eine Sued-Nord-Durchquerung der Schweiz zu Fuss, etwa 333 km und ueber 6.000 positive Hoehenmeter.',
+                    'NorthLine ist eine Süd-Nord-Durchquerung der Schweiz zu Fuss, etwa 333 km und über 6.000 positive Höhenmeter.',
                     'Das Projekt entstand, um die Komfortzone zu verlassen und zu zeigen, dass Konstanz und Vorbereitung grosse Ziele erreichbar machen.',
-                    'Monate mit Training, Streckenstudium, Hoehenanalyse, Logistik und Plattformentwicklung waren vor dem Start entscheidend.',
-                    'Jedes Gramm zaehlt: Der Rucksack kombiniert Leichtigkeit, Sicherheit und Autonomie mit GPS, Notfallausrustung, Batterien und Funktionskleidung.',
-                    'Lange Gehtage brauchen eine sorgfaeltige Energieplanung mit Wasser, Mineralien und energiereicher Nahrung.',
-                    'Die Route fuehrt durch Seen, Taeler, Waelder, Alpenpaesse und Hoehenwege mit staendiger Anpassung an Gelaende und Wetter.',
-                    'Auch wenn jeder Schritt zu Fuss ist, gibt es waehrend der ganzen Reise laufende logistische und menschliche Unterstuetzung.',
+                    'Monate mit Training, Streckenstudium, Höhenanalyse, Logistik und Plattformentwicklung waren vor dem Start entscheidend.',
+                    'Jedes Gramm zählt: Der Rucksack kombiniert Leichtigkeit, Sicherheit und Autonomie mit GPS, Notfallausrüstung, Batterien und Funktionskleidung.',
+                    'Lange Gehtage brauchen eine sorgfältige Energieplanung mit Wasser, Mineralien und energiereicher Nahrung.',
+                    'Die Route führt durch Seen, Täler, Wälder, Alpenpässe und Höhenwege mit ständiger Anpassung an Gelände und Wetter.',
+                    'Auch wenn jeder Schritt zu Fuss ist, gibt es während der ganzen Reise laufende logistische und menschliche Unterstützung.',
                     'NorthLine teilt ausserdem Fotos, lokale Geschichten und Begegnungen, damit die Community Teil des Abenteuers wird.'
                 ]
             },
@@ -447,27 +447,27 @@ const i18nCatalog = {
             completed: 'Challenge abgeschlossen'
         },
         dynamic: {
-            noDescription: 'Keine Beschreibung verfuegbar.',
+            noDescription: 'Keine Beschreibung verfügbar.',
             dateUnset: 'Datum nicht gesetzt',
             update: 'Update',
             photo: 'Foto',
             locationUnset: 'Ort nicht gesetzt',
             galleryEmptyTitle: 'Leere Galerie',
-            galleryEmptyText: 'Noch keine Bilder verfuegbar. Fotos werden mit der naechsten Veroeffentlichung hinzugefuegt.',
+            galleryEmptyText: 'Noch keine Bilder verfügbar. Fotos werden mit der nächsten Veröffentlichung hinzugefügt.',
             diaryEmptyTitle: 'Leeres Tagebuch',
-            diaryEmptyText: 'Noch keine Eintraege veroeffentlicht. Berichte und Timeline-Updates folgen waehrend der Reise.',
+            diaryEmptyText: 'Noch keine Einträge veröffentlicht. Berichte und Timeline-Updates folgen während der Reise.',
             countdownUpdated: 'Countdown in Echtzeit aktualisiert.',
-            countdownStarted: 'Der geplante Start laeuft jetzt.',
-            liveNotAvailable: 'Warten auf den Start: noch keine Live-Daten verfuegbar.',
+            countdownStarted: 'Der geplante Start läuft jetzt.',
+            liveNotAvailable: 'Warten auf den Start: noch keine Live-Daten verfügbar.',
             liveTrackingActive: 'Tracker aktiv und aktualisiert.',
-            waitingNextPoint: 'Daten verfuegbar, warte auf naechste Position.',
+            waitingNextPoint: 'Daten verfügbar, warte auf nächste Position.',
             visitorDistance: 'Besucherabstand',
             visitorFromStart: 'Abstand vom Start',
-            notSupported: 'Nicht unterstuetzt',
+            notSupported: 'Nicht unterstützt',
             permissionDenied: 'Berechtigung verweigert',
             replayProgress: 'Replay {current}/{total}',
             progressEmptyTitle: 'Keine Badges definiert',
-            progressEmptyText: 'Aktuell sind keine Meilensteine definiert. Du kannst Badges beim echten Tracking hinzufuegen.',
+            progressEmptyText: 'Aktuell sind keine Meilensteine definiert. Du kannst Badges beim echten Tracking hinzufügen.',
             badgeUnlocked: 'Freigeschaltet',
             badgePending: 'Ausstehend'
         }
@@ -1014,7 +1014,7 @@ function buildNightGallerySeedEntries() {
             date: '05/08/2026',
             time: '22:00',
             km: '0',
-            location: 'GGPQ+RG, 8180 Buelach',
+            location: 'GGPQ+RG, 8180 Bülach',
             tag: 'night',
             description: 'Quinta notte del percorso',
             image: 'data/Night_5.jpg',
@@ -2672,8 +2672,8 @@ async function initGalleryPhotoMap(items) {
     if (!geoItems.length) {
         if (statusLabel) {
             statusLabel.textContent = items.length
-                ? (currentLanguage === 'en' ? 'No photo with location available.' : currentLanguage === 'de' ? 'Keine Fotos mit Position verfuegbar.' : 'Nessuna foto con posizione disponibile.')
-                : (currentLanguage === 'en' ? 'No image available.' : currentLanguage === 'de' ? 'Keine Bilder verfuegbar.' : 'Nessuna immagine disponibile.');
+                ? (currentLanguage === 'en' ? 'No photo with location available.' : currentLanguage === 'de' ? 'Keine Fotos mit Position verfügbar.' : 'Nessuna foto con posizione disponibile.')
+                : (currentLanguage === 'en' ? 'No image available.' : currentLanguage === 'de' ? 'Keine Bilder verfügbar.' : 'Nessuna immagine disponibile.');
         }
         if (points.length) refreshMapRoute(points);
         return;
