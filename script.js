@@ -112,7 +112,7 @@ const i18nCatalog = {
                 title: 'NorthLine – Progressi',
                 eyebrow: 'Obiettivi',
                 heading: 'Badge e progressi.',
-                description: 'Sezione pronta da zero: i badge verranno definiti e sbloccati con i dati reali della traversata.'
+                description: 'I badge mostrano i tuoi progressi lungo il percorso.'
             },
             project: {
                 title: 'NorthLine – Il progetto',
@@ -258,7 +258,7 @@ const i18nCatalog = {
                 title: 'NorthLine – Progress',
                 eyebrow: 'Goals',
                 heading: 'Badges and progress.',
-                description: 'Section ready from scratch: badges will be defined and unlocked with real crossing data.'
+                description: 'Badges show your progress along the route.'
             },
             project: {
                 title: 'NorthLine – Project',
@@ -415,7 +415,7 @@ const i18nCatalog = {
                 title: 'NorthLine – Fortschritt',
                 eyebrow: 'Ziele',
                 heading: 'Badges und Fortschritt.',
-                description: 'Bereich von Grund auf bereit: Badges werden mit echten Streckendaten definiert und freigeschaltet.'
+                description: 'Badges zeigen deinen Fortschritt entlang der Strecke.'
             },
             project: {
                 title: 'NorthLine – Projekt',
@@ -962,6 +962,15 @@ function parseDateTime(dateValue = '', timeValue = '') {
     const parsed = new Date(combined).getTime();
     return Number.isFinite(parsed) ? parsed : Number.NaN;
 }
+function parseKmValue(value) {
+    if (value === null || value === undefined) return Number.NaN;
+    if (typeof value === 'number') return Number.isFinite(value) ? value : Number.NaN;
+    const normalized = String(value).trim().replace(',', '.');
+    const match = normalized.match(/-?\d+(?:\.\d+)?/);
+    if (!match) return Number.NaN;
+    const parsed = Number(match[0]);
+    return Number.isFinite(parsed) ? parsed : Number.NaN;
+}
 function readItemGeo(item) {
     const lat = Number(item?.geo?.lat ?? item?.lat);
     const lng = Number(item?.geo?.lng ?? item?.lng);
@@ -1089,6 +1098,7 @@ async function loadUnifiedMediaItems() {
     const media = [];
     diaryEntries.forEach((entry, index) => {
         if (!entry.image) return;
+        const sortKm = parseKmValue(entry.km);
         media.push({
             id: entry.id || createRecordId('media-diary'),
             source: currentLanguage === 'en' ? 'Diary' : currentLanguage === 'de' ? 'Tagebuch' : 'Diario',
@@ -1097,11 +1107,13 @@ async function loadUnifiedMediaItems() {
             description: entry.text || '',
             image: entry.image,
             geo: readItemGeo(entry),
-            sortTs: parseDateTime(entry.date)
+            sortTs: parseDateTime(entry.date),
+            sortKm
         });
     });
     timelineEntries.forEach((entry, index) => {
         if (!entry.image) return;
+        const sortKm = parseKmValue(entry.km);
         media.push({
             id: entry.id || createRecordId('media-timeline'),
             source: 'Timeline',
@@ -1110,7 +1122,8 @@ async function loadUnifiedMediaItems() {
             description: entry.description || '',
             image: entry.image,
             geo: readItemGeo(entry),
-            sortTs: parseDateTime(entry.date, entry.time)
+            sortTs: parseDateTime(entry.date, entry.time),
+            sortKm
         });
     });
     galleryEntries.forEach((entry, index) => {
@@ -1118,6 +1131,7 @@ async function loadUnifiedMediaItems() {
         const dateSegment = [entry.date, entry.time].filter(Boolean).join(' ').trim();
         const kmSegment = entry.km ? `${entry.km} km` : '';
         const locationLine = [entry.location, dateSegment, kmSegment].filter(Boolean).join(' · ');
+        const sortKm = parseKmValue(entry.km);
         media.push({
             id: entry.id || createRecordId('media-gallery'),
             source: currentLanguage === 'en' ? 'Gallery' : currentLanguage === 'de' ? 'Galerie' : 'Galleria',
@@ -1126,13 +1140,17 @@ async function loadUnifiedMediaItems() {
             description: entry.description || '',
             image: entry.image,
             geo: readItemGeo(entry),
-            sortTs: parseDateTime(entry.date, entry.time)
+            sortTs: parseDateTime(entry.date, entry.time),
+            sortKm
         });
     });
     return media.sort((a, b) => {
+        const aKm = Number.isFinite(a.sortKm) ? a.sortKm : Number.POSITIVE_INFINITY;
+        const bKm = Number.isFinite(b.sortKm) ? b.sortKm : Number.POSITIVE_INFINITY;
+        if (aKm !== bKm) return aKm - bKm;
         const aTs = Number.isFinite(a.sortTs) ? a.sortTs : Number.POSITIVE_INFINITY;
         const bTs = Number.isFinite(b.sortTs) ? b.sortTs : Number.POSITIVE_INFINITY;
-        if (aTs !== bTs) return bTs - aTs;
+        if (aTs !== bTs) return aTs - bTs;
         return a.title.localeCompare(b.title, currentLanguage);
     });
 }
@@ -1781,6 +1799,15 @@ function formatHoursTick(hoursValue) {
     const mm = totalMinutes % 60;
     return `${hh}h ${String(mm).padStart(2, '0')}m`;
 }
+function formatChartTooltipValue(value, unit) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return '--';
+    if (unit === 'km/h') return `${numeric.toFixed(1)} km/h`;
+    if (unit === 'bpm') return `${Math.round(numeric)} bpm`;
+    if (unit === 'm') return `${Math.round(numeric)} m`;
+    if (unit === 'km') return `${numeric.toFixed(2)} km`;
+    return `${numeric.toFixed(2)}`;
+}
 
 function createChart(canvasId, label, data, color, yAxisLabel = '', xAxisConfig = {}) {
     const ctx = document.getElementById(canvasId);
@@ -1790,8 +1817,10 @@ function createChart(canvasId, label, data, color, yAxisLabel = '', xAxisConfig 
         max: xAxisConfig.max,
         label: xAxisConfig.label || 'Km',
         tickCallback: xAxisConfig.tickCallback || (value => Number(value).toFixed(0)),
-        maxTicksLimit: Number.isFinite(xAxisConfig.maxTicksLimit) ? xAxisConfig.maxTicksLimit : 7
+        maxTicksLimit: Number.isFinite(xAxisConfig.maxTicksLimit) ? xAxisConfig.maxTicksLimit : 7,
+        mode: xAxisConfig.mode === 'time' ? 'time' : 'distance'
     };
+    const yUnit = String(yAxisLabel || '').toLowerCase();
     if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
     chartInstances[canvasId] = new Chart(ctx, {
         type: 'line',
@@ -1805,8 +1834,10 @@ function createChart(canvasId, label, data, color, yAxisLabel = '', xAxisConfig 
                 tension: 0.24,
                 fill: true,
                 spanGaps: false,
-                pointRadius: 1.8,
-                pointHoverRadius: 3.6
+                borderWidth: 1.6,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                pointHitRadius: 12
             }]
         },
         options: {
@@ -1816,7 +1847,24 @@ function createChart(canvasId, label, data, color, yAxisLabel = '', xAxisConfig 
                 mode: 'nearest',
                 intersect: false
             },
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    displayColors: false,
+                    callbacks: {
+                        title(items) {
+                            if (!Array.isArray(items) || !items.length) return '';
+                            const rawX = Number(items[0]?.parsed?.x ?? Number.NaN);
+                            if (!Number.isFinite(rawX)) return '';
+                            if (axis.mode === 'time') return `Tempo: ${formatHoursTick(rawX)}`;
+                            return `Distanza: ${rawX.toFixed(2)} km`;
+                        },
+                        label(context) {
+                            return `${label}: ${formatChartTooltipValue(context?.parsed?.y, yUnit)}`;
+                        }
+                    }
+                }
+            },
             scales: {
                 x: {
                     type: 'linear',
@@ -1955,6 +2003,260 @@ function formatWaypointLabel(name, index) {
     const raw = String(name || '').trim();
     if (!raw) return buildRouteLabel('Night', index);
     return raw.replace(/_/g, ' ');
+}
+
+const hiddenProgressDefinitionsByLocale = {
+    it: [
+        {
+            id: 'first-sunset',
+            title: 'Primo tramonto',
+            subtitle: 'Completata la prima giornata.',
+            status: 'Sbloccato'
+        },
+        {
+            id: 'midnight-walk',
+            title: 'Notte fonda',
+            subtitle: 'Hai camminato dopo mezzanotte.',
+            status: 'Sbloccato'
+        },
+        {
+            id: 'weather-challenge',
+            title: 'Sfida al meteo',
+            subtitle: 'Hai affrontato pioggia o temporale.',
+            status: 'Sbloccato'
+        },
+        {
+            id: 'northline-peak',
+            title: 'Tetto della NorthLine',
+            subtitle: 'Raggiunto il punto piu alto del percorso.',
+            status: 'Sbloccato'
+        },
+        {
+            id: 'never-stop',
+            title: 'Mai fermarsi',
+            subtitle: 'Oltre 15 ore consecutive in movimento.',
+            status: 'Sbloccato'
+        }
+    ],
+    en: [
+        {
+            id: 'first-sunset',
+            title: 'First sunset',
+            subtitle: 'Completed the first day.',
+            status: 'Unlocked'
+        },
+        {
+            id: 'midnight-walk',
+            title: 'Late night',
+            subtitle: 'You walked after midnight.',
+            status: 'Unlocked'
+        },
+        {
+            id: 'weather-challenge',
+            title: 'Weather challenge',
+            subtitle: 'You faced rain or a storm.',
+            status: 'Unlocked'
+        },
+        {
+            id: 'northline-peak',
+            title: 'NorthLine summit',
+            subtitle: 'Reached the highest point of the route.',
+            status: 'Unlocked'
+        },
+        {
+            id: 'never-stop',
+            title: 'Never stop',
+            subtitle: 'More than 15 consecutive hours moving.',
+            status: 'Unlocked'
+        }
+    ],
+    de: [
+        {
+            id: 'first-sunset',
+            title: 'Erster Sonnenuntergang',
+            subtitle: 'Der erste Tag ist abgeschlossen.',
+            status: 'Freigeschaltet'
+        },
+        {
+            id: 'midnight-walk',
+            title: 'Tiefe Nacht',
+            subtitle: 'Du bist nach Mitternacht gelaufen.',
+            status: 'Freigeschaltet'
+        },
+        {
+            id: 'weather-challenge',
+            title: 'Wetterkampf',
+            subtitle: 'Du hast Regen oder Gewitter gemeistert.',
+            status: 'Freigeschaltet'
+        },
+        {
+            id: 'northline-peak',
+            title: 'NorthLine-Gipfel',
+            subtitle: 'Den hoechsten Punkt der Route erreicht.',
+            status: 'Freigeschaltet'
+        },
+        {
+            id: 'never-stop',
+            title: 'Nie stehen bleiben',
+            subtitle: 'Mehr als 15 Stunden am Stueck in Bewegung.',
+            status: 'Freigeschaltet'
+        }
+    ]
+};
+
+function getHiddenProgressDefinitions(locale) {
+    return hiddenProgressDefinitionsByLocale[locale] || hiddenProgressDefinitionsByLocale.it;
+}
+
+function normalizeProgressUnlockId(value) {
+    return String(value || '').trim();
+}
+
+function extractProgressUnlockIds(items) {
+    return (Array.isArray(items) ? items : [])
+        .map(item => normalizeProgressUnlockId(item?.id ?? item?.unlockId ?? item?.key ?? item))
+        .filter(Boolean);
+}
+
+async function loadProgressUnlockIds() {
+    const items = await loadCollection('progressUnlocks');
+    return new Set(extractProgressUnlockIds(items));
+}
+
+const cantonProgressCacheKey = 'northline-canton-progress-cache-v3';
+const cantonKeyToLabels = {
+    it: {
+        ticino: 'Ticino',
+        uri: 'Uri',
+        schwyz: 'Svitto',
+        lucerne: 'Lucerna',
+        zug: 'Zugo',
+        zurich: 'Zurigo',
+        schaffhausen: 'Sciaffusa'
+    },
+    en: {
+        ticino: 'Ticino',
+        uri: 'Uri',
+        schwyz: 'Schwyz',
+        lucerne: 'Lucerne',
+        zug: 'Zug',
+        zurich: 'Zurich',
+        schaffhausen: 'Schaffhausen'
+    },
+    de: {
+        ticino: 'Tessin',
+        uri: 'Uri',
+        schwyz: 'Schwyz',
+        lucerne: 'Luzern',
+        zug: 'Zug',
+        zurich: 'Zürich',
+        schaffhausen: 'Schaffhausen'
+    }
+};
+const cantonOrder = ['ticino', 'uri', 'schwyz', 'lucerne', 'zug', 'zurich', 'schaffhausen'];
+
+function normalizeSwissCanton(value) {
+    const text = String(value || '').trim().toLowerCase();
+    if (!text) return null;
+    if (text.includes('ticino') || text.includes('tessin')) return 'ticino';
+    if (text === 'uri' || text.includes('uri')) return 'uri';
+    if (text.includes('schwyz') || text.includes('svitto')) return 'schwyz';
+    if (text.includes('lucerne') || text.includes('luzern') || text.includes('lucerna')) return 'lucerne';
+    if (text.includes('zug') || text.includes('zugo')) return 'zug';
+    if (text.includes('zurich') || text.includes('zürich') || text.includes('zurigo')) return 'zurich';
+    if (text.includes('schaffhausen') || text.includes('sciaffusa')) return 'schaffhausen';
+    return null;
+}
+
+function getCantonLabel(cantonKey, locale) {
+    const labels = cantonKeyToLabels[locale] || cantonKeyToLabels.it;
+    return labels[cantonKey] || cantonKey;
+}
+
+function getCantonProgressSamples(points, sampleDistanceKm = 15) {
+    if (!Array.isArray(points) || !points.length) return [];
+    const sorted = [...points].filter(point => point?.coordinate && Number.isFinite(point.coordinate.lat) && Number.isFinite(point.coordinate.lon));
+    if (!sorted.length) return [];
+    const samples = [];
+    let nextDistance = 0;
+    let previousDistance = null;
+
+    sorted.forEach((point, index) => {
+        const currentDistance = Number(point?.distanza?.km);
+        const useDistance = Number.isFinite(currentDistance);
+        if (index === 0 || index === sorted.length - 1) {
+            samples.push(point);
+            previousDistance = useDistance ? currentDistance : previousDistance;
+            return;
+        }
+        if (!useDistance) {
+            const step = Math.max(1, Math.floor(sorted.length / 24));
+            if (index % step === 0) samples.push(point);
+            return;
+        }
+        if (currentDistance >= nextDistance) {
+            samples.push(point);
+            nextDistance = currentDistance + sampleDistanceKm;
+            previousDistance = currentDistance;
+            return;
+        }
+        if (previousDistance === null) previousDistance = currentDistance;
+    });
+
+    return samples.length ? samples : [sorted[0], sorted[sorted.length - 1]];
+}
+
+async function resolveCantonFromPoint(point, locale) {
+    const lat = Number(point?.coordinate?.lat);
+    const lon = Number(point?.coordinate?.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    const cacheKey = `${lat.toFixed(3)},${lon.toFixed(3)}`;
+    try {
+        const cached = JSON.parse(localStorage.getItem(cantonProgressCacheKey) || '{}');
+        if (cached && cached[cacheKey]) return cached[cacheKey];
+    } catch (_) {}
+
+    try {
+        const language = locale === 'de' ? 'de' : locale === 'en' ? 'en' : 'it';
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=10&addressdetails=1&accept-language=${language}`,
+            { cache: 'no-store' }
+        );
+        if (!response.ok) return null;
+        const payload = await response.json();
+        const address = payload && typeof payload === 'object' ? payload.address : null;
+        const cantonKey = normalizeSwissCanton(address?.state || address?.county || address?.region || payload?.display_name || '');
+        if (!cantonKey) return null;
+
+        const nextCache = (() => {
+            try { return JSON.parse(localStorage.getItem(cantonProgressCacheKey) || '{}'); } catch (_) { return {}; }
+        })();
+        nextCache[cacheKey] = cantonKey;
+        localStorage.setItem(cantonProgressCacheKey, JSON.stringify(nextCache));
+        return cantonKey;
+    } catch (error) {
+        console.warn('Impossibile risolvere il cantone dal punto live:', error);
+        return null;
+    }
+}
+
+async function computeTraversedCantons(points, locale) {
+    const samples = getCantonProgressSamples(points, 15);
+    const sequence = [];
+    for (const point of samples) {
+        const cantonKey = await resolveCantonFromPoint(point, locale);
+        if (!cantonKey) continue;
+        if (sequence[sequence.length - 1] !== cantonKey) {
+            sequence.push(cantonKey);
+        }
+        if (sequence.length >= cantonOrder.length) break;
+    }
+    return {
+        count: sequence.length,
+        total: cantonOrder.length,
+        keys: sequence,
+        labels: sequence.map(key => getCantonLabel(key, locale))
+    };
 }
 
 function buildNightMarkerIcon(label) {
@@ -2414,7 +2716,8 @@ function buildDashboardAxisConfig(mode, chartData, summary) {
             max: roundedMaxHours,
             label: t('pages.dashboard.xTime') || 'Tempo',
             tickCallback: value => formatHoursTick(value),
-            maxTicksLimit: 6
+            maxTicksLimit: 6,
+            mode: 'time'
         };
     }
     const maxKm = Math.max(1, chartData.maxDistanceKm || summary.totalDistance || 0);
@@ -2428,7 +2731,8 @@ function buildDashboardAxisConfig(mode, chartData, summary) {
             if (!Number.isFinite(numeric)) return '';
             return numeric < 10 ? numeric.toFixed(1) : numeric.toFixed(0);
         },
-        maxTicksLimit: 7
+        maxTicksLimit: 7,
+        mode: 'distance'
     };
 }
 function initDashboardChartFullscreen() {
@@ -2489,6 +2793,7 @@ async function initDashboardPage() {
     if (xAxisSelect) xAxisSelect.value = xAxisMode;
     const hasLiveData = points.length > 0;
     const chartCards = Array.from(document.querySelectorAll('.chart-grid .metric-card'));
+    initDashboardChartFullscreen();
     const setChartsEmpty = empty => {
         chartCards.forEach(card => {
             card.classList.toggle('chart-empty', empty);
@@ -2541,7 +2846,6 @@ async function initDashboardPage() {
     };
 
     renderCharts(xAxisMode);
-    initDashboardChartFullscreen();
     if (xAxisSelect) {
         xAxisSelect.addEventListener('change', event => {
             const mode = event.target.value === 'time' ? 'time' : 'distance';
@@ -2671,6 +2975,71 @@ async function renderAdminCollection(type) {
         article.append(meta, actions);
         list.append(article);
     });
+}
+
+async function renderAdminProgressUnlocks() {
+    const list = document.getElementById('adminHiddenProgressList');
+    if (!list) return;
+    const locale = currentLanguage === 'de' ? 'de' : currentLanguage === 'en' ? 'en' : 'it';
+    const definitions = getHiddenProgressDefinitions(locale);
+    const unlockedIds = await loadProgressUnlockIds();
+    list.innerHTML = '';
+
+    definitions.forEach(definition => {
+        const label = document.createElement('label');
+        label.className = 'admin-hidden-progress-item';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = definition.id;
+        checkbox.checked = unlockedIds.has(definition.id);
+        const text = document.createElement('div');
+        text.className = 'admin-hidden-progress-copy';
+        const title = document.createElement('strong');
+        title.textContent = definition.title;
+        const subtitle = document.createElement('span');
+        subtitle.textContent = definition.subtitle;
+        text.append(title, subtitle);
+        label.append(checkbox, text);
+        list.appendChild(label);
+    });
+}
+
+async function persistProgressUnlocks(unlockedIds) {
+    const items = Array.from(new Set(unlockedIds))
+        .map(id => ({ id, unlockedAt: new Date().toISOString() }));
+    await persistCollection('progressUnlocks', items);
+}
+
+function bindAdminProgressUnlocksForm() {
+    const form = document.getElementById('adminHiddenProgressForm');
+    const notice = document.getElementById('adminHiddenProgressNotice');
+    if (!form || form.dataset.bound === 'true') return;
+
+    const refreshForm = () => renderAdminProgressUnlocks().catch(error => {
+        setAdminFeedbackMessage(notice, `Impossibile leggere gli unlock: ${error.message || 'errore sconosciuto'}.`, true);
+    });
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        setAdminFeedbackMessage(notice, '', false);
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) submitButton.disabled = true;
+        try {
+            const selectedIds = Array.from(form.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(input => normalizeProgressUnlockId(input.value))
+                .filter(Boolean);
+            await persistProgressUnlocks(selectedIds);
+            await refreshForm();
+            setAdminFeedbackMessage(notice, 'Traguardi nascosti aggiornati su Firebase.', false);
+        } catch (error) {
+            setAdminFeedbackMessage(notice, `Salvataggio traguardi nascosti fallito: ${error.message || 'errore sconosciuto'}.`, true);
+        } finally {
+            if (submitButton) submitButton.disabled = false;
+        }
+    });
+
+    refreshForm();
+    form.dataset.bound = 'true';
 }
 function formatAdminNow() {
     const now = new Date();
@@ -3033,6 +3402,7 @@ function initAdminPage() {
             initAdminFormHelpers();
             bindAdminForm('gallery');
             bindAdminLiveStatusForm();
+            bindAdminProgressUnlocksForm();
             await syncNightGalleryEntriesToFirebase();
             await renderAdminCollection('gallery');
             loginForm.reset();
@@ -3055,6 +3425,7 @@ function initAdminPage() {
         initAdminFormHelpers();
         bindAdminForm('gallery');
         bindAdminLiveStatusForm();
+        bindAdminProgressUnlocksForm();
         syncNightGalleryEntriesToFirebase()
             .then(() => renderAdminCollection('gallery'))
             .catch(() => renderAdminCollection('gallery'));
@@ -3080,6 +3451,37 @@ function bindPhotoMapFullscreen() {
         fullscreenBtn.textContent = isFullscreen ? '🡼' : '⛶';
             fullscreenBtn.title = isFullscreen ? t('pages.gallery.exitFullscreenMap') : t('pages.gallery.fullscreenMap');
         setTimeout(() => mapInstance?.invalidateSize(), 120);
+    });
+}
+function buildReplayStartFlagIcon() {
+    return L.divIcon({
+        className: 'replay-start-flag',
+        html: '<span class="replay-start-flag__pin">🚩</span>',
+        iconSize: [34, 34],
+        iconAnchor: [17, 30],
+        popupAnchor: [0, -26]
+    });
+}
+function buildReplayPhotoPreviewIcon(item) {
+    const title = escapeHtml(item?.title || 'Photo');
+    const image = escapeHtml(item?.image || '');
+    return L.divIcon({
+        className: 'replay-photo-preview',
+        html: `<div class="replay-photo-preview__card"><img src="${image}" alt="${title}"><span>${title}</span></div>`,
+        iconSize: [148, 112],
+        iconAnchor: [74, 104],
+        popupAnchor: [0, -94]
+    });
+}
+function buildReplayPhotoMiniIcon(item) {
+    const title = escapeHtml(item?.title || 'Photo');
+    const image = escapeHtml(item?.image || '');
+    return L.divIcon({
+        className: 'replay-photo-mini',
+        html: `<div class="replay-photo-mini__card"><img src="${image}" alt="${title}"></div>`,
+        iconSize: [48, 38],
+        iconAnchor: [24, 34],
+        popupAnchor: [0, -32]
     });
 }
 async function initGalleryPhotoMap(items) {
@@ -3158,47 +3560,481 @@ async function initGalleryPhotoMap(items) {
 }
 async function initReplayPage() {
     initializeTheme();
-    await ensureGpxDataLoaded();
     initMap({ showRouteTrackers: false });
     buildNav();
+    const statusLabel = document.getElementById('replayStatus');
+    const speedInput = document.getElementById('replaySpeed');
+    const speedLabel = document.getElementById('replaySpeedLabel');
+
     const points = await fetchPoints();
-    const coords = points.length ? points.map(p => [p.coordinate.lat, p.coordinate.lon]) : [defaultCenter];
-    const route = L.polyline(coords, { color: '#7f7dff', weight: 5, opacity: 0.45 }).addTo(mapInstance);
+    const coords = points
+        .map(p => [Number(p?.coordinate?.lat), Number(p?.coordinate?.lon)])
+        .filter(pair => Number.isFinite(pair[0]) && Number.isFinite(pair[1]));
+
+    if (!coords.length) {
+        if (statusLabel) {
+            statusLabel.textContent = currentLanguage === 'en'
+                ? 'No Firebase points available for replay'
+                : currentLanguage === 'de'
+                    ? 'Keine Firebase-Punkte für Replay verfügbar'
+                    : 'Nessun punto Firebase disponibile per il replay';
+        }
+        const replayPlay = document.getElementById('replayPlay');
+        const replayPause = document.getElementById('replayPause');
+        const replayReset = document.getElementById('replayReset');
+        const replaySpeed = document.getElementById('replaySpeed');
+        if (replayPlay) replayPlay.disabled = true;
+        if (replayPause) replayPause.disabled = true;
+        if (replayReset) replayReset.disabled = true;
+        if (replaySpeed) replaySpeed.disabled = true;
+        return;
+    }
+    const mediaItems = await loadUnifiedMediaItems();
+    const replayPhotos = mediaItems.filter(item => item?.geo && item?.image);
+    const replayPhotoPoints = replayPhotos
+        .map(item => ({
+            item,
+            lat: Number(item?.geo?.lat),
+            lng: Number(item?.geo?.lng)
+        }))
+        .filter(entry => Number.isFinite(entry.lat) && Number.isFinite(entry.lng));
     const replayTrail = L.polyline([coords[0]], { color: '#7f7dff', weight: 6, opacity: 0.95 }).addTo(mapInstance);
-    mapInstance.fitBounds(route.getBounds() || L.latLngBounds(coords), { padding: [40, 40] });
+    mapInstance.setView(coords[0], 14);
     let index = 0;
     const marker = L.circleMarker(coords[0], { radius: 12, color: '#ffb347', fillColor: '#ffd382', fillOpacity: 1 }).addTo(mapInstance);
-    const statusLabel = document.getElementById('replayStatus');
-    let interval = null;
-    function updateMarker() {
-        if (index >= coords.length) {
-            clearInterval(interval);
-            statusLabel.textContent = t('pages.replay.complete');
+    const startFlagMarker = L.marker(coords[0], { icon: buildReplayStartFlagIcon() }).addTo(mapInstance);
+    startFlagMarker.bindPopup(currentLanguage === 'en' ? 'Start' : currentLanguage === 'de' ? 'Start' : 'Partenza');
+    let photoPreviewMarker = null;
+    let activePhotoId = null;
+    let activeReplayPhotoEntry = null;
+    let replayPhotoLayer = null;
+    let slowMotionUntil = 0;
+    let timerId = null;
+    let finalOverviewTimer = null;
+    let isPlaying = false;
+
+    if (statusLabel) {
+        statusLabel.textContent = currentLanguage === 'en'
+            ? 'Replay loading Firebase points...'
+            : currentLanguage === 'de'
+                ? 'Replay lädt Firebase-Punkte...'
+                : 'Replay in caricamento dai punti Firebase...';
+    }
+
+    const showNearbyReplayPhoto = (lat, lon) => {
+        if (!Array.isArray(replayPhotoPoints) || !replayPhotoPoints.length) {
+            if (photoPreviewMarker) {
+                mapInstance.removeLayer(photoPreviewMarker);
+                photoPreviewMarker = null;
+                activePhotoId = null;
+            }
+            activeReplayPhotoEntry = null;
             return;
         }
-        marker.setLatLng(coords[index]);
-        replayTrail.addLatLng(coords[index]);
-        statusLabel.textContent = t('dynamic.replayProgress', { current: index + 1, total: coords.length });
-        mapInstance.panTo(coords[index], { animate: true, duration: 0.45 });
-        index += 1;
+
+        const thresholdKm = 0.45;
+        let bestPhoto = null;
+        let bestDistance = Number.POSITIVE_INFINITY;
+
+        replayPhotoPoints.forEach(entry => {
+            const distance = haversineKm(lat, lon, entry.lat, entry.lng);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestPhoto = entry;
+            }
+        });
+
+        if (!bestPhoto || bestDistance > thresholdKm) {
+            if (photoPreviewMarker) {
+                mapInstance.removeLayer(photoPreviewMarker);
+                photoPreviewMarker = null;
+                activePhotoId = null;
+            }
+            activeReplayPhotoEntry = null;
+            return;
+        }
+
+        if (!photoPreviewMarker || activePhotoId !== bestPhoto.item.id) {
+            if (photoPreviewMarker) mapInstance.removeLayer(photoPreviewMarker);
+            photoPreviewMarker = L.marker([bestPhoto.lat, bestPhoto.lng], {
+                icon: buildReplayPhotoPreviewIcon(bestPhoto.item),
+                zIndexOffset: 1200
+            }).addTo(mapInstance);
+            activePhotoId = bestPhoto.item.id;
+            activeReplayPhotoEntry = bestPhoto;
+            slowMotionUntil = Date.now() + 1800;
+        } else {
+            photoPreviewMarker.setLatLng([bestPhoto.lat, bestPhoto.lng]);
+            activeReplayPhotoEntry = bestPhoto;
+        }
+    };
+
+    const clearReplayTimer = () => {
+        if (timerId) {
+            clearTimeout(timerId);
+            timerId = null;
+        }
+    };
+
+    const removeReplayPhotoLayer = () => {
+        if (replayPhotoLayer) {
+            mapInstance.removeLayer(replayPhotoLayer);
+            replayPhotoLayer = null;
+        }
+    };
+
+    const showFinalOverview = () => {
+        if (finalOverviewTimer) {
+            clearTimeout(finalOverviewTimer);
+            finalOverviewTimer = null;
+        }
+
+        const applyOverview = () => {
+        removeReplayPhotoLayer();
+        replayPhotoLayer = L.layerGroup();
+        replayPhotoPoints.forEach(entry => {
+            const mini = L.marker([entry.lat, entry.lng], {
+                icon: buildReplayPhotoMiniIcon(entry.item),
+                zIndexOffset: 900
+            });
+            mini.bindPopup(`<strong>${escapeHtml(entry.item.title || '')}</strong>`);
+            replayPhotoLayer.addLayer(mini);
+        });
+        replayPhotoLayer.addTo(mapInstance);
+
+        const finalBounds = L.latLngBounds([coords[0], coords[index - 1] || coords[coords.length - 1] || coords[0]]);
+        replayPhotoPoints.forEach(entry => finalBounds.extend([entry.lat, entry.lng]));
+        if (finalBounds.isValid()) {
+            mapInstance.fitBounds(finalBounds, { padding: [56, 56], maxZoom: 12 });
+        }
+        };
+
+        if (photoPreviewMarker && activeReplayPhotoEntry) {
+            const shrinkLatLng = photoPreviewMarker.getLatLng();
+            mapInstance.removeLayer(photoPreviewMarker);
+            photoPreviewMarker = null;
+            activePhotoId = null;
+            const shrinkMarker = L.marker(shrinkLatLng, {
+                icon: buildReplayPhotoMiniIcon(activeReplayPhotoEntry.item),
+                zIndexOffset: 1350
+            }).addTo(mapInstance);
+            finalOverviewTimer = window.setTimeout(() => {
+                if (mapInstance.hasLayer(shrinkMarker)) {
+                    mapInstance.removeLayer(shrinkMarker);
+                }
+                applyOverview();
+            }, 700);
+            return;
+        }
+
+        applyOverview();
+    };
+
+    const getEffectiveReplaySpeedMs = () => {
+        const baseMs = getReplaySpeedMs();
+        if (Date.now() < slowMotionUntil) {
+            return Math.min(1200, Math.round(baseMs * 2.8));
+        }
+        return baseMs;
+    };
+
+    showNearbyReplayPhoto(coords[0][0], coords[0][1]);
+    const getReplaySpeedMs = () => {
+        const value = Number(speedInput?.value ?? 80);
+        return Number.isFinite(value) ? Math.max(20, value) : 80;
+    };
+    const getReplayStepSize = () => {
+        const speedMs = getReplaySpeedMs();
+        const speedFactorStep = Math.max(1, Math.round(1800 / speedMs));
+        const lengthFactorStep = Math.max(1, Math.floor(coords.length / 2000));
+        return Math.max(speedFactorStep, lengthFactorStep);
+    };
+
+    function updateMarker() {
+        if (index >= coords.length) {
+            clearReplayTimer();
+            isPlaying = false;
+            if (statusLabel) statusLabel.textContent = t('pages.replay.complete');
+            showFinalOverview();
+            return;
+        }
+
+        const stepSize = getReplayStepSize();
+        const nextIndex = Math.min(index + stepSize, coords.length);
+        const segment = coords.slice(index, nextIndex);
+        const currentCoord = segment[segment.length - 1] || coords[index];
+
+        marker.setLatLng(currentCoord);
+        replayTrail.addLatLng(currentCoord);
+        showNearbyReplayPhoto(currentCoord[0], currentCoord[1]);
+        if (statusLabel) statusLabel.textContent = t('dynamic.replayProgress', { current: nextIndex, total: coords.length });
+        mapInstance.panTo(currentCoord, { animate: true, duration: 0.35 });
+        index = nextIndex;
+
+        if (index >= coords.length) {
+            clearReplayTimer();
+            isPlaying = false;
+            if (statusLabel) statusLabel.textContent = t('pages.replay.complete');
+            showFinalOverview();
+        }
     }
-    document.getElementById('replayPlay')?.addEventListener('click', () => { clearInterval(interval); interval = setInterval(updateMarker, Number(document.getElementById('replaySpeed')?.value || 500)); });
-    document.getElementById('replayPause')?.addEventListener('click', () => clearInterval(interval));
-    document.getElementById('replayReset')?.addEventListener('click', () => {
-        clearInterval(interval);
-        index = 0;
-        marker.setLatLng(coords[0]);
-        replayTrail.setLatLngs([coords[0]]);
-        if (statusLabel) statusLabel.textContent = t('pages.replay.ready');
+
+    const scheduleNextTick = () => {
+        if (!isPlaying) return;
+        clearReplayTimer();
+        timerId = setTimeout(() => {
+            timerId = null;
+            updateMarker();
+            if (isPlaying && index < coords.length) scheduleNextTick();
+        }, getEffectiveReplaySpeedMs());
+    };
+
+    document.getElementById('replayPlay')?.addEventListener('click', () => {
+        if (index >= coords.length) index = 0;
+        isPlaying = true;
+        removeReplayPhotoLayer();
+        scheduleNextTick();
     });
-    document.getElementById('replaySpeed')?.addEventListener('input', event => { document.getElementById('replaySpeedLabel').textContent = `${event.target.value} ms`; });
+    document.getElementById('replayPause')?.addEventListener('click', () => {
+        isPlaying = false;
+        clearReplayTimer();
+    });
+    document.getElementById('replayReset')?.addEventListener('click', () => {
+        isPlaying = false;
+        clearReplayTimer();
+        index = 0;
+        slowMotionUntil = 0;
+        marker.setLatLng(coords[0]);
+        startFlagMarker.setLatLng(coords[0]);
+        replayTrail.setLatLngs([coords[0]]);
+        removeReplayPhotoLayer();
+        showNearbyReplayPhoto(coords[0][0], coords[0][1]);
+        if (statusLabel) statusLabel.textContent = t('pages.replay.ready');
+        mapInstance.setView(coords[0], 14);
+    });
+    if (speedLabel) speedLabel.textContent = `${getReplaySpeedMs()} ms`;
+    speedInput?.addEventListener('input', event => {
+        const newMs = Number(event.target.value);
+        if (speedLabel) speedLabel.textContent = `${newMs} ms`;
+        if (isPlaying) {
+            scheduleNextTick();
+        }
+    });
 }
 async function initProgressPage() {
     initializeTheme();
     const points = await fetchPoints();
-    const summary = buildSummary(points) || { totalDistance: 0, progress: 0 };
-    const badges = [];
+    const summary = buildSummary(points) || {
+        totalDistance: 0,
+        progress: 0,
+        elevationGain: 0,
+        movingDuration: 0,
+        duration: 0
+    };
+    const estimatedSteps = computeEstimatedSteps(
+        Number(summary.totalDistance || 0),
+        Number(summary.duration || 0)
+    );
+    const locale = currentLanguage === 'de' ? 'de' : currentLanguage === 'en' ? 'en' : 'it';
+    const cantonProgress = await computeTraversedCantons(points, locale);
+    const unlockedProgressIds = await loadProgressUnlockIds();
+    const translations = {
+        it: {
+            categories: {
+                distance: 'Distanza',
+                elevation: 'Dislivello',
+                movingTime: 'Tempo in movimento',
+                steps: 'Passi',
+                cantons: 'Cantoni'
+            },
+            ui: {
+                level: (current, total) => `Livello ${current}/${total}`,
+                next: target => `Prossimo livello: ${target}`,
+                mastered: 'Missione leggendaria completata'
+            },
+            titles: {
+                distance: 'Traguardo distanza',
+                elevation: 'Traguardo dislivello',
+                movingTime: 'Traguardo tempo in movimento',
+                steps: 'Traguardo passi',
+                cantons: 'Cantoni attraversati'
+            },
+            subtitles: {
+                distance: target => `Raggiungi ${target.toFixed(1)} km percorsi`,
+                elevation: target => `Raggiungi ${Math.round(target)} m di dislivello positivo`,
+                movingTime: target => `Raggiungi ${formatTime(Math.floor(target))} di tempo in movimento`,
+                steps: target => `Raggiungi ${Math.round(target).toLocaleString('it-IT')} passi stimati`,
+                cantons: target => target > 0
+                    ? `Attraversi ${target} cantoni: ${cantonProgress.labels.slice(0, Math.min(target, cantonProgress.labels.length)).join(' · ')}`
+                    : 'Ancora nessun cantone attraversato'
+            }
+        },
+        en: {
+            categories: {
+                distance: 'Distance',
+                elevation: 'Elevation',
+                movingTime: 'Moving time',
+                steps: 'Steps',
+                cantons: 'Cantons'
+            },
+            ui: {
+                level: (current, total) => `Level ${current}/${total}`,
+                next: target => `Next level: ${target}`,
+                mastered: 'Legendary mission completed'
+            },
+            titles: {
+                distance: 'Distance milestone',
+                elevation: 'Elevation milestone',
+                movingTime: 'Moving time milestone',
+                steps: 'Step milestone',
+                cantons: 'Cantons crossed'
+            },
+            subtitles: {
+                distance: target => `Reach ${target.toFixed(1)} km total distance`,
+                elevation: target => `Reach ${Math.round(target)} m positive elevation`,
+                movingTime: target => `Reach ${formatTime(Math.floor(target))} of moving time`,
+                steps: target => `Reach ${Math.round(target).toLocaleString('en-US')} estimated steps`,
+                cantons: target => target > 0
+                    ? `Cross ${target} cantons: ${cantonProgress.labels.slice(0, Math.min(target, cantonProgress.labels.length)).join(' · ')}`
+                    : 'No cantons crossed yet'
+            }
+        },
+        de: {
+            categories: {
+                distance: 'Distanz',
+                elevation: 'Höhenmeter',
+                movingTime: 'Bewegungszeit',
+                steps: 'Schritte',
+                cantons: 'Kantone'
+            },
+            ui: {
+                level: (current, total) => `Stufe ${current}/${total}`,
+                next: target => `Nächste Stufe: ${target}`,
+                mastered: 'Legendäre Mission abgeschlossen'
+            },
+            titles: {
+                distance: 'Distanz-Meilenstein',
+                elevation: 'Höhenmeter-Meilenstein',
+                movingTime: 'Bewegungszeit-Meilenstein',
+                steps: 'Schritt-Meilenstein',
+                cantons: 'Durchquerte Kantone'
+            },
+            subtitles: {
+                distance: target => `Erreiche ${target.toFixed(1)} km Gesamtdistanz`,
+                elevation: target => `Erreiche ${Math.round(target)} m positiven Höhengewinn`,
+                movingTime: target => `Erreiche ${formatTime(Math.floor(target))} Bewegungszeit`,
+                steps: target => `Erreiche ${Math.round(target).toLocaleString('de-DE')} geschätzte Schritte`,
+                cantons: target => target > 0
+                    ? `Durchquere ${target} Kantone: ${cantonProgress.labels.slice(0, Math.min(target, cantonProgress.labels.length)).join(' · ')}`
+                    : 'Noch keine Kantone durchquert'
+            }
+        }
+    };
+    const copy = translations[locale] || translations.it;
+    const hiddenCopy = {
+        it: {
+            title: 'Traguardi nascosti',
+            description: 'Questi obiettivi compaiono solo dopo lo sblocco manuale dall\'admin.'
+        },
+        en: {
+            title: 'Hidden achievements',
+            description: 'These goals appear only after manual admin unlock.'
+        },
+        de: {
+            title: 'Versteckte Erfolge',
+            description: 'Diese Ziele erscheinen erst nach manueller Freischaltung im Admin.'
+        }
+    }[locale] || {
+        title: 'Traguardi nascosti',
+        description: 'Questi obiettivi compaiono solo dopo lo sblocco manuale dall\'admin.'
+    };
+    const formatDistance = value => `${value.toFixed(1)} km`;
+    const formatElevation = value => `${Math.round(value)} m`;
+    const formatMovingTime = value => formatTime(Math.max(0, Math.floor(value)));
+    const formatSteps = value => `${Math.round(value).toLocaleString(locale === 'it' ? 'it-IT' : locale === 'de' ? 'de-DE' : 'en-US')}`;
+    const cantonCount = cantonProgress.count;
+    const cantonTotal = cantonProgress.total;
+
+    const badgeDefinitions = [
+        {
+            categoryKey: 'distance',
+            value: Number(summary.totalDistance || 0),
+            targets: [50, 100, 200, 300, 350],
+            formatter: formatDistance
+        },
+        {
+            categoryKey: 'elevation',
+            value: Number(summary.elevationGain || 0),
+            targets: [1000, 2500, 4000, 6000],
+            formatter: formatElevation
+        },
+        {
+            categoryKey: 'movingTime',
+            value: Number(summary.movingDuration || 0),
+            targets: [10 * 3600, 30 * 3600, 60 * 3600, 100 * 3600],
+            formatter: formatMovingTime
+        },
+        {
+            categoryKey: 'steps',
+            value: Number(estimatedSteps || 0),
+            targets: [100000, 200000, 350000, 500000],
+            formatter: formatSteps
+        },
+        {
+            categoryKey: 'cantons',
+            value: cantonCount,
+            targets: [1, 2, 3, 4, 5, 6, 7],
+            formatter: value => `${Math.round(value)}`,
+            total: cantonTotal,
+            sequence: cantonProgress.labels,
+            isCantonBadge: true
+        }
+    ];
+
+    const badges = badgeDefinitions.map(definition => {
+        const targets = Array.isArray(definition.targets) ? definition.targets : [];
+        const safeValue = Number.isFinite(definition.value) ? Math.max(0, definition.value) : 0;
+        const isCantonBadge = Boolean(definition.isCantonBadge);
+        const cantonTotalCount = Number.isFinite(definition.total) && definition.total > 0 ? definition.total : cantonTotal;
+        const completedLevels = targets.filter(target => safeValue >= target).length;
+        const currentIndex = Math.min(completedLevels, Math.max(0, targets.length - 1));
+        const currentTarget = Number(targets[currentIndex] ?? 1);
+        const previousTarget = currentIndex > 0 ? Number(targets[currentIndex - 1]) : 0;
+        const isLastLevel = currentIndex === (targets.length - 1);
+        const isMastered = isLastLevel && safeValue >= currentTarget;
+        const range = Math.max(1, currentTarget - previousTarget);
+        const progressInLevel = isMastered
+            ? 100
+            : Math.min(Math.max(((safeValue - previousTarget) / range) * 100, 0), 100);
+        const nextTarget = !isLastLevel ? Number(targets[currentIndex + 1]) : null;
+        const cantonSequence = Array.isArray(definition.sequence) ? definition.sequence : [];
+        const cantonCountText = `${Math.round(safeValue)}/${cantonTotalCount}`;
+        return {
+            category: copy.categories[definition.categoryKey],
+            title: isCantonBadge
+                ? `${copy.titles[definition.categoryKey]} · ${cantonCountText}`
+                : `${copy.titles[definition.categoryKey]} · ${definition.formatter(currentTarget)}`,
+            subtitle: isCantonBadge
+                ? `${copy.subtitles[definition.categoryKey](Math.round(safeValue))}`
+                : copy.subtitles[definition.categoryKey](currentTarget),
+            levelLabel: isCantonBadge
+                ? copy.ui.level(Math.round(safeValue), cantonTotalCount)
+                : copy.ui.level(currentIndex + 1, targets.length),
+            value: safeValue,
+            target: isCantonBadge ? cantonTotalCount : currentTarget,
+            nextTarget: isCantonBadge ? null : nextTarget,
+            formatter: definition.formatter,
+            isMastered: isCantonBadge ? safeValue >= cantonTotalCount : isMastered,
+            progressInLevel: isCantonBadge ? (cantonTotalCount > 0 ? (safeValue / cantonTotalCount) * 100 : 0) : progressInLevel,
+            isCantonBadge,
+            cantonSequence,
+            cantonTotalCount
+        };
+    });
+
     const grid = document.querySelector('.badge-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
 
     if (!badges.length) {
         renderEmptyState(
@@ -3212,11 +4048,83 @@ async function initProgressPage() {
     badges.forEach(badge => {
         const article = document.createElement('article');
         article.className = 'badge-card';
-        const unlocked = badge.value <= summary.totalDistance || badge.value <= summary.progress;
+        const safeValue = Number.isFinite(badge.value) ? Math.max(0, badge.value) : 0;
+        const safeTarget = Number.isFinite(badge.target) && badge.target > 0 ? badge.target : 1;
+        const isCantonBadge = Boolean(badge.isCantonBadge);
+        const cantonTotalCount = Number.isFinite(badge.cantonTotalCount) && badge.cantonTotalCount > 0 ? badge.cantonTotalCount : cantonTotal;
+        const completionPct = isCantonBadge
+            ? Math.min(Math.max((safeValue / Math.max(1, cantonTotalCount)) * 100, 0), 100)
+            : (badge.isMastered ? 100 : Math.min(Math.max(Number(badge.progressInLevel || 0), 0), 100));
+        const unlocked = isCantonBadge ? safeValue >= cantonTotalCount : badge.isMastered;
         if (unlocked) article.classList.add('unlocked');
-        article.innerHTML = `<h3>${badge.title}</h3><p>${unlocked ? t('dynamic.badgeUnlocked') : t('dynamic.badgePending')}</p>`;
+        if (badge.isMastered && !isCantonBadge) article.classList.add('badge-card--mastered');
+        const currentText = isCantonBadge
+            ? `${Math.round(safeValue)}`
+            : (typeof badge.formatter === 'function' ? badge.formatter(safeValue) : `${safeValue}`);
+        const targetText = isCantonBadge
+            ? `${cantonTotalCount}`
+            : (typeof badge.formatter === 'function' ? badge.formatter(safeTarget) : `${safeTarget}`);
+        const statusText = unlocked ? copy.ui.mastered : t('dynamic.badgePending');
+        const nextText = !isCantonBadge && badge.nextTarget !== null && Number.isFinite(badge.nextTarget)
+            ? copy.ui.next(typeof badge.formatter === 'function' ? badge.formatter(badge.nextTarget) : String(badge.nextTarget))
+            : null;
+        const cantonListText = isCantonBadge
+            ? (badge.cantonSequence || []).slice(0, Math.round(safeValue)).join(' · ')
+            : '';
+        article.innerHTML = `
+            <p class="badge-category">${badge.category}</p>
+            <h3>${badge.title}</h3>
+            <p class="badge-level">${isCantonBadge ? `${Math.round(safeValue)}/${cantonTotalCount}` : badge.levelLabel}</p>
+            <p class="badge-subtitle">${badge.subtitle}</p>
+            <div class="badge-progress-meta">
+                <span>${currentText}</span>
+                <span>${targetText}</span>
+            </div>
+            <div class="badge-progress-line" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${completionPct.toFixed(1)}">
+                <span style="width:${completionPct.toFixed(1)}%"></span>
+            </div>
+            <p class="badge-status">${statusText} · ${completionPct.toFixed(1)}%</p>
+            ${isCantonBadge ? `<p class="badge-next">${cantonListText || t('dynamic.badgePending')}</p>` : (nextText ? `<p class="badge-next">${nextText}</p>` : '<p class="badge-mastered-mark">★</p>')}
+        `;
         grid.appendChild(article);
     });
+
+    const hiddenSection = document.getElementById('hiddenProgressSection');
+    const hiddenGrid = document.getElementById('hiddenBadgeGrid');
+    if (hiddenSection && hiddenGrid) {
+        const hiddenDefinitions = getHiddenProgressDefinitions(locale).filter(definition => unlockedProgressIds.has(definition.id));
+        hiddenGrid.innerHTML = '';
+        if (!hiddenDefinitions.length) {
+            hiddenSection.hidden = true;
+            return;
+        }
+
+        const hiddenEyebrow = hiddenSection.querySelector('.section-title .eyebrow');
+        const hiddenHeading = hiddenSection.querySelector('.section-title h2');
+        if (hiddenEyebrow) hiddenEyebrow.textContent = hiddenCopy.title;
+        if (hiddenHeading) hiddenHeading.textContent = hiddenCopy.title;
+
+        hiddenDefinitions.forEach(definition => {
+            const article = document.createElement('article');
+            article.className = 'badge-card badge-card--mastered unlocked hidden-badge-card';
+            article.innerHTML = `
+                <p class="badge-category">${hiddenCopy.title}</p>
+                <h3>${definition.title}</h3>
+                <p class="badge-level">${definition.status}</p>
+                <p class="badge-subtitle">${definition.subtitle}</p>
+                <div class="badge-progress-meta">
+                    <span>1</span>
+                    <span>1</span>
+                </div>
+                <div class="badge-progress-line" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                    <span style="width:100%"></span>
+                </div>
+                <p class="badge-status">${definition.status} · 100%</p>
+            `;
+            hiddenGrid.appendChild(article);
+        });
+        hiddenSection.hidden = false;
+    }
 }
 function showVisitorMarker(position) {
     if (!mapInstance || !position) return;
