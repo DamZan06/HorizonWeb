@@ -112,7 +112,8 @@ const i18nCatalog = {
                 title: 'NorthLine – Progressi',
                 eyebrow: 'Obiettivi',
                 heading: 'Badge e progressi.',
-                description: 'I badge mostrano i tuoi progressi lungo il percorso.'
+                description: 'I badge mostrano i tuoi progressi lungo il percorso.',
+                hiddenSectionTitle: 'Traguardi nascosti',
             },
             project: {
                 title: 'NorthLine – Il progetto',
@@ -258,7 +259,9 @@ const i18nCatalog = {
                 title: 'NorthLine – Progress',
                 eyebrow: 'Goals',
                 heading: 'Badges and progress.',
-                description: 'Badges show your progress along the route.'
+                description: 'Badges show your progress along the route.',
+                hiddenSectionTitle: 'Hidden milestones',
+                hiddenSectionTranslation: 'Traguardi nascosti / Versteckte Meilensteine'
             },
             project: {
                 title: 'NorthLine – Project',
@@ -415,7 +418,9 @@ const i18nCatalog = {
                 title: 'NorthLine – Fortschritt',
                 eyebrow: 'Ziele',
                 heading: 'Badges und Fortschritt.',
-                description: 'Badges zeigen deinen Fortschritt entlang der Strecke.'
+                description: 'Badges zeigen deinen Fortschritt entlang der Strecke.',
+                hiddenSectionTitle: 'Versteckte Meilensteine',
+                hiddenSectionTranslation: 'Traguardi nascosti / Hidden milestones'
             },
             project: {
                 title: 'NorthLine – Projekt',
@@ -712,6 +717,8 @@ function applyStaticTranslations() {
         if (progress.eyebrow) setText('.page-progress .section-title .eyebrow', progress.eyebrow);
         if (progress.heading) setText('.page-progress .section-title h2', progress.heading);
         if (progress.description) setText('.page-progress .section-title p:not(.eyebrow)', progress.description);
+        if (progress.hiddenSectionTitle) setText('.page-progress .hidden-progress-title', progress.hiddenSectionTitle);
+        if (progress.hiddenSectionTranslation) setText('.page-progress .hidden-progress-translation', progress.hiddenSectionTranslation);
     }
 
     if (page === 'project') {
