@@ -72,7 +72,7 @@ const i18nCatalog = {
                 eyebrow: 'Analisi avanzata',
                 heading: 'Dashboard delle statistiche.',
                 description: 'Statistiche sportive complete con grafici per velocita, altitudine, andamento giornaliero e progressione.',
-                statLabels: ['Distanza percorsa', 'Distanza rimanente', 'Percentuale completata', 'Velocita attuale', 'Velocita media in movimento', 'Velocita media totale', 'Velocita massima', 'Altitudine attuale', 'Dislivello positivo', 'Tempo totale', 'Tempo in movimento', 'Frequenza cardiaca', 'Frequenza cardiaca media'],
+                statLabels: ['Distanza percorsa', 'Distanza rimanente', 'Percentuale completata', 'Velocita attuale', 'Velocita media in movimento', 'Velocita media totale', 'Velocita massima', 'Altitudine attuale', 'Dislivello positivo', 'Tempo totale', 'Tempo in movimento', 'Frequenza cardiaca', 'Frequenza cardiaca media', 'Calorie bruciate', 'Acqua persa'],
                 chartsTitle: 'Grafici live',
                 xAxis: 'Asse X',
                 xDistance: 'Km',
@@ -219,7 +219,7 @@ const i18nCatalog = {
                 eyebrow: 'Advanced analysis',
                 heading: 'Statistics dashboard.',
                 description: 'Complete sport statistics with charts for speed, altitude, daily trend, and progression.',
-                statLabels: ['Distance covered', 'Distance remaining', 'Completion rate', 'Current speed', 'Moving average speed', 'Total average speed', 'Max speed', 'Current altitude', 'Positive elevation', 'Total time', 'Moving time', 'Heart rate', 'Average heart rate'],
+                statLabels: ['Distance covered', 'Distance remaining', 'Completion rate', 'Current speed', 'Moving average speed', 'Total average speed', 'Max speed', 'Current altitude', 'Positive elevation', 'Total time', 'Moving time', 'Heart rate', 'Average heart rate', 'Calories burned', 'Water lost'],
                 chartsTitle: 'Live charts',
                 xAxis: 'X axis',
                 xDistance: 'Km',
@@ -378,7 +378,7 @@ const i18nCatalog = {
                 eyebrow: 'Erweiterte Analyse',
                 heading: 'Statistik-Dashboard.',
                 description: 'Vollständige Sportstatistiken mit Diagrammen für Tempo, Höhe, Tagesverlauf und Fortschritt.',
-                statLabels: ['Gelaufene Distanz', 'Verbleibende Distanz', 'Abschlussquote', 'Aktuelle Geschwindigkeit', 'Durchschnitt in Bewegung', 'Gesamtdurchschnitt', 'Maximale Geschwindigkeit', 'Aktuelle Höhe', 'Positiver Höhengewinn', 'Gesamtzeit', 'Bewegungszeit', 'Herzfrequenz', 'Durchschnittliche Herzfrequenz'],
+                statLabels: ['Gelaufene Distanz', 'Verbleibende Distanz', 'Abschlussquote', 'Aktuelle Geschwindigkeit', 'Durchschnitt in Bewegung', 'Gesamtdurchschnitt', 'Maximale Geschwindigkeit', 'Aktuelle Höhe', 'Positiver Höhengewinn', 'Gesamtzeit', 'Bewegungszeit', 'Herzfrequenz', 'Durchschnittliche Herzfrequenz', 'Verbrannte Kalorien', 'Verlorenes Wasser'],
                 chartsTitle: 'Live-Diagramme',
                 xAxis: 'X-Achse',
                 xDistance: 'Km',
@@ -1483,6 +1483,53 @@ function extractHeartRateBpm(point) {
     const direct = Number(point?.frequenza_cardiaca?.bpm ?? point?.heartRateBeatsPerMin ?? point?.heartRate ?? Number.NaN);
     return Number.isFinite(direct) && direct > 0 ? Math.round(direct) : null;
 }
+function extractCaloriesBurnedKcal(point) {
+    const candidates = [
+        point?.calorie?.kcal,
+        point?.calories?.kcal,
+        point?.caloriesBurned,
+        point?.calories_burned,
+        point?.calories_bruciate,
+        point?.kcalBurned,
+        point?.kcal,
+        point?.calorie
+    ];
+    for (const candidate of candidates) {
+        const numeric = Number(candidate);
+        if (Number.isFinite(numeric) && numeric > 0) return Math.round(numeric);
+    }
+    return null;
+}
+function extractWaterLostLiters(point) {
+    const candidates = [
+        point?.water?.liters,
+        point?.water?.l,
+        point?.waterLostLiters,
+        point?.water_lost_liters,
+        point?.water_lost,
+        point?.waterLost,
+        point?.water?.lostLiters,
+        point?.acqua?.litri,
+        point?.acqua?.liters,
+        point?.litriAcqua,
+        point?.litri_acqua,
+        point?.acqua_persa,
+        point?.water_loss_liters
+    ];
+    for (const candidate of candidates) {
+        const numeric = Number(candidate);
+        if (Number.isFinite(numeric) && numeric >= 0) return Number(numeric.toFixed(1));
+    }
+    return null;
+}
+function extractLatestMetricValue(points, extractor) {
+    if (!Array.isArray(points) || !points.length) return null;
+    for (let index = points.length - 1; index >= 0; index -= 1) {
+        const value = extractor(points[index]);
+        if (value !== null) return value;
+    }
+    return null;
+}
 function computeMovingStats(points) {
     if (!Array.isArray(points) || points.length < 2) return { movingDuration: 0, movingDistanceKm: 0 };
     let movingSeconds = 0;
@@ -1514,6 +1561,45 @@ function computeAverageHeartRate(points) {
     if (!values.length) return null;
     const avg = values.reduce((acc, value) => acc + value, 0) / values.length;
     return Math.round(avg);
+}
+function computeEstimatedSteps(totalDistanceKm, durationSeconds) {
+    const distance = Math.max(0, Number(totalDistanceKm) || 0);
+    const hours = Math.max(0, Number(durationSeconds) || 0) / 3600;
+    const fatigueGain = Math.min(hours * 0.03, 0.35);
+    const stepsPerKm = 1420 * (1 + fatigueGain);
+    return Math.round(distance * stepsPerKm);
+}
+function estimateCaloriesBurnedKcal(totalDistanceKm, durationSeconds, elevationGainM, heartRateBpm = null, bodyWeightKg = 65) {
+    const distance = Math.max(0, Number(totalDistanceKm) || 0);
+    const movingHours = Math.max(0, Number(durationSeconds) || 0) / 3600;
+    const elevation = Math.max(0, Number(elevationGainM) || 0);
+    const heartRate = Number(heartRateBpm);
+    const weight = Math.max(0, Number(bodyWeightKg) || 70);
+
+    let estimate = distance * (70 + weight * 0.22) + movingHours * (230 + weight * 1.1) + elevation * 0.22;
+
+    if (Number.isFinite(heartRate) && heartRate > 0) {
+        const hrFactor = Math.max(0, (heartRate - 100) / 80);
+        estimate += estimate * (hrFactor * 0.08);
+    }
+
+    return Math.round(estimate);
+}
+function estimateWaterLostLiters(totalDistanceKm, durationSeconds, elevationGainM, heartRateBpm = null, bodyWeightKg = 60) {
+    const distance = Math.max(0, Number(totalDistanceKm) || 0);
+    const movingHours = Math.max(0, Number(durationSeconds) || 0) / 3600;
+    const elevation = Math.max(0, Number(elevationGainM) || 0);
+    const heartRate = Number(heartRateBpm);
+    const weight = Math.max(0, Number(bodyWeightKg) || 70);
+
+    let estimate = movingHours * (0.45 + weight * 0.0038) + distance * 0.045 + elevation * 0.0015;
+
+    if (Number.isFinite(heartRate) && heartRate > 0) {
+        const hrFactor = Math.max(0, (heartRate - 100) / 70);
+        estimate += hrFactor * 0.12;
+    }
+
+    return Number(Math.max(0, estimate).toFixed(1));
 }
 function computeMaxSpeedKmh(points) {
     if (!Array.isArray(points) || !points.length) return 0;
@@ -1573,6 +1659,10 @@ function buildSummary(points) {
         const diff = currentAlt - prevAlt;
         return acc + Math.max(diff, 0);
     }, 0);
+    const caloriesBurned = extractLatestMetricValue(points, extractCaloriesBurnedKcal)
+        ?? estimateCaloriesBurnedKcal(totalDistance, duration, elevationGain, heartRateBpm, 60);
+    const waterLostLiters = extractLatestMetricValue(points, extractWaterLostLiters)
+        ?? estimateWaterLostLiters(totalDistance, duration, elevationGain, heartRateBpm, 60);
     return {
         points,
         lastPoint,
@@ -1586,6 +1676,8 @@ function buildSummary(points) {
         maxSpeed,
         heartRateBpm,
         heartRateAvgBpm,
+        caloriesBurned,
+        waterLostLiters,
         elevationGain,
         progress: Math.min(totalDistance / (gpxTotalKm || 290) * 100, 100),
         status: resolveSummaryStatus(points, lastPoint, speed)
@@ -1677,6 +1769,8 @@ function buildDashboardPreStartSummary() {
         maxSpeed: 0,
         heartRateBpm: null,
         heartRateAvgBpm: null,
+        caloriesBurned: 0,
+        waterLostLiters: 0,
         elevationGain: 0,
         progress: 0,
         status: 'not-started'
@@ -1708,6 +1802,8 @@ function updateDashboardSummary(summary) {
     const metricMovingTime = document.getElementById('metricMovingTime');
     const metricHeartRate = document.getElementById('metricHeartRate');
     const metricHeartRateAvg = document.getElementById('metricHeartRateAvg');
+    const metricCalories = document.getElementById('metricCalories');
+    const metricWaterLost = document.getElementById('metricWaterLost');
 
     const distanceText = summary.totalDistance === 0 ? '0' : summary.totalDistance.toFixed(1);
     if (metricDistance) metricDistance.textContent = `${distanceText} km`;
@@ -1728,6 +1824,8 @@ function updateDashboardSummary(summary) {
     if (metricMovingTime) metricMovingTime.textContent = summary.movingDuration > 0 ? formatTime(summary.movingDuration) : '0';
     if (metricHeartRate) metricHeartRate.textContent = Number.isFinite(summary.heartRateBpm) ? `${summary.heartRateBpm} bpm` : '-- bpm';
     if (metricHeartRateAvg) metricHeartRateAvg.textContent = Number.isFinite(summary.heartRateAvgBpm) ? `${summary.heartRateAvgBpm} bpm` : '-- bpm';
+    if (metricCalories) metricCalories.textContent = Number.isFinite(summary.caloriesBurned) ? `${summary.caloriesBurned.toLocaleString()} kcal` : '-- kcal';
+    if (metricWaterLost) metricWaterLost.textContent = Number.isFinite(summary.waterLostLiters) ? `${summary.waterLostLiters.toFixed(1)} L` : '-- L';
 }
 function initHomeCountdown() {
     const dayEl = document.getElementById('countdownDays');
@@ -1942,6 +2040,38 @@ function computeEstimatedSteps(totalDistanceKm, durationSeconds) {
     const fatigueGain = Math.min(hours * 0.03, 0.35);
     const stepsPerKm = 1420 * (1 + fatigueGain);
     return Math.round(distance * stepsPerKm);
+}
+
+function estimateCaloriesBurnedKcal(totalDistanceKm, durationSeconds, elevationGainM, heartRateBpm = null) {
+    const distance = Math.max(0, Number(totalDistanceKm) || 0);
+    const movingHours = Math.max(0, Number(durationSeconds) || 0) / 3600;
+    const elevation = Math.max(0, Number(elevationGainM) || 0);
+    const heartRate = Number(heartRateBpm);
+
+    let estimate = distance * 70 + movingHours * 260 + elevation * 0.16;
+
+    if (Number.isFinite(heartRate) && heartRate > 0) {
+        const hrFactor = Math.max(0, (heartRate - 100) / 80);
+        estimate += estimate * (hrFactor * 0.08);
+    }
+
+    return Math.round(estimate);
+}
+
+function estimateWaterLostLiters(totalDistanceKm, durationSeconds, elevationGainM, heartRateBpm = null) {
+    const distance = Math.max(0, Number(totalDistanceKm) || 0);
+    const movingHours = Math.max(0, Number(durationSeconds) || 0) / 3600;
+    const elevation = Math.max(0, Number(elevationGainM) || 0);
+    const heartRate = Number(heartRateBpm);
+
+    let estimate = movingHours * 0.55 + distance * 0.035 + elevation * 0.0012;
+
+    if (Number.isFinite(heartRate) && heartRate > 0) {
+        const hrFactor = Math.max(0, (heartRate - 100) / 70);
+        estimate += hrFactor * 0.12;
+    }
+
+    return Number(Math.max(0, estimate).toFixed(1));
 }
 
 function stretchSeriesToRange(series, xMin, xMax, fallbackY = 0) {
