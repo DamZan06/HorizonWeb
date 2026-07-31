@@ -180,6 +180,7 @@ body.mobile-nav-open {
 .hero-status strong { display: block; font-size: 1rem; }
 .hero-status p { margin: 2px 0 0; color: var(--muted); }
 .hero-stats-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hero-stats-grid .hero-stat-wide { grid-column: span 2; }
 .hero-stats-grid article, .status-pill, .metric-card, .weather-card, .timeline-event, .badge-card { background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.06)); border: 1px solid rgba(255,255,255,0.08); border-radius: 22px; padding: 20px; }
 .hero-stats-grid span, .metric-card span, .weather-card span, .timeline-event time { color: var(--muted); font-size: 0.93rem; }
 .hero-stats-grid strong, .metric-card strong { display: block; margin-top: 12px; font-size: 1.7rem; }

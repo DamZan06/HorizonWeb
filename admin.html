@@ -154,6 +154,23 @@
                     <p id="adminHiddenProgressNotice" class="admin-feedback admin-form-full"></p>
                 </form>
             </section>
+
+            <section class="section-white admin-block">
+                <div class="section-title">
+                    <h2>Cantoni progressi (manuale)</h2>
+                    <p>Attiva la modalita manuale e seleziona i cantoni gia attraversati. Se disattiva, la pagina Progressi torna al calcolo automatico dai punti live.</p>
+                </div>
+                <form id="adminCantonOverrideForm" class="admin-form-grid">
+                    <label class="admin-form-full">
+                        <input id="adminCantonOverrideEnabled" type="checkbox">
+                        Usa override manuale cantoni
+                    </label>
+                    <p id="adminCantonOverrideCurrent" class="admin-inline-note admin-form-full">Modalita automatica attiva: caricamento...</p>
+                    <div id="adminCantonOverrideList" class="admin-hidden-progress-list admin-form-full"></div>
+                    <button type="submit" class="button primary">Salva cantoni manuali</button>
+                    <p id="adminCantonOverrideNotice" class="admin-feedback admin-form-full"></p>
+                </form>
+            </section>
         </section>
     </main>
     <script src="firebase-config.js"></script>
