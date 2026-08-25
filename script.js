@@ -42,10 +42,10 @@ const contentDatabasePath = 'content';
 const trackerDataUrl = 'data/NorthLine_trackers.json';
 const defaultCenter = [46.0, 8.9];
 const defaultZoom = 12;
-const adminSessionKey = 'northline-admin-authenticated';
-const supportedLanguages = ['it', 'en', 'de'];
-const defaultLanguage = 'it';
-const languageStorageKey = 'northline-language';
+const adminSessionKey = 'horizon-admin-authenticated';
+const supportedLanguages = ['en', 'it', 'de', 'fr'];
+const defaultLanguage = 'en';
+const languageStorageKey = 'horizon-language';
 const i18nCatalog = {
     it: {
         common: {
@@ -846,6 +846,14 @@ function initializeLanguageSwitcher() {
     const topbar = document.querySelector('.topbar');
     const nav = topbar?.querySelector('.main-nav');
     if (!topbar || !nav || topbar.dataset.languageSwitcherInit === 'true') return;
+
+    const existingDesktop = topbar.querySelector('.lang-switcher-desktop .lang-switcher-select');
+    const existingMobile = nav.querySelector('.lang-switcher-mobile .lang-switcher-select');
+
+    if (existingDesktop && existingMobile) {
+        topbar.dataset.languageSwitcherInit = 'true';
+        return;
+    }
 
     const desktop = buildLanguageSwitcher('lang-switcher-desktop');
     const mobile = buildLanguageSwitcher('lang-switcher-mobile');

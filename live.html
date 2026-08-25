@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -28,102 +28,131 @@
 </head>
 
 <body data-page="live">
-    <a class="skip-link" href="#main">Salta al contenuto principale</a>
-    <header class="topbar">
-        <a href="index.html" class="brand" aria-label="HORIZON home">
-            <img src="assets/favicon-v2.png?v=20260715r" alt="HORIZON logo" class="brand-icon">
-            <div>
-                <span class="brand-title">HORIZON</span>
-                <span class="brand-subtitle">Live Journey</span>
-            </div>
-        </a>
-        <nav class="main-nav" aria-label="Main navigation">
-            <a href="index.html">Home</a>
-            <a href="live.html" aria-current="page">Live</a>
-            <a href="project.html">The challenge</a>
-            <a href="project.html#route">Route</a>
-            <a href="gallery.html">Journey</a>
-            <a href="replay.html">Replay</a>
-            <a href="project.html">About</a>
-        </nav>
-    </header>
+<a class="skip-link" href="#main">Skip to main content</a>
+<div class="mobile-nav-overlay" aria-hidden="true" hidden></div>
+<header class="topbar">
+    <a href="index.html" class="brand" aria-label="HORIZON home">
+        <img src="assets/favicon-v2.png?v=20260715r" alt="HORIZON logo" class="brand-icon">
+        <div>
+            <span class="brand-title">HORIZON</span>
+            <span class="brand-subtitle">Live Journey</span>
+        </div>
+    </a>
+    <button class="topbar-menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav">
+        ☰
+    </button>
+    <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="live.html" aria-current="page">Live</a>
+        <a href="project.html">The challenge</a>
+        <a href="project.html#route">Route</a>
+        <a href="gallery.html">Journey</a>
+        <a href="replay.html">Replay</a>
+        <a href="project.html">About</a>
+        <div class="lang-switcher lang-switcher-mobile" aria-label="Language selector">
+            <label class="lang-switcher-label" for="langSwitcherMobile">Language</label>
+            <select id="langSwitcherMobile" class="lang-switcher-select" aria-label="Language">
+                <option value="en">English</option>
+                <option value="it">Italiano</option>
+                <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
+    </nav>
+    <div class="lang-switcher lang-switcher-desktop" aria-label="Language selector">
+        <label class="lang-switcher-label" for="langSwitcherDesktop">Language</label>
+        <select id="langSwitcherDesktop" class="lang-switcher-select" aria-label="Language">
+            <option value="en">English</option>
+            <option value="it">Italiano</option>
+            <option value="de">Deutsch</option>
+            <option value="fr">Français</option>
+        </select>
+    </div>
+</header>
     <main id="main" class="page page-live">
         <section class="page-header">
             <div>
                 <p class="eyebrow">LIVE JOURNEY</p>
                 <h1>FOLLOW HORIZON</h1>
-                <p>Follow the journey across Switzerland in real time.</p>
+                <p>Follow the expedition across Switzerland in real time.</p>
             </div>
         </section>
+        <div class="live-status" aria-live="polite">
+            <span class="status-dot status-moving" aria-hidden="true"></span>
+            <span>LIVE · Updated 1 min ago</span>
+        </div>
         <section class="map-layout">
             <aside class="stats-panel">
                 <div class="panel-head">
                     <div>
-                        <p class="eyebrow">Statistiche Live</p>
-                        <h2>Stato attuale</h2>
+                        <p class="eyebrow">LIVE STATISTICS</p>
+                        <h2>Current status</h2>
                     </div>
                 </div>
                 <div class="stats-grid">
                     <article>
-                        <span>Distanza</span>
+                        <span>Distance</span>
                         <strong id="distance">-- km</strong>
                     </article>
                     <article>
-                        <span>Rimanenti</span>
+                        <span>Remaining</span>
                         <strong id="remaining">-- km</strong>
                     </article>
                     <article>
-                        <span>Completato</span>
+                        <span>Completed</span>
                         <strong id="completion">--%</strong>
                     </article>
                     <article>
-                        <span>Velocita</span>
+                        <span>Speed</span>
                         <strong id="speed">-- km/h</strong>
                     </article>
                     <article>
-                        <span>Altitudine</span>
+                        <span>Altitude</span>
                         <strong id="altitude">-- m</strong>
                     </article>
                     <article>
-                        <span>Ultimo aggiornamento</span>
+                        <span>Last update</span>
                         <strong id="lastUpdate">--</strong>
                     </article>
                 </div>
                 <div class="progress-card">
                     <div class="progress-meta">
-                        <span>Progresso del percorso</span>
+                        <span>Route progress</span>
                         <strong id="completionText">--%</strong>
                     </div>
                     <div class="progress-bar"><span id="progressBar"></span></div>
                 </div>
                 <div class="detail-grid" id="statsContent">
                     <article>
-                        <span>Tempo</span>
+                        <span>Time</span>
                         <strong id="time">--</strong>
                     </article>
                     <article>
-                        <span>Dislivello</span>
+                        <span>Elevation gain</span>
                         <strong id="elevation">-- m</strong>
                     </article>
                     <article>
-                        <span>Passi</span>
+                        <span>Steps</span>
                         <strong id="steps">--</strong>
                     </article>
                     <article>
-                        <span id="visitorDistanceLabel">Distanza dalla partenza</span>
+                        <span id="visitorDistanceLabel">Distance from start</span>
                         <strong id="visitorDistance">0 km</strong>
                     </article>
                 </div>
             </aside>
             <div class="map-wrap">
                 <div id="map"></div>
-                <div class="map-actions" aria-label="Controlli mappa">
-                    <button id="centerUserBtn" class="geo-button" title="Centra sulla tua posizione" aria-label="Centra sulla tua posizione">&#128100;</button>
-                    <button id="centerLiveBtn" class="geo-button" title="Centra sulla posizione live">&#128205;</button>
-                    <button id="mapFullscreenBtn" class="geo-button" title="Mappa a schermo intero">&#9974;</button>
+                <div class="map-actions" aria-label="Map controls">
+                    <button id="centerUserBtn" class="geo-button" title="Center on my location" aria-label="Center on my location">&#128100;</button>
+                    <button id="centerLiveBtn" class="geo-button" title="Center on live position" aria-label="Center on live position">&#128205;</button>
+                    <button id="mapFullscreenBtn" class="geo-button" title="Open fullscreen map" aria-label="Open fullscreen map">&#9974;</button>
                 </div>
             </div>
         </section>
+        <p class="map-accessibility" aria-live="polite">
+            Current position: live signal active. Distance completed: available. Distance remaining: available. Current altitude: available. Last update: 1 minute ago.
+        </p>
     </main>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>

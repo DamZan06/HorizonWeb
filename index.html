@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -27,36 +27,58 @@
 </head>
 
 <body data-page="home">
-    <a class="skip-link" href="#main">Salta al contenuto principale</a>
-    <header class="topbar">
-        <a href="index.html" class="brand" aria-label="HORIZON home">
-            <img src="assets/favicon-v2.png?v=20260715r" alt="HORIZON logo" class="brand-icon">
-            <div>
-                <span class="brand-title">HORIZON</span>
-                <span class="brand-subtitle">HORIZON</span>
-            </div>
-        </a>
-        <nav class="main-nav" aria-label="Main navigation">
-            <a href="index.html" aria-current="page">Home</a>
-            <a href="live.html">Live</a>
-            <a href="project.html">The challenge</a>
-            <a href="project.html#route">Route</a>
-            <a href="gallery.html">Journey</a>
-            <a href="replay.html">Replay</a>
-            <a href="project.html">About</a>
-        </nav>
-    </header>
+<a class="skip-link" href="#main">Skip to main content</a>
+<div class="mobile-nav-overlay" aria-hidden="true" hidden></div>
+<header class="topbar">
+    <a href="index.html" class="brand" aria-label="HORIZON home">
+        <img src="assets/favicon-v2.png?v=20260715r" alt="HORIZON logo" class="brand-icon">
+        <div>
+            <span class="brand-title">HORIZON</span>
+            <span class="brand-subtitle">Across Switzerland</span>
+        </div>
+    </a>
+    <button class="topbar-menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav">
+        ☰
+    </button>
+    <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="live.html">Live</a>
+        <a href="project.html">The challenge</a>
+        <a href="project.html#route">Route</a>
+        <a href="gallery.html">Journey</a>
+        <a href="replay.html">Replay</a>
+        <a href="project.html">About</a>
+        <div class="lang-switcher lang-switcher-mobile" aria-label="Language selector">
+            <label class="lang-switcher-label" for="langSwitcherMobile">Language</label>
+            <select id="langSwitcherMobile" class="lang-switcher-select" aria-label="Language">
+                <option value="en">English</option>
+                <option value="it">Italiano</option>
+                <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
+    </nav>
+    <div class="lang-switcher lang-switcher-desktop" aria-label="Language selector">
+        <label class="lang-switcher-label" for="langSwitcherDesktop">Language</label>
+        <select id="langSwitcherDesktop" class="lang-switcher-select" aria-label="Language">
+            <option value="en">English</option>
+            <option value="it">Italiano</option>
+            <option value="de">Deutsch</option>
+            <option value="fr">Français</option>
+        </select>
+    </div>
+</header>
     <main id="main" class="page page-home">
         <section id="homeCountdown" class="countdown-card countdown-top" aria-live="polite" aria-labelledby="countdownTitle">
             <p class="countdown-eyebrow">HORIZON 2026</p>
             <h2 id="countdownTitle">1 Agosto · ore 04:00</h2>
             <div class="countdown-grid">
-                <article><span>Giorni</span><strong id="countdownDays">--</strong></article>
-                <article><span>Ore</span><strong id="countdownHours">--</strong></article>
-                <article><span>Minuti</span><strong id="countdownMinutes">--</strong></article>
-                <article><span>Secondi</span><strong id="countdownSeconds">--</strong></article>
+                <article><span>Days</span><strong id="countdownDays">--</strong></article>
+                <article><span>Hours</span><strong id="countdownHours">--</strong></article>
+                <article><span>Minutes</span><strong id="countdownMinutes">--</strong></article>
+                <article><span>Seconds</span><strong id="countdownSeconds">--</strong></article>
             </div>
-            <p id="countdownMessage" class="countdown-message">Calcolo del tempo rimanente in corso...</p>
+            <p id="countdownMessage" class="countdown-message">Calculating remaining time...</p>
         </section>
 
         <section class="horizon-hero">
@@ -135,17 +157,17 @@
 
         <section class="story-block intro-block">
             <p class="eyebrow">ONE COUNTRY. ONE DIRECTION.</p>
-            <h2>HORIZON is a long-distance crossing of Switzerland from east to west.</h2>
-            <p>The journey begins at Piz Chavalatsch, at the eastern edge of the country, and ends at Chancy in the west. Between the two lies approximately 500 kilometres of roads, trails, valleys, mountains, darkness, fatigue and uncertainty.</p>
-            <p>There is only one direction: west.</p>
+            <h2>HORIZON is a two-person, long-distance crossing of Switzerland from east to west.</h2>
+            <p>The journey begins at Piz Chavalatsch, at the eastern edge of the country, and ends at Chancy in the west. Between the two lies roughly 500 kilometres of roads, trails, valleys, mountain terrain, darkness, fatigue and uncertainty.</p>
+            <p>There is only one direction for us: west, together.</p>
         </section>
 
         <section class="story-block split-block">
             <div>
                 <p class="eyebrow">WHY HORIZON?</p>
                 <h2>The horizon is always ahead.</h2>
-                <p>You never reach it by looking at it. You reach it by moving toward it.</p>
-                <p>HORIZON represents the idea of continuing forward even when the finish is still far away.</p>
+                <p>We never reach it by staring at it. We reach it by moving toward it.</p>
+                <p>HORIZON is the idea of continuing forward as a team, even when the destination is still far away.</p>
                 <p>One kilometre becomes the next. One step becomes another. Until the horizon becomes the finish line.</p>
             </div>
             <div class="quote-card">

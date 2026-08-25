@@ -6,10 +6,10 @@
         trackerDataUrl: 'data/NorthLine_trackers.json',
         defaultCenter: [46.0, 8.9],
         defaultZoom: 12,
-        adminSessionKey: 'northline-admin-authenticated',
-        supportedLanguages: ['it', 'en', 'de'],
-        defaultLanguage: 'it',
-        languageStorageKey: 'northline-language'
+        adminSessionKey: 'horizon-admin-authenticated',
+        supportedLanguages: ['en', 'it', 'de', 'fr'],
+        defaultLanguage: 'en',
+        languageStorageKey: 'horizon-language'
     };
 
     window.NorthLineConfig = Object.assign(window.NorthLineConfig || {}, config);
