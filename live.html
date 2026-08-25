@@ -48,7 +48,7 @@
         <a href="project.html#route">Route</a>
         <a href="gallery.html">Journey</a>
         <a href="replay.html">Replay</a>
-        <a href="project.html">About</a>
+        <a href="project.html#about">About</a>
         <div class="lang-switcher lang-switcher-mobile" aria-label="Language selector">
             <label class="lang-switcher-label" for="langSwitcherMobile">Language</label>
             <select id="langSwitcherMobile" class="lang-switcher-select" aria-label="Language">
@@ -144,9 +144,15 @@
             <div class="map-wrap">
                 <div id="map"></div>
                 <div class="map-actions" aria-label="Map controls">
-                    <button id="centerUserBtn" class="geo-button" title="Center on my location" aria-label="Center on my location">&#128100;</button>
-                    <button id="centerLiveBtn" class="geo-button" title="Center on live position" aria-label="Center on live position">&#128205;</button>
-                    <button id="mapFullscreenBtn" class="geo-button" title="Open fullscreen map" aria-label="Open fullscreen map">&#9974;</button>
+                    <button id="centerUserBtn" class="geo-button" title="Center on my location" aria-label="Center on my location">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a3 3 0 1 0-3-3 3 3 0 0 0 3 3Zm0 2c-3.87 0-7 2.13-7 4.75V20h14v-1.25C19 16.13 15.87 14 12 14Z"/></svg>
+                    </button>
+                    <button id="centerLiveBtn" class="geo-button" title="Center on live position" aria-label="Center on live position">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.75a9.25 9.25 0 1 0 9.25 9.25A9.26 9.26 0 0 0 12 2.75Zm0 4.75a4.5 4.5 0 1 1-4.5 4.5A4.5 4.5 0 0 1 12 7.5Zm0 11.75a7.84 7.84 0 0 1-5.85-2.67A8.63 8.63 0 0 1 12 14.5a8.63 8.63 0 0 1 5.85 2.08A7.84 7.84 0 0 1 12 19.25Z"/></svg>
+                    </button>
+                    <button id="mapFullscreenBtn" class="geo-button" title="Open fullscreen map" aria-label="Open fullscreen map">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5M4 9.5h16M9.5 4v16"/></svg>
+                    </button>
                 </div>
             </div>
         </section>

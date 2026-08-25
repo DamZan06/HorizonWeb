@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>HORIZON · Relive the journey</title>
+    <title>HORIZON · Expedition Replay</title>
     <meta name="description" content="Relive the HORIZON crossing with cinematic replay controls: play, pause, reset and speed control.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css?v=20260725f">
@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=20260715r">
 </head>
 <body data-page="replay">
-    <a href="#main" class="skip-link">Salta al contenuto principale</a>
+    <a href="#main" class="skip-link">Skip to main content</a>
     <header class="topbar">
         <a href="index.html" class="brand" aria-label="HORIZON home">
             <img src="assets/favicon-v2.png?v=20260715r" alt="HORIZON logo" class="brand-icon">
@@ -28,27 +28,27 @@
             <a href="project.html#route">Route</a>
             <a href="gallery.html">Journey</a>
             <a href="replay.html" aria-current="page">Replay</a>
-            <a href="project.html">About</a>
+            <a href="project.html#about">About</a>
         </nav>
     </header>
     <main id="main" class="page page-replay">
         <section class="section">
             <div class="section-title">
                 <p class="eyebrow">Replay</p>
-                <h1>Rivivi il percorso.</h1>
-                <p>Riproduci l'intero tracciato, metti in pausa, accelera e controlla i punti pi� significativi.</p>
+                <h1>Relive the route.</h1>
+                <p>Play the full crossing, pause it, accelerate the timeline and revisit the most significant moments.</p>
             </div>
             <div class="replay-controls" style="display:grid;gap:16px;">
                 <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
-                    <button id="replayPlay" class="button primary">Riproduci</button>
-                    <button id="replayPause" class="button ghost">Pausa</button>
+                    <button id="replayPlay" class="button primary">Play</button>
+                    <button id="replayPause" class="button ghost">Pause</button>
                     <button id="replayReset" class="button secondary">Reset</button>
                 </div>
                 <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
-                    <label for="replaySpeed">Velocit�:</label>
+                    <label for="replaySpeed">Speed:</label>
                     <input id="replaySpeed" type="range" min="20" max="500" step="20" value="80">
                     <span id="replaySpeedLabel">80 ms</span>
-                    <span id="replayStatus">Replay pronto</span>
+                    <span id="replayStatus">Replay ready</span>
                 </div>
             </div>
             <div class="map-wrap" style="min-height:560px;">
@@ -56,6 +56,9 @@
             </div>
         </section>
     </main>
+    <footer class="site-footer">
+        <p>HORIZON © 2026 · Across Switzerland. East to west.</p>
+    </footer>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
     <script src="js/config.js?v=20260824a"></script>

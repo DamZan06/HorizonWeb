@@ -640,6 +640,17 @@ body.mobile-nav-open {
     justify-content: center;
     font-size: 18px;
     padding: 0;
+    color: var(--text);
+}
+
+.geo-button svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 .section-intro, .section-status { padding: 0; }
 .site-footer { padding: 22px 32px 30px; color: var(--muted); font-size: 0.95rem; text-align: center; }
@@ -1291,6 +1302,109 @@ body.chart-fullscreen-open {
     background: rgba(9, 19, 27, 0.72);
 }
 
+.people-grid,
+.factors-grid {
+    display: grid;
+    gap: 18px;
+}
+
+.people-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.factors-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.person-card,
+.factors-grid article {
+    display: grid;
+    gap: 18px;
+    padding: 22px;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06));
+}
+
+.person-copy {
+    display: grid;
+    gap: 10px;
+}
+
+.person-card h3 {
+    margin: 0;
+    font-size: clamp(1.4rem, 2vw, 1.9rem);
+}
+
+.person-role {
+    margin: 0;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(157, 214, 255, 0.9);
+    font-weight: 700;
+}
+
+.person-card p,
+.factors-grid p {
+    margin: 0;
+    color: rgba(217, 230, 245, 0.82);
+    line-height: 1.75;
+}
+
+.person-portrait {
+    min-height: 220px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: linear-gradient(160deg, rgba(110, 160, 195, 0.45), rgba(20, 33, 44, 0.9));
+}
+
+.person-portrait::before {
+    content: "";
+    position: absolute;
+    inset: 18% 30% 16% 30%;
+    border-radius: 50% 50% 28% 28%;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.18);
+}
+
+.person-portrait::after {
+    content: "";
+    position: absolute;
+    inset: 52% 22% 0 22%;
+    border-radius: 30% 30% 0 0;
+    background: rgba(7,16,22,0.2);
+}
+
+.person-portrait span {
+    position: relative;
+    z-index: 1;
+    font-size: 2.1rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.9);
+}
+
+.portrait-one {
+    background: linear-gradient(160deg, rgba(80, 130, 176, 0.52), rgba(16, 25, 35, 0.96));
+}
+
+.portrait-two {
+    background: linear-gradient(160deg, rgba(145, 115, 84, 0.48), rgba(19, 26, 35, 0.96));
+}
+
+.factors-grid article strong {
+    font-size: 1.08rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #edf7ff;
+}
+
 .story-block h2,
 .challenge-block h2,
 .route-block h2,
@@ -1431,6 +1545,20 @@ body.chart-fullscreen-open {
     background: linear-gradient(135deg, rgba(73,168,255,0.12), rgba(17,31,46,0.9));
 }
 
+.follow-live-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(224, 239, 255, 0.95);
+}
+
+.follow-live-row strong {
+    font-size: 1rem;
+}
+
 .final-cta h2 {
     font-size: clamp(2rem, 5vw, 4rem);
     letter-spacing: -0.06em;
@@ -1446,7 +1574,9 @@ body.chart-fullscreen-open {
 @media (max-width: 1024px) {
     .horizon-hero,
     .route-block,
-    .split-block {
+    .split-block,
+    .people-grid,
+    .factors-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1473,6 +1603,11 @@ body.chart-fullscreen-open {
     }
 
     .stat-strip {
+        grid-template-columns: 1fr;
+    }
+
+    .people-grid,
+    .factors-grid {
         grid-template-columns: 1fr;
     }
 

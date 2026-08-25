@@ -1,5 +1,5 @@
 (function () {
-    const app = window.NorthLineApp || {};
+    const app = window.HorizonApp || window.NorthLineApp || {};
 
     function setupLanguageControls() {
         const preferred = localStorage.getItem('horizon-language') || document.documentElement.lang || 'en';
@@ -49,8 +49,9 @@
     }
 
     app.init = function () {
-        if (typeof window.NorthLineStatus?.bindAdminLiveStatusForm === 'function') {
-            window.NorthLineStatus.bindAdminLiveStatusForm();
+        const statusController = window.HorizonStatus || window.NorthLineStatus;
+        if (typeof statusController?.bindAdminLiveStatusForm === 'function') {
+            statusController.bindAdminLiveStatusForm();
         }
 
         setupLanguageControls();
@@ -65,6 +66,7 @@
         }
     };
 
+    window.HorizonApp = app;
     window.NorthLineApp = app;
 
     if (document.readyState === 'loading') {

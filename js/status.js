@@ -33,8 +33,11 @@
         });
     }
 
-    window.NorthLineStatus = Object.assign(window.NorthLineStatus || {}, {
+    const horizonStatus = Object.assign(window.HorizonStatus || {}, {
         normalizeHomeStatus,
         bindAdminLiveStatusForm
     });
+
+    window.HorizonStatus = horizonStatus;
+    window.NorthLineStatus = horizonStatus;
 })();

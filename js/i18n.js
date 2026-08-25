@@ -100,17 +100,13 @@
         applyLanguagePreference(preferred);
     }
 
-    window.HorizonI18n = {
+    const horizonI18n = {
         catalog,
         resolveLanguage,
         applyLanguagePreference,
         hydrateLanguageControls
     };
 
-    window.NorthLineI18n = {
-        catalog,
-        resolveLanguage,
-        applyLanguagePreference,
-        hydrateLanguageControls
-    };
+    window.HorizonI18n = horizonI18n;
+    window.NorthLineI18n = horizonI18n;
 })();

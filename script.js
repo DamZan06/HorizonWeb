@@ -17,11 +17,14 @@ function bindAdminLiveStatusForm() {
         event.preventDefault();
         const formData = new FormData(form);
         const forcedStatus = String(formData.get('forcedStatus') || '').trim();
-        const cacheKey = 'northline-live-status-force';
+        const cacheKey = 'horizon-live-status-force';
+        const legacyCacheKey = 'northline-live-status-force';
         if (!forcedStatus) {
             localStorage.removeItem(cacheKey);
+            localStorage.removeItem(legacyCacheKey);
         } else {
             localStorage.setItem(cacheKey, forcedStatus);
+            localStorage.removeItem(legacyCacheKey);
         }
         const notice = document.getElementById('adminLiveStatusNotice');
         if (notice) {
@@ -31,15 +34,17 @@ function bindAdminLiveStatusForm() {
 }
 
 setInterval(async () => {
-    if (typeof window.NorthLineApp?.init === 'function') {
-        await window.NorthLineApp.init();
+    const app = window.HorizonApp || window.NorthLineApp;
+    if (typeof app?.init === 'function') {
+        await app.init();
     }
 }, 8000);
 
 ﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json";
 const plannedStartDateIso = '2026-08-01T04:00:00+02:00';
 const contentDatabasePath = 'content';
-const trackerDataUrl = 'data/NorthLine_trackers.json';
+const trackerDataUrl = 'data/Horizon.gpx';
+const routeDataCandidates = ['data/Horizon.gpx', 'data/horizon.gpx', 'data/NorthLine_trackers.json'];
 const defaultCenter = [46.0, 8.9];
 const defaultZoom = 12;
 const adminSessionKey = 'horizon-admin-authenticated';
@@ -241,7 +246,7 @@ const i18nCatalog = {
                 heroButtons: ['FOLLOW THE JOURNEY', 'DISCOVER HORIZON'],
                 statsLabels: ['km covered', 'km remaining', 'completed', 'time elapsed', 'elevation gain', 'estimated steps', 'estimated arrival'],
                 sectionTitle: 'Do not just watch the journey. Live it.',
-                sectionDescription: 'NorthLine lets you follow the full crossing of Switzerland through live maps, updated stats, daily stories, and exclusive content. Each day brings new challenges, new landscapes, and a new story to tell.',
+                sectionDescription: 'HORIZON lets you follow the full crossing of Switzerland through live maps, updated stats, daily stories, and exclusive content. Each day brings new challenges, new landscapes, and a new story to tell.',
                 featureTitles: ['Live Map', 'Live Stats', 'Travel Diary', 'Route Replay'],
                 featureTexts: [
                     'Follow my position along the route in real time. Each update shows where I am, how many kilometers are done, and how far is left to the finish.',
@@ -317,19 +322,19 @@ const i18nCatalog = {
             },
             project: {
                 title: 'NorthLine – Project',
-                eyebrow: 'NorthLine',
-                heading: 'What is the NorthLine project?',
-                intro: 'NorthLine is much more than a simple crossing of Switzerland. It is a project born from the desire to test limits, explore the territory step by step, and share every moment in real time.',
-                cardTitles: ['What NorthLine is', 'Motivation', 'Preparation', 'Equipment', 'Nutrition', 'Route', 'Support', 'Curiosities'],
+                eyebrow: 'HORIZON',
+                heading: 'What is the HORIZON project?',
+                intro: 'HORIZON is much more than a simple crossing of Switzerland. It is a project born from the desire to test limits, explore the territory step by step, and share every moment in real time.',
+                cardTitles: ['What HORIZON is', 'Motivation', 'Preparation', 'Equipment', 'Nutrition', 'Route', 'Support', 'Curiosities'],
                 cardTexts: [
-                    'NorthLine is a south-to-north crossing of Switzerland on foot, about 333 km and over 6,000 meters of positive elevation gain.',
+                    'HORIZON is an east-to-west crossing of Switzerland on foot, around 500 km and more than 6,000 meters of positive elevation gain.',
                     'This project was created to leave the comfort zone and prove that consistency and preparation make difficult goals achievable.',
                     'Months of training, route study, elevation analysis, logistics and platform development were essential before departure.',
                     'Every gram matters: the backpack balances lightness, safety and autonomy with GPS, emergency gear, batteries and technical clothing.',
                     'Long walking days require careful energy management with hydration, minerals and high-energy foods.',
                     'The route crosses lakes, valleys, forests, alpine passes and high-altitude trails with continuous adaptation to terrain and weather.',
                     'Even if every step is on foot, the adventure includes constant logistical and emotional support throughout the journey.',
-                    'NorthLine also shares photos, local stories and encounters to make followers feel part of the adventure.'
+                    'HORIZON also shares photos, local stories, and encounters to make followers feel part of the adventure.'
                 ]
             },
             admin: { title: 'NorthLine – Admin' }
@@ -483,7 +488,7 @@ const i18nCatalog = {
             },
             project: {
                 title: 'NorthLine – Projekt',
-                eyebrow: 'NorthLine',
+                eyebrow: 'HORIZON',
                 heading: 'Was ist das NorthLine-Projekt?',
                 intro: 'NorthLine ist weit mehr als eine einfache Durchquerung der Schweiz. Es ist ein Projekt, das aus dem Wunsch entstanden ist, sich selbst herauszufordern, das Land Schritt für Schritt zu erkunden und jeden Moment in Echtzeit zu teilen. Über eine vollständig von mir entwickelte Plattform kann jeder die Reise verfolgen, den Fortschritt beobachten, die Daten analysieren und dieses Abenteuer erleben, als wäre er selbst mit uns auf dem Weg.',
                 cardTitles: ['Was NorthLine ist', 'Motivation', 'Vorbereitung', 'Ausrüstung', 'Ernährung', 'Route', 'Support', 'Besonderheiten'],
@@ -2226,26 +2231,51 @@ async function ensureRouteTrackersLoaded() {
         await trackersLoadPromise;
         return;
     }
-    trackersLoadPromise = fetch(trackerDataUrl)
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            if (!Array.isArray(data)) return;
-            gpxWaypoints = data.map((entry, index) => ({
-                lat: Number(entry?.lat),
-                lng: Number(entry?.lon),
-                name: String(entry?.name || '').trim(),
-                index
-            })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
-        })
-        .catch(error => {
-            console.warn('Impossibile caricare tracker separati:', error);
-        })
-        .finally(() => {
-            trackersLoadPromise = null;
-        });
+    trackersLoadPromise = (async () => {
+        let response;
+        for (const candidate of routeDataCandidates) {
+            try {
+                response = await fetch(candidate, { cache: 'no-store' });
+                if (response.ok) break;
+            } catch (error) {
+                response = null;
+            }
+            response = null;
+        }
+
+        if (!response || !response.ok) {
+            return;
+        }
+
+        const contentType = String(response.headers.get('content-type') || '');
+        if (/json/i.test(contentType)) {
+            const data = await response.json();
+            if (Array.isArray(data)) {
+                gpxWaypoints = data.map((entry, index) => ({
+                    lat: Number(entry?.lat),
+                    lng: Number(entry?.lon),
+                    name: String(entry?.name || '').trim(),
+                    index
+                })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+            }
+            return;
+        }
+
+        const text = await response.text();
+        if (!/<gpx/i.test(text)) return;
+        const parsed = parseGpxXml(text);
+        gpxWaypoints = parsed.coords.map((coord, index) => ({
+            lat: Number(coord.lat),
+            lng: Number(coord.lng),
+            name: `Waypoint ${index + 1}`,
+            index
+        })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+    })().catch(error => {
+        console.warn('Impossibile caricare tracker separati:', error);
+    }).finally(() => {
+        trackersLoadPromise = null;
+    });
+
     await trackersLoadPromise;
 }
 
@@ -2588,24 +2618,35 @@ async function ensureGpxDataLoaded() {
         await gpxLoadPromise;
         return;
     }
-    gpxLoadPromise = fetch('data/horizon.gpx')
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.text();
-        })
-        .then(gpxText => {
-            const parsed = parseGpxXml(gpxText);
-            if (parsed.coords.length) {
-                gpxCoords = parsed.coords;
-                gpxTotalKm = parsed.totalKm;
+    const gpxUrlCandidates = ['data/Horizon.gpx', 'data/horizon.gpx'];
+    gpxLoadPromise = (async () => {
+        let lastError = null;
+        for (const gpxUrl of gpxUrlCandidates) {
+            try {
+                const response = await fetch(gpxUrl, { cache: 'no-store' });
+                if (!response.ok) {
+                    lastError = new Error(`HTTP ${response.status}`);
+                    continue;
+                }
+                const gpxText = await response.text();
+                const parsed = parseGpxXml(gpxText);
+                if (parsed.coords.length) {
+                    gpxCoords = parsed.coords;
+                    gpxTotalKm = parsed.totalKm;
+                    return;
+                }
+            } catch (error) {
+                lastError = error;
             }
-        })
-        .catch(error => {
-            console.warn('Impossibile caricare GPX (fallback parser):', error);
-        })
-        .finally(() => {
-            gpxLoadPromise = null;
-        });
+        }
+        if (lastError) {
+            throw lastError;
+        }
+    })().catch(error => {
+        console.warn('Impossibile caricare GPX (fallback parser):', error);
+    }).finally(() => {
+        gpxLoadPromise = null;
+    });
     await gpxLoadPromise;
 }
 

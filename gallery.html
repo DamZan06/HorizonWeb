@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>HORIZON · Field Notes</title>
@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=20260715r">
 </head>
 <body data-page="gallery">
-    <a href="#main" class="skip-link">Salta al contenuto principale</a>
+    <a href="#main" class="skip-link">Skip to main content</a>
     <header class="topbar">
         <a href="index.html" class="brand" aria-label="HORIZON home">
             <img src="assets/favicon-v2.png?v=20260715r" alt="HORIZON logo" class="brand-icon">
@@ -30,46 +30,49 @@
             <a href="project.html#route">Route</a>
             <a href="gallery.html" aria-current="page">Journey</a>
             <a href="replay.html">Replay</a>
-            <a href="project.html">About</a>
+            <a href="project.html#about">About</a>
         </nav>
     </header>
     <main id="main" class="page page-gallery">
         <section class="section">
             <div class="section-title gallery-title-row">
                 <div>
-                    <p class="eyebrow">Fotografie</p>
-                    <h1>Galleria completa del viaggio</h1>
+                    <p class="eyebrow">Photographs</p>
+                    <h1>Full journey gallery</h1>
                 </div>
             </div>
             <div class="gallery-grid"></div>
         </section>
         <section class="section section-white">
             <div class="section-title">
-                <p class="eyebrow">Cartina foto</p>
-                <h2>Posizione delle immagini.</h2>
-                <p id="galleryPhotoMapStatus">In attesa di immagini geolocalizzate...</p>
+                <p class="eyebrow">Photo map</p>
+                <h2>Image locations.</h2>
+                <p id="galleryPhotoMapStatus">Waiting for geolocated images...</p>
             </div>
             <div class="map-wrap map-wrap-photo-gallery" style="min-height:560px;">
                 <div id="map"></div>
                 <div class="map-actions">
-                    <button id="galleryPhotoMapFullscreenBtn" type="button" class="map-toggle-btn" title="Mappa a schermo intero">?</button>
+                    <button id="galleryPhotoMapFullscreenBtn" type="button" class="map-toggle-btn" title="Open fullscreen map">?</button>
                 </div>
             </div>
         </section>
     </main>
     <div class="modal-backdrop" role="dialog" aria-modal="true">
         <div class="modal-content">
-            <button class="modal-close" aria-label="Chiudi">X</button>
-            <button class="modal-nav modal-prev" id="modalPrev" aria-label="Immagine precedente">《</button>
-            <button class="modal-nav modal-next" id="modalNext" aria-label="Immagine successiva">》</button>
+            <button class="modal-close" aria-label="Close">X</button>
+            <button class="modal-nav modal-prev" id="modalPrev" aria-label="Previous image">《</button>
+            <button class="modal-nav modal-next" id="modalNext" aria-label="Next image">》</button>
             <img id="modalImage" src="assets/preview.png" alt="">
             <div class="modal-details">
-                <h3 id="modalTitle">Titolo immagine</h3>
-                <p id="modalLocation">Località</p>
-                <p id="modalDescription">Descrizione della foto e posizione sulla mappa.</p>
+                <h3 id="modalTitle">Image title</h3>
+                <p id="modalLocation">Location</p>
+                <p id="modalDescription">Photo description and map position.</p>
             </div>
         </div>
     </div>
+    <footer class="site-footer">
+        <p>HORIZON © 2026 · Across Switzerland. East to west.</p>
+    </footer>
     <script src="firebase-config.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
