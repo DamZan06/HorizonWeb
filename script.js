@@ -18,7 +18,7 @@ function bindAdminLiveStatusForm() {
         const formData = new FormData(form);
         const forcedStatus = String(formData.get('forcedStatus') || '').trim();
         const cacheKey = 'horizon-live-status-force';
-        const legacyCacheKey = 'northline-live-status-force';
+        const legacyCacheKey = 'horizon-live-status-force';
         if (!forcedStatus) {
             localStorage.removeItem(cacheKey);
             localStorage.removeItem(legacyCacheKey);
@@ -34,7 +34,7 @@ function bindAdminLiveStatusForm() {
 }
 
 setInterval(async () => {
-    const app = window.HorizonApp || window.NorthLineApp;
+    const app = window.HorizonApp || {};
     if (typeof app?.init === 'function') {
         await app.init();
     }
@@ -44,7 +44,7 @@ setInterval(async () => {
 const plannedStartDateIso = '2026-08-01T04:00:00+02:00';
 const contentDatabasePath = 'content';
 const trackerDataUrl = 'data/Horizon.gpx';
-const routeDataCandidates = ['data/Horizon.gpx', 'data/horizon.gpx', 'data/NorthLine_trackers.json'];
+const routeDataCandidates = ['data/Horizon.gpx', 'data/horizon.gpx'];
 const defaultCenter = [46.0, 8.9];
 const defaultZoom = 12;
 const adminSessionKey = 'horizon-admin-authenticated';
@@ -57,20 +57,28 @@ const i18nCatalog = {
             languageLabel: 'Lingua',
             languageAria: 'Seleziona lingua',
             navAria: 'Navigazione principale',
-            nav: ['Live', 'The challenge', 'Route', 'Journey', 'Replay', 'About'],
+            nav: {
+                home: 'Home',
+                live: 'Live',
+                challenge: 'La sfida',
+                route: 'Percorso',
+                journey: 'Viaggio',
+                replay: 'Replay',
+                about: 'Info'
+            },
             brands: {
                 home: 'HORIZON',
                 live: 'Live Journey',
                 dashboard: 'Telemetry',
                 gallery: 'Field Notes',
                 replay: 'Replay',
-                progress: 'Progress',
-                project: 'About',
+                progress: 'Progressi',
+                project: 'Info',
                 admin: 'Admin'
             },
             menuOpen: 'Apri menu',
             menuClose: 'Chiudi menu',
-            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' },
+            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch', fr: 'Français' },
             route: {
                 start: 'Partenza',
                 finish: 'Arrivo',
@@ -83,34 +91,34 @@ const i18nCatalog = {
             home: {
                 title: 'HORIZON | Traversata della Svizzera in tempo reale',
                 countdownEyebrow: 'Partenza prevista',
-                countdownTitle: '1 Agosto · ore 04:00',
+                countdownTitle: '1 Agosto · 04:00',
                 countdownMessage: 'Calcolo del tempo rimanente in corso...',
                 labels: ['Giorni', 'Ore', 'Minuti', 'Secondi'],
                 heroEyebrow: 'HORIZON 2026',
                 heroTitle: 'HORIZON',
-                heroDescription: 'From Piz Chavalatsch in the east to Chancy in the west. A 500-kilometre journey across Switzerland, driven entirely by human endurance.',
-                heroButtons: ['FOLLOW THE JOURNEY', 'DISCOVER HORIZON'],
+                heroDescription: 'Da est a ovest, attraverso la Svizzera. Una traversata di oltre 500 chilometri a piedi, con passi, dislivelli e un ritmo da spedizione.',
+                heroButtons: ['SEGUI IL VIAGGIO', 'SCOPRI HORIZON'],
                 statsLabels: ['km percorsi', 'km rimanenti', 'completato', 'tempo trascorso', 'dislivello', 'passi stimati', 'arrivo stimato'],
-                sectionTitle: 'Non osservare solamente il viaggio. Vivilo.',
-                sectionDescription: 'NorthLine ti permette di seguire l\'intera traversata della Svizzera attraverso mappe live, statistiche aggiornate, racconti quotidiani e contenuti esclusivi. Ogni giornata porterà nuove sfide, nuovi paesaggi e una nuova storia da raccontare.',
-                featureTitles: ['Mappa Live', 'Statistiche Live', 'Diario di bordo', 'Replay del percorso'],
+                sectionTitle: 'Non osservare soltanto il viaggio. Vivilo.',
+                sectionDescription: 'HORIZON ti permette di seguire l\'intera traversata della Svizzera con mappe live, statistiche aggiornate e content dedicati alla spedizione.',
+                featureTitles: ['Mappa live', 'Statistiche live', 'Diario di bordo', 'Replay del percorso'],
                 featureTexts: [
-                    'Segui in tempo reale la mia posizione lungo il percorso. Ogni aggiornamento mostra dove mi trovo, quanti chilometri sono stati percorsi e quanto manca al traguardo.',
-                    'Velocità, distanza, altitudine, dislivello, tempo di percorrenza e molti altri dati vengono aggiornati automaticamente durante tutta l\'avventura.',
-                    'Ogni giornata verra raccontata attraverso fotografie, impressioni, difficolta, emozioni e curiosita incontrate lungo il cammino.',
-                    'Rivivi l\'intera traversata sulla mappa e osserva ogni tappa del viaggio grazie a una timeline interattiva sincronizzata con il percorso reale.'
+                    'Segui la posizione in tempo reale lungo il tracciato. Ogni aggiornamento mostra dove ci troviamo e quanto manca al traguardo.',
+                    'Velocità, distanza, altitudine, dislivello e tempo di percorrenza vengono aggiornati automaticamente.',
+                    'Ogni giornata viene raccontata con foto, impressioni, sfide ed emozioni incontrate lungo il cammino.',
+                    'Rivivi l\'intera traversata sulla mappa e guarda ogni tappa attraverso una timeline sincronizzata con il percorso reale.'
                 ],
                 statusTitle: 'Stato attuale',
-                footer: 'HORIZON © 2026 · A crossing of Switzerland told with live data, route tracking, and field notes. Every step, one direction.'
+                footer: 'HORIZON © 2026 · Una traversata della Svizzera raccontata con dati live, traccia e note di campo.'
             },
             live: {
                 title: 'HORIZON – Live Journey',
                 eyebrow: 'LIVE JOURNEY',
-                heading: 'FOLLOW HORIZON',
-                description: 'Follow the journey across Switzerland in real time.',
-                statsEyebrow: 'Statistiche Live',
+                heading: 'SEGUI HORIZON',
+                description: 'Segui la spedizione in Svizzera in tempo reale.',
+                statsEyebrow: 'Statistiche live',
                 statsTitle: 'Stato attuale',
-                statsLabels: ['Distanza', 'Rimanenti', 'Completato', 'Velocita', 'Altitudine', 'Ultimo aggiornamento', 'Progresso del percorso', 'Tempo', 'Dislivello', 'Passi', 'Distanza dalla partenza'],
+                statsLabels: ['Distanza', 'Rimanenti', 'Completato', 'Velocità', 'Altitudine', 'Ultimo aggiornamento', 'Progresso percorso', 'Tempo', 'Dislivello', 'Passi', 'Distanza dalla partenza'],
                 mapControlAria: 'Controlli mappa',
                 centerUser: 'Centra sulla tua posizione',
                 centerLive: 'Centra sulla posizione live',
@@ -118,20 +126,20 @@ const i18nCatalog = {
                 exitFullscreenMap: 'Esci da schermo intero'
             },
             dashboard: {
-                title: 'NorthLine – Dashboard',
+                title: 'HORIZON – Dashboard',
                 eyebrow: 'Analisi avanzata',
                 heading: 'Dashboard delle statistiche.',
-                description: 'Statistiche sportive complete con grafici per velocita, altitudine, andamento giornaliero e progressione.',
-                statLabels: ['Distanza percorsa', 'Distanza rimanente', 'Percentuale completata', 'Velocita attuale', 'Velocita media in movimento', 'Velocita media totale', 'Velocita massima', 'Altitudine attuale', 'Dislivello positivo', 'Tempo totale', 'Tempo in movimento', 'Frequenza cardiaca', 'Frequenza cardiaca media', 'Calorie bruciate', 'Acqua persa', 'Arrivo stimato'],
+                description: 'Statistiche sportive complete con grafici per velocità, altitudine e progressione.',
+                statLabels: ['Distanza percorsa', 'Distanza rimanente', 'Percentuale completata', 'Velocità attuale', 'Velocità media in movimento', 'Velocità media totale', 'Velocità massima', 'Altitudine attuale', 'Dislivello positivo', 'Tempo totale', 'Tempo in movimento', 'Frequenza cardiaca', 'Frequenza cardiaca media', 'Calorie bruciate', 'Acqua persa', 'Arrivo stimato'],
                 chartsTitle: 'Grafici live',
                 xAxis: 'Asse X',
                 xDistance: 'Km',
                 xTime: 'Tempo',
-                chartTitles: ['Velocita', 'Altitudine', 'Frequenza cardiaca', 'Dislivello cumulato'],
+                chartTitles: ['Velocità', 'Altitudine', 'Frequenza cardiaca', 'Dislivello cumulato'],
                 chartEmpty: 'Grafico disponibile alla partenza.'
             },
             gallery: {
-                title: 'NorthLine – Galleria',
+                title: 'HORIZON – Galleria',
                 eyebrow: 'Fotografie',
                 heading: 'Galleria completa del viaggio',
                 mapEyebrow: 'Cartina foto',
@@ -143,35 +151,47 @@ const i18nCatalog = {
                 modalPrev: 'Immagine precedente',
                 modalNext: 'Immagine successiva',
                 modalTitle: 'Titolo immagine',
-                modalLocation: 'Localita',
+                modalLocation: 'Località',
                 modalDescription: 'Descrizione della foto e posizione sulla mappa.'
             },
             replay: {
-                title: 'NorthLine – Replay',
+                title: 'HORIZON – Replay',
                 eyebrow: 'Replay',
                 heading: 'Rivivi il percorso.',
-                description: 'Riproduci l\'intero tracciato, metti in pausa, accelera e controlla i punti piu significativi.',
+                description: 'Riproduci l\'intero tracciato, metti in pausa e controlla i momenti più significativi.',
                 play: 'Riproduci',
                 pause: 'Pausa',
                 reset: 'Reset',
-                speed: 'Velocita:',
+                speed: 'Velocità:',
                 ready: 'Replay pronto',
                 complete: 'Replay completato'
             },
             progress: {
-                title: 'NorthLine – Progressi',
+                title: 'HORIZON – Progressi',
                 eyebrow: 'Obiettivi',
                 heading: 'Badge e progressi.',
-                description: 'I badge mostrano i tuoi progressi lungo il percorso.',
+                description: 'I badge mostrano il tuo avanzamento lungo il percorso.',
                 hiddenSectionTitle: 'Traguardi nascosti',
+                hiddenSectionTranslation: 'Hidden milestones / Versteckte Meilensteine'
             },
             project: {
-                title: 'NorthLine – Il progetto',
-                heading: 'Cos\'e il progetto NorthLine?'
+                title: 'HORIZON – Il progetto',
+                eyebrow: 'HORIZON',
+                heading: 'Cos\'è il progetto HORIZON?',
+                intro: 'HORIZON è molto più di una semplice traversata della Svizzera. È un progetto nato dal desiderio di esplorare il territorio passo dopo passo e condividere ogni momento in tempo reale.',
+                cardTitles: ['Cos\'è HORIZON', 'Motivazione', 'Preparazione', 'Attrezzatura', 'Nutrizione', 'Percorso', 'Supporto', 'Curiosità'],
+                cardTexts: [
+                    'HORIZON è una traversata a piedi della Svizzera da est a ovest, con oltre 500 chilometri e più di 6.000 metri di dislivello positivo.',
+                    'Il progetto nasce dal desiderio di spingersi oltre i propri limiti e trasformare un obiettivo ambizioso in un viaggio disciplinato.',
+                    'Mesi di allenamento, studio del percorso, analisi del dislivello e logistica sono essenziali prima della partenza.',
+                    'Ogni grammo conta: zaino, sicurezza, GPS, abbigliamento tecnico e tutto il necessario per affrontare il meteo e il terreno.',
+                    'Giornate lunghe e impegnative richiedono attenzione all\'idratazione, all\'energia e al recupero.',
+                    'Il percorso attraversa laghi, valli, foreste, passi alpini e tratti ad alta quota, costringendo a adattarsi continuamente al territorio.',
+                    'Anche se ogni passo è a piedi, l\'avventura ha un forte supporto logistico e una dimensione di squadra.',
+                    'HORIZON racconta anche foto, storie e incontri per far sentire i follower parte del viaggio.'
+                ]
             },
-            admin: {
-                title: 'NorthLine – Admin'
-            }
+            admin: { title: 'HORIZON – Admin' }
         },
         status: {
             notStarted: 'Non partito',
@@ -185,13 +205,13 @@ const i18nCatalog = {
             dateUnset: 'Data non impostata',
             update: 'Aggiornamento',
             photo: 'Foto',
-            locationUnset: 'Localita non impostata',
+            locationUnset: 'Località non impostata',
             galleryEmptyTitle: 'Galleria vuota',
             galleryEmptyText: 'Nessuna immagine disponibile al momento. Le foto verranno aggiunte dalla prossima pubblicazione.',
             diaryEmptyTitle: 'Diario vuoto',
             diaryEmptyText: 'Ancora nessuna voce pubblicata. I racconti e gli aggiornamenti cronologici verranno inseriti durante il percorso.',
             countdownUpdated: 'Countdown aggiornato in tempo reale.',
-            countdownStarted: 'La partenza prevista e in corso.',
+            countdownStarted: 'La partenza prevista è in corso.',
             liveNotAvailable: 'In attesa della partenza: nessun dato live disponibile.',
             liveTrackingActive: 'Tracker attivo e aggiornato.',
             waitingNextPoint: 'Dati disponibili, attesa prossima posizione.',
@@ -201,7 +221,7 @@ const i18nCatalog = {
             permissionDenied: 'Permesso negato',
             replayProgress: 'Replay {current}/{total}',
             progressEmptyTitle: 'Badge non impostati',
-            progressEmptyText: 'Nessun traguardo predefinito. Potrai aggiungere i badge quando vorrai iniziare il monitoraggio reale.',
+            progressEmptyText: 'Nessun traguardo attualmente definito. Potrai aggiungere i badge quando inizierai il monitoraggio reale.',
             badgeUnlocked: 'Sbloccato',
             badgePending: 'In attesa'
         }
@@ -211,7 +231,15 @@ const i18nCatalog = {
             languageLabel: 'Language',
             languageAria: 'Select language',
             navAria: 'Main navigation',
-            nav: ['Live', 'The challenge', 'Route', 'Journey', 'Replay', 'About'],
+            nav: {
+                home: 'Home',
+                live: 'Live',
+                challenge: 'The challenge',
+                route: 'Route',
+                journey: 'Journey',
+                replay: 'Replay',
+                about: 'About'
+            },
             brands: {
                 home: 'HORIZON',
                 live: 'Live Journey',
@@ -224,7 +252,7 @@ const i18nCatalog = {
             },
             menuOpen: 'Open menu',
             menuClose: 'Close menu',
-            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' },
+            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch', fr: 'Français' },
             route: {
                 start: 'Start',
                 finish: 'Finish',
@@ -242,29 +270,29 @@ const i18nCatalog = {
                 labels: ['Days', 'Hours', 'Minutes', 'Seconds'],
                 heroEyebrow: 'HORIZON 2026',
                 heroTitle: 'HORIZON',
-                heroDescription: 'From Piz Chavalatsch in the east to Chancy in the west. A 500-kilometre journey across Switzerland, driven entirely by human endurance.',
+                heroDescription: 'From east to west across Switzerland. A 500-km crossing on foot, through alpine terrain, long days and a clear expedition rhythm.',
                 heroButtons: ['FOLLOW THE JOURNEY', 'DISCOVER HORIZON'],
                 statsLabels: ['km covered', 'km remaining', 'completed', 'time elapsed', 'elevation gain', 'estimated steps', 'estimated arrival'],
                 sectionTitle: 'Do not just watch the journey. Live it.',
-                sectionDescription: 'HORIZON lets you follow the full crossing of Switzerland through live maps, updated stats, daily stories, and exclusive content. Each day brings new challenges, new landscapes, and a new story to tell.',
-                featureTitles: ['Live Map', 'Live Stats', 'Travel Diary', 'Route Replay'],
+                sectionDescription: 'HORIZON lets you follow the full crossing of Switzerland through live maps, updated statistics and expedition-focused field content.',
+                featureTitles: ['Live map', 'Live stats', 'Travel diary', 'Route replay'],
                 featureTexts: [
-                    'Follow my position along the route in real time. Each update shows where I am, how many kilometers are done, and how far is left to the finish.',
-                    'Speed, distance, altitude, elevation gain, travel time, and many other values are updated automatically throughout the adventure.',
-                    'Each day is told through photos, impressions, challenges, emotions, and curiosities encountered on the trail.',
-                    'Relive the full crossing on the map and watch every stage through an interactive timeline synced with the real route.'
+                    'Follow the live position along the route. Each update shows where we are and how much remains to the finish.',
+                    'Speed, distance, altitude, elevation gain and travel time update automatically as the expedition moves forward.',
+                    'Every day is shared through photos, impressions, challenges and emotions captured on the trail.',
+                    'Relive the entire crossing on the map and follow each stage through a timeline synced with the real route.'
                 ],
                 statusTitle: 'Current status',
-                footer: 'HORIZON © 2026 · A crossing of Switzerland told with live data, route tracking, and field notes. Every step, one direction.'
+                footer: 'HORIZON © 2026 · A crossing of Switzerland told with live data, route tracking and field notes.'
             },
             live: {
                 title: 'HORIZON – Live Journey',
                 eyebrow: 'LIVE JOURNEY',
                 heading: 'FOLLOW HORIZON',
-                description: 'Follow the journey across Switzerland in real time.',
-                statsEyebrow: 'Live Statistics',
+                description: 'Follow the expedition across Switzerland in real time.',
+                statsEyebrow: 'Live statistics',
                 statsTitle: 'Current status',
-                statsLabels: ['Distance', 'Remaining', 'Completed', 'Speed', 'Altitude', 'Last update', 'Route progress', 'Time', 'Elevation', 'Steps', 'Distance from start'],
+                statsLabels: ['Distance', 'Remaining', 'Completed', 'Speed', 'Altitude', 'Last update', 'Route progress', 'Time', 'Elevation gain', 'Steps', 'Distance from start'],
                 mapControlAria: 'Map controls',
                 centerUser: 'Center on your position',
                 centerLive: 'Center on live position',
@@ -272,11 +300,11 @@ const i18nCatalog = {
                 exitFullscreenMap: 'Exit fullscreen'
             },
             dashboard: {
-                title: 'NorthLine – Dashboard',
+                title: 'HORIZON – Dashboard',
                 eyebrow: 'Advanced analysis',
                 heading: 'Statistics dashboard.',
-                description: 'Complete sport statistics with charts for speed, altitude, daily trend, and progression.',
-                statLabels: ['Distance covered', 'Distance remaining', 'Completion rate', 'Current speed', 'Moving average speed', 'Total average speed', 'Max speed', 'Current altitude', 'Positive elevation', 'Total time', 'Moving time', 'Heart rate', 'Average heart rate', 'Calories burned', 'Water lost', 'Estimated arrival'],
+                description: 'Complete sport telemetry with charts for speed, altitude and progression.',
+                statLabels: ['Distance covered', 'Distance remaining', 'Completion rate', 'Current speed', 'Moving average speed', 'Total average speed', 'Max speed', 'Current altitude', 'Positive elevation gain', 'Total time', 'Moving time', 'Heart rate', 'Average heart rate', 'Calories burned', 'Water lost', 'Estimated arrival'],
                 chartsTitle: 'Live charts',
                 xAxis: 'X axis',
                 xDistance: 'Km',
@@ -285,7 +313,7 @@ const i18nCatalog = {
                 chartEmpty: 'Chart available at departure.'
             },
             gallery: {
-                title: 'NorthLine – Gallery',
+                title: 'HORIZON – Gallery',
                 eyebrow: 'Photos',
                 heading: 'Complete journey gallery',
                 mapEyebrow: 'Photo map',
@@ -301,10 +329,10 @@ const i18nCatalog = {
                 modalDescription: 'Photo description and map position.'
             },
             replay: {
-                title: 'NorthLine – Replay',
+                title: 'HORIZON – Replay',
                 eyebrow: 'Replay',
                 heading: 'Relive the route.',
-                description: 'Replay the full track, pause, speed up, and inspect key points.',
+                description: 'Replay the full track, pause, accelerate and inspect the key moments.',
                 play: 'Play',
                 pause: 'Pause',
                 reset: 'Reset',
@@ -313,39 +341,33 @@ const i18nCatalog = {
                 complete: 'Replay completed'
             },
             progress: {
-                title: 'NorthLine – Progress',
+                title: 'HORIZON – Progress',
                 eyebrow: 'Goals',
                 heading: 'Badges and progress.',
                 description: 'Badges show your progress along the route.',
                 hiddenSectionTitle: 'Hidden milestones',
-                hiddenSectionTranslation: 'Traguardi nascosti / Versteckte Meilensteine'
+                hiddenSectionTranslation: 'Hidden milestones / Versteckte Meilensteine'
             },
             project: {
-                title: 'NorthLine – Project',
+                title: 'HORIZON – Project',
                 eyebrow: 'HORIZON',
                 heading: 'What is the HORIZON project?',
-                intro: 'HORIZON is much more than a simple crossing of Switzerland. It is a project born from the desire to test limits, explore the territory step by step, and share every moment in real time.',
+                intro: 'HORIZON is much more than a simple crossing of Switzerland. It is a project built to test limits, explore the territory step by step and share each moment in real time.',
                 cardTitles: ['What HORIZON is', 'Motivation', 'Preparation', 'Equipment', 'Nutrition', 'Route', 'Support', 'Curiosities'],
                 cardTexts: [
-                    'HORIZON is an east-to-west crossing of Switzerland on foot, around 500 km and more than 6,000 meters of positive elevation gain.',
-                    'This project was created to leave the comfort zone and prove that consistency and preparation make difficult goals achievable.',
-                    'Months of training, route study, elevation analysis, logistics and platform development were essential before departure.',
-                    'Every gram matters: the backpack balances lightness, safety and autonomy with GPS, emergency gear, batteries and technical clothing.',
-                    'Long walking days require careful energy management with hydration, minerals and high-energy foods.',
-                    'The route crosses lakes, valleys, forests, alpine passes and high-altitude trails with continuous adaptation to terrain and weather.',
-                    'Even if every step is on foot, the adventure includes constant logistical and emotional support throughout the journey.',
-                    'HORIZON also shares photos, local stories, and encounters to make followers feel part of the adventure.'
+                    'HORIZON is an east-to-west crossing of Switzerland on foot, spanning more than 500 km and over 6,000 m of positive elevation gain.',
+                    'The project exists to push beyond comfort zones and turn a demanding idea into a disciplined, shared effort.',
+                    'Months of training, route study, logistics and platform work are essential before departure.',
+                    'Every gram counts: backpack, safety gear, GPS, technical clothing and all the essentials for terrain and weather.',
+                    'Long hiking days demand careful hydration, energy management and recovery planning.',
+                    'The route crosses lakes, valleys, forests, alpine passes and high-altitude trails, requiring constant adaptation to conditions.',
+                    'Even if every step is on foot, the adventure remains a team effort with logistical support and shared responsibility.',
+                    'HORIZON also shares photos, stories and encounters so followers can feel part of the journey.'
                 ]
             },
-            admin: { title: 'NorthLine – Admin' }
+            admin: { title: 'HORIZON – Admin' }
         },
-        status: {
-            notStarted: 'Not started',
-            moving: 'Moving',
-            paused: 'Paused',
-            ended: 'Day ended',
-            completed: 'Challenge completed'
-        },
+        status: { notStarted: 'Not started', moving: 'Moving', paused: 'Paused', ended: 'Day ended', completed: 'Challenge completed' },
         dynamic: {
             noDescription: 'No description available.',
             dateUnset: 'Date not set',
@@ -353,11 +375,11 @@ const i18nCatalog = {
             photo: 'Photo',
             locationUnset: 'Location not set',
             galleryEmptyTitle: 'Empty gallery',
-            galleryEmptyText: 'No images available yet. Photos will be added in the next publication.',
+            galleryEmptyText: 'No images available yet. Photos will be added with the next update.',
             diaryEmptyTitle: 'Empty diary',
-            diaryEmptyText: 'No entries have been published yet. Stories and timeline updates will be added during the journey.',
+            diaryEmptyText: 'No entries published yet. Stories and timeline updates will be added during the expedition.',
             countdownUpdated: 'Countdown updated in real time.',
-            countdownStarted: 'Planned start is now in progress.',
+            countdownStarted: 'Planned departure is now underway.',
             liveNotAvailable: 'Waiting for departure: no live data available yet.',
             liveTrackingActive: 'Tracker active and updated.',
             waitingNextPoint: 'Data available, waiting for next position.',
@@ -367,7 +389,7 @@ const i18nCatalog = {
             permissionDenied: 'Permission denied',
             replayProgress: 'Replay {current}/{total}',
             progressEmptyTitle: 'No badges configured',
-            progressEmptyText: 'No milestone is currently defined. You can add badges when real tracking starts.',
+            progressEmptyText: 'No milestones are currently defined. Add badges when real tracking begins.',
             badgeUnlocked: 'Unlocked',
             badgePending: 'Pending'
         }
@@ -377,24 +399,32 @@ const i18nCatalog = {
             languageLabel: 'Sprache',
             languageAria: 'Sprache wählen',
             navAria: 'Hauptnavigation',
-            nav: ['Live', 'The challenge', 'Route', 'Journey', 'Replay', 'About'],
+            nav: {
+                home: 'Start',
+                live: 'Live',
+                challenge: 'Die Herausforderung',
+                route: 'Route',
+                journey: 'Reise',
+                replay: 'Replay',
+                about: 'Info'
+            },
             brands: {
                 home: 'HORIZON',
                 live: 'Live Journey',
                 dashboard: 'Telemetry',
                 gallery: 'Field Notes',
                 replay: 'Replay',
-                progress: 'Progress',
-                project: 'About',
+                progress: 'Fortschritt',
+                project: 'Info',
                 admin: 'Admin'
             },
             menuOpen: 'Menü öffnen',
-            menuClose: 'Menü schliessen',
-            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' },
+            menuClose: 'Menü schließen',
+            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch', fr: 'Français' },
             route: {
                 start: 'Start',
                 finish: 'Ziel',
-                runnerPosition: 'Position Sportler',
+                runnerPosition: 'Position',
                 directions: 'Wegbeschreibung',
                 nightLabel: 'Nacht'
             }
@@ -403,31 +433,31 @@ const i18nCatalog = {
             home: {
                 title: 'HORIZON | Schweiz-Durchquerung in Echtzeit',
                 countdownEyebrow: 'Geplanter Start',
-                countdownTitle: '1. August · 04:00 Uhr',
+                countdownTitle: '1. August · 04:00',
                 countdownMessage: 'Verbleibende Zeit wird berechnet...',
                 labels: ['Tage', 'Stunden', 'Minuten', 'Sekunden'],
                 heroEyebrow: 'HORIZON 2026',
                 heroTitle: 'HORIZON',
-                heroDescription: 'From Piz Chavalatsch in the east to Chancy in the west. A 500-kilometre journey across Switzerland, driven entirely by human endurance.',
-                heroButtons: ['FOLLOW THE JOURNEY', 'DISCOVER HORIZON'],
+                heroDescription: 'Von Ost nach West durch die Schweiz. Eine 500 Kilometer lange Durchquerung zu Fuß durch alpine Strecken, lange Etappen und einen klaren Expeditionsrhythmus.',
+                heroButtons: ['REISE VERFOLGEN', 'HORIZON ENTDECKEN'],
                 statsLabels: ['km gelaufen', 'km verbleibend', 'abgeschlossen', 'verstrichene Zeit', 'Höhenmeter', 'geschätzte Schritte', 'geschätzte Ankunft'],
                 sectionTitle: 'Die Reise nicht nur ansehen. Erleben.',
-                sectionDescription: 'NorthLine lässt dich die gesamte Schweiz-Durchquerung über Live-Karten, aktuelle Statistiken, tägliche Berichte und exklusive Inhalte verfolgen. Jeder Tag bringt neue Herausforderungen, neue Landschaften und eine neue Geschichte.',
+                sectionDescription: 'HORIZON ermöglicht es dir, die gesamte Schweiz-Durchquerung mit Live-Karten, aktuellen Statistiken und Expeditionstexten zu verfolgen.',
                 featureTitles: ['Live-Karte', 'Live-Statistiken', 'Reisetagebuch', 'Strecken-Replay'],
                 featureTexts: [
-                    'Verfolge meine Position entlang der Strecke in Echtzeit. Jedes Update zeigt, wo ich bin, wie viele Kilometer geschafft sind und was bis zum Ziel fehlt.',
-                    'Geschwindigkeit, Distanz, Höhe, Höhengewinn, Gehzeit und viele weitere Werte werden während des Abenteuers automatisch aktualisiert.',
-                    'Jeder Tag wird mit Fotos, Eindrücken, Herausforderungen, Emotionen und Entdeckungen auf dem Weg erzählt.',
-                    'Erlebe die gesamte Durchquerung auf der Karte neu und beobachte jede Etappe mit einer interaktiven Timeline, synchron zur realen Strecke.'
+                    'Verfolge die Live-Position entlang der Route. Jede Aktualisierung zeigt, wo wir uns befinden und wie viel noch bis zum Ziel fehlt.',
+                    'Geschwindigkeit, Distanz, Höhe, Höhenmeter und Laufzeit werden automatisch aktualisiert.',
+                    'Jeder Tag wird mit Fotos, Eindrücken, Herausforderungen und Emotionen aus dem Gelände erzählt.',
+                    'Erlebe die gesamte Durchquerung auf der Karte und verfolge jede Etappe mit einer Timeline zum realen Verlauf.'
                 ],
                 statusTitle: 'Aktueller Status',
-                footer: 'HORIZON © 2026 · Eine Querung der Schweiz, erzählt mit Live-Daten, Route und Feldnotizen. Jeder Schritt, eine Richtung.'
+                footer: 'HORIZON © 2026 · Eine Schweiz-Durchquerung erzählt mit Live-Daten, Route und Feldnotizen.'
             },
             live: {
-                title: 'NorthLine – Live-Karte',
-                eyebrow: 'Live-Karte',
-                heading: 'NorthLine live auf der Karte.',
-                description: 'Verfolge die aktuelle Position, die bereits zurückgelegte Strecke und die Statistiken des Athleten auf einer Vollbildkarte.',
+                title: 'HORIZON – Live Journey',
+                eyebrow: 'LIVE JOURNEY',
+                heading: 'HORIZON VERFOLGEN',
+                description: 'Verfolge die Expedition durch die Schweiz in Echtzeit.',
                 statsEyebrow: 'Live-Statistiken',
                 statsTitle: 'Aktueller Status',
                 statsLabels: ['Distanz', 'Verbleibend', 'Abgeschlossen', 'Geschwindigkeit', 'Höhe', 'Letztes Update', 'Streckenfortschritt', 'Zeit', 'Höhenmeter', 'Schritte', 'Distanz vom Start'],
@@ -438,20 +468,20 @@ const i18nCatalog = {
                 exitFullscreenMap: 'Vollbild verlassen'
             },
             dashboard: {
-                title: 'NorthLine – Dashboard',
+                title: 'HORIZON – Dashboard',
                 eyebrow: 'Erweiterte Analyse',
                 heading: 'Statistik-Dashboard.',
-                description: 'Vollständige Sportstatistiken mit Diagrammen für Tempo, Höhe, Tagesverlauf und Fortschritt.',
-                statLabels: ['Gelaufene Distanz', 'Verbleibende Distanz', 'Abschlussquote', 'Aktuelle Geschwindigkeit', 'Durchschnitt in Bewegung', 'Gesamtdurchschnitt', 'Maximale Geschwindigkeit', 'Aktuelle Höhe', 'Positiver Höhengewinn', 'Gesamtzeit', 'Bewegungszeit', 'Herzfrequenz', 'Durchschnittliche Herzfrequenz', 'Verbrannte Kalorien', 'Verlorenes Wasser', 'Geschätzte Ankunft'],
+                description: 'Vollständige Sportdaten mit Diagrammen zu Geschwindigkeit, Höhe und Verlauf.',
+                statLabels: ['Zurückgelegte Distanz', 'Verbleibende Distanz', 'Abschlussquote', 'Aktuelle Geschwindigkeit', 'Durchschnitt in Bewegung', 'Gesamtdurchschnitt', 'Maximalgeschwindigkeit', 'Aktuelle Höhe', 'Positiver Höhengewinn', 'Gesamtzeit', 'Bewegungszeit', 'Herzfrequenz', 'Durchschnittliche Herzfrequenz', 'Verbrannte Kalorien', 'Verlorenes Wasser', 'Geschätzte Ankunft'],
                 chartsTitle: 'Live-Diagramme',
                 xAxis: 'X-Achse',
                 xDistance: 'Km',
                 xTime: 'Zeit',
-                chartTitles: ['Geschwindigkeit', 'Höhe', 'Herzfrequenz', 'Kumulierter Höhengewinn'],
+                chartTitles: ['Geschwindigkeit', 'Höhe', 'Herzfrequenz', 'Kumulativer Höhengewinn'],
                 chartEmpty: 'Diagramm zum Start verfügbar.'
             },
             gallery: {
-                title: 'NorthLine – Galerie',
+                title: 'HORIZON – Galerie',
                 eyebrow: 'Fotos',
                 heading: 'Komplette Reisegalerie',
                 mapEyebrow: 'Fotokarte',
@@ -459,7 +489,7 @@ const i18nCatalog = {
                 mapWaiting: 'Warte auf geolokalisierte Bilder...',
                 fullscreenMap: 'Karte im Vollbild',
                 exitFullscreenMap: 'Vollbild verlassen',
-                modalClose: 'Schliessen',
+                modalClose: 'Schließen',
                 modalPrev: 'Vorheriges Bild',
                 modalNext: 'Nächstes Bild',
                 modalTitle: 'Bildtitel',
@@ -467,7 +497,7 @@ const i18nCatalog = {
                 modalDescription: 'Fotobeschreibung und Position auf der Karte.'
             },
             replay: {
-                title: 'NorthLine – Replay',
+                title: 'HORIZON – Replay',
                 eyebrow: 'Replay',
                 heading: 'Strecke erneut erleben.',
                 description: 'Die gesamte Route abspielen, pausieren, beschleunigen und Schlüsselpunkte ansehen.',
@@ -479,39 +509,33 @@ const i18nCatalog = {
                 complete: 'Replay abgeschlossen'
             },
             progress: {
-                title: 'NorthLine – Fortschritt',
+                title: 'HORIZON – Fortschritt',
                 eyebrow: 'Ziele',
                 heading: 'Badges und Fortschritt.',
                 description: 'Badges zeigen deinen Fortschritt entlang der Strecke.',
                 hiddenSectionTitle: 'Versteckte Meilensteine',
-                hiddenSectionTranslation: 'Traguardi nascosti / Hidden milestones'
+                hiddenSectionTranslation: 'Hidden milestones / Traguardi nascosti'
             },
             project: {
-                title: 'NorthLine – Projekt',
+                title: 'HORIZON – Projekt',
                 eyebrow: 'HORIZON',
-                heading: 'Was ist das NorthLine-Projekt?',
-                intro: 'NorthLine ist weit mehr als eine einfache Durchquerung der Schweiz. Es ist ein Projekt, das aus dem Wunsch entstanden ist, sich selbst herauszufordern, das Land Schritt für Schritt zu erkunden und jeden Moment in Echtzeit zu teilen. Über eine vollständig von mir entwickelte Plattform kann jeder die Reise verfolgen, den Fortschritt beobachten, die Daten analysieren und dieses Abenteuer erleben, als wäre er selbst mit uns auf dem Weg.',
-                cardTitles: ['Was NorthLine ist', 'Motivation', 'Vorbereitung', 'Ausrüstung', 'Ernährung', 'Route', 'Support', 'Besonderheiten'],
+                heading: 'Was ist das HORIZON-Projekt?',
+                intro: 'HORIZON ist weit mehr als eine einfache Durchquerung der Schweiz. Es ist ein Projekt, das Grenzen testet, das Land Schritt für Schritt erkundet und jeden Moment in Echtzeit teilt.',
+                cardTitles: ['Was HORIZON ist', 'Motivation', 'Vorbereitung', 'Ausrüstung', 'Ernährung', 'Route', 'Support', 'Besonderheiten'],
                 cardTexts: [
-                    'NorthLine ist eine Weitwanderung, die die gesamte Schweiz von Süden nach Norden auf einer rund 333 Kilometer langen Strecke mit über 6\'000 Höhenmetern durchquert. Eine ununterbrochene Reise durch Ebenen, Täler, Alpenpässe und Berge, die in festgelegten Etappen bewältigt und vollständig live dokumentiert wird.',
-                    'Dieses Projekt entstand aus dem Wunsch, die eigene Komfortzone zu verlassen und zu zeigen, dass mit Ausdauer, Vorbereitung und Entschlossenheit selbst Herausforderungen gemeistert werden können, die zunächst unmöglich erscheinen. Es ist kein Wettkampf gegen andere, sondern ein persönlicher Weg, auf dem jeder Kilometer einen Erfolg darstellt und jede Schwierigkeit eine Gelegenheit ist, daran zu wachsen.',
-                    'Hinter jedem Wandertag stecken Monate der Vorbereitung. Körperliches Training, Wanderungen mit Rucksack, die Planung der Route, die Analyse der Höhenmeter, die logistische Organisation und die Entwicklung der Webplattform waren entscheidend, um am Starttag bestens vorbereitet zu sein.',
-                    'Jedes Gramm zählt. Der Rucksack wurde so zusammengestellt, dass er die optimale Balance zwischen Leichtigkeit, Sicherheit und Eigenständigkeit bietet. GPS, Notfallausrüstung, Batterien, funktionelle Kleidung und alles Weitere, was nötig ist, um den unterschiedlichsten Wetterbedingungen entlang der Strecke gewachsen zu sein.',
-                    'Viele Stunden pro Tag zu wandern erfordert ein sorgfältiges Energiemanagement. Während der Tour werden regelmässig Wasser, Mineralstoffe und energiereiche Lebensmittel aufgenommen, um die Leistungsfähigkeit konstant zu halten und die Erholung zwischen den einzelnen Etappen zu fördern.',
-                    'Die Strecke führt durch einige der eindrucksvollsten Landschaften der Schweiz: Seen, Täler, Wälder, Alpenpässe und hochalpine Wanderwege. Jede Etappe bringt neue Herausforderungen mit sich und erfordert eine ständige Anpassung an Gelände und Wetterbedingungen.',
-                    'Auch wenn jeder Schritt zu Fuss zurückgelegt wird, werde ich dieses Abenteuer nicht allein bestreiten. Während der gesamten Reise begleitet mich meine Freundin im Auto und kümmert sich um die logistische Unterstützung, die Versorgung mit Wasser und Verpflegung sowie alles, was für ein sicheres Weiterkommen erforderlich ist. Ihr wichtigster Beitrag ist jedoch menschlicher Natur: In den schwierigsten Momenten wird ihre Anwesenheit mich daran erinnern, warum es sich lohnt, weiterzugehen.',
-                    'NorthLine soll nicht nur Zahlen erzählen. Während der Reise werden Fotos, interessante Informationen über die bereisten Regionen, Begegnungen unterwegs und viele weitere Eindrücke geteilt, die dieses Erlebnis einzigartig machen. Ziel ist es, allen, die das Projekt verfolgen, das Gefühl zu geben, Teil des Abenteuers zu sein – Schritt für Schritt.'
+                    'HORIZON ist eine Ost-West-Durchquerung der Schweiz zu Fuß über rund 500 Kilometer und mehr als 6.000 Meter Höhengewinn.',
+                    'Das Projekt dient dazu, Komfortzonen zu verlassen und aus einer anspruchsvollen Idee eine disziplinierte, gemeinsame Anstrengung zu machen.',
+                    'Monate Training, Routenanalyse, Logistik und Plattformarbeit sind vor dem Start entscheidend.',
+                    'Jedes Gramm zählt: Rucksack, Sicherheitsausrüstung, GPS, technische Kleidung und alles, was für Wetter und Gelände nötig ist.',
+                    'Lange Wandertage erfordern genaue Hydration, Energieplanung und Erholung.',
+                    'Die Route führt durch Seen, Täler, Wälder, Alpenpässe und Hochgebirgswege und verlangt ständige Anpassung an die Bedingungen.',
+                    'Auch wenn jeder Schritt zu Fuß erfolgt, bleibt die Expedition eine Teamleistung mit logistischer Unterstützung.',
+                    'HORIZON zeigt zudem Fotos, Geschichten und Begegnungen, damit Follower Teil des Abenteuers werden.'
                 ]
             },
-            admin: { title: 'NorthLine – Admin' }
+            admin: { title: 'HORIZON – Admin' }
         },
-        status: {
-            notStarted: 'Nicht gestartet',
-            moving: 'In Bewegung',
-            paused: 'Pausiert',
-            ended: 'Tag beendet',
-            completed: 'Challenge abgeschlossen'
-        },
+        status: { notStarted: 'Nicht gestartet', moving: 'In Bewegung', paused: 'Pausiert', ended: 'Tag beendet', completed: 'Challenge abgeschlossen' },
         dynamic: {
             noDescription: 'Keine Beschreibung verfügbar.',
             dateUnset: 'Datum nicht gesetzt',
@@ -521,7 +545,7 @@ const i18nCatalog = {
             galleryEmptyTitle: 'Leere Galerie',
             galleryEmptyText: 'Noch keine Bilder verfügbar. Fotos werden mit der nächsten Veröffentlichung hinzugefügt.',
             diaryEmptyTitle: 'Leeres Tagebuch',
-            diaryEmptyText: 'Noch keine Einträge veröffentlicht. Berichte und Timeline-Updates folgen während der Reise.',
+            diaryEmptyText: 'Noch keine Einträge veröffentlicht. Berichte und Timeline-Updates folgen während der Expedition.',
             countdownUpdated: 'Countdown in Echtzeit aktualisiert.',
             countdownStarted: 'Der geplante Start läuft jetzt.',
             liveNotAvailable: 'Warten auf den Start: noch keine Live-Daten verfügbar.',
@@ -536,6 +560,174 @@ const i18nCatalog = {
             progressEmptyText: 'Aktuell sind keine Meilensteine definiert. Du kannst Badges beim echten Tracking hinzufügen.',
             badgeUnlocked: 'Freigeschaltet',
             badgePending: 'Ausstehend'
+        }
+    },
+    fr: {
+        common: {
+            languageLabel: 'Langue',
+            languageAria: 'Choisir la langue',
+            navAria: 'Navigation principale',
+            nav: {
+                home: 'Accueil',
+                live: 'Live',
+                challenge: 'Le défi',
+                route: 'Parcours',
+                journey: 'Voyage',
+                replay: 'Replay',
+                about: 'À propos'
+            },
+            brands: {
+                home: 'HORIZON',
+                live: 'Live Journey',
+                dashboard: 'Télémétrie',
+                gallery: 'Notes de terrain',
+                replay: 'Replay',
+                progress: 'Progression',
+                project: 'À propos',
+                admin: 'Admin'
+            },
+            menuOpen: 'Ouvrir le menu',
+            menuClose: 'Fermer le menu',
+            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch', fr: 'Français' },
+            route: {
+                start: 'Départ',
+                finish: 'Arrivée',
+                runnerPosition: 'Position',
+                directions: 'Itinéraire',
+                nightLabel: 'Nuit'
+            }
+        },
+        pages: {
+            home: {
+                title: 'HORIZON | Traversée de la Suisse en direct',
+                countdownEyebrow: 'Départ prévu',
+                countdownTitle: '1 août · 04:00',
+                countdownMessage: 'Calcul du temps restant...',
+                labels: ['Jours', 'Heures', 'Minutes', 'Secondes'],
+                heroEyebrow: 'HORIZON 2026',
+                heroTitle: 'HORIZON',
+                heroDescription: 'D\'est en ouest à travers la Suisse. Une traversée de plus de 500 kilomètres à pied, avec terrain alpin, longues étapes et un rythme d\'expédition.',
+                heroButtons: ['SUIVRE LE VOYAGE', 'DÉCOUVRIR HORIZON'],
+                statsLabels: ['km parcourus', 'km restants', 'terminé', 'temps écoulé', 'dénivelé', 'pas estimés', 'arrivée estimée'],
+                sectionTitle: 'Ne regardez pas seulement le voyage. Vivez-le.',
+                sectionDescription: 'HORIZON permet de suivre toute la traversée de la Suisse avec cartes live, statistiques à jour et contenus de terrain.',
+                featureTitles: ['Carte live', 'Statistiques live', 'Journal de bord', 'Replay du parcours'],
+                featureTexts: [
+                    'Suivez la position en direct le long du parcours. Chaque mise à jour montre où nous sommes et combien de distance reste à parcourir.',
+                    'La vitesse, la distance, l\'altitude, le dénivelé et le temps de déplacement sont mis à jour automatiquement.',
+                    'Chaque journée est racontée à travers photos, impressions, défis et émotions du terrain.',
+                    'Revivez toute la traversée sur la carte et suivez chaque étape avec une timeline synchronisée au vrai parcours.'
+                ],
+                statusTitle: 'Statut actuel',
+                footer: 'HORIZON © 2026 · Une traversée de la Suisse racontée avec données live, tracé et notes de terrain.'
+            },
+            live: {
+                title: 'HORIZON – Live Journey',
+                eyebrow: 'LIVE JOURNEY',
+                heading: 'SUIVRE HORIZON',
+                description: 'Suivez l\'expédition à travers la Suisse en temps réel.',
+                statsEyebrow: 'Statistiques live',
+                statsTitle: 'Statut actuel',
+                statsLabels: ['Distance', 'Restant', 'Terminé', 'Vitesse', 'Altitude', 'Dernière mise à jour', 'Progression', 'Temps', 'Dénivelé', 'Pas', 'Distance depuis le départ'],
+                mapControlAria: 'Contrôles de carte',
+                centerUser: 'Centrer sur votre position',
+                centerLive: 'Centrer sur la position live',
+                fullscreenMap: 'Carte plein écran',
+                exitFullscreenMap: 'Quitter le plein écran'
+            },
+            dashboard: {
+                title: 'HORIZON – Dashboard',
+                eyebrow: 'Analyse avancée',
+                heading: 'Tableau de bord.',
+                description: 'Télémétrie complète avec graphiques de vitesse, altitude et progression.',
+                statLabels: ['Distance parcourue', 'Distance restante', 'Taux d\'achèvement', 'Vitesse actuelle', 'Vitesse moyenne en mouvement', 'Vitesse moyenne totale', 'Vitesse maximale', 'Altitude actuelle', 'Dénivelé positif', 'Temps total', 'Temps en mouvement', 'Fréquence cardiaque', 'Fréquence cardiaque moyenne', 'Calories brûlées', 'Eau perdue', 'Arrivée estimée'],
+                chartsTitle: 'Graphiques live',
+                xAxis: 'Axe X',
+                xDistance: 'Km',
+                xTime: 'Temps',
+                chartTitles: ['Vitesse', 'Altitude', 'Fréquence cardiaque', 'Dénivelé cumulé'],
+                chartEmpty: 'Graphique disponible au départ.'
+            },
+            gallery: {
+                title: 'HORIZON – Galerie',
+                eyebrow: 'Photos',
+                heading: 'Galerie complète du voyage',
+                mapEyebrow: 'Carte photo',
+                mapTitle: 'Positions des images.',
+                mapWaiting: 'En attente d\'images géolocalisées...',
+                fullscreenMap: 'Carte plein écran',
+                exitFullscreenMap: 'Quitter le plein écran',
+                modalClose: 'Fermer',
+                modalPrev: 'Image précédente',
+                modalNext: 'Image suivante',
+                modalTitle: 'Titre de l\'image',
+                modalLocation: 'Lieu',
+                modalDescription: 'Description de la photo et position sur la carte.'
+            },
+            replay: {
+                title: 'HORIZON – Replay',
+                eyebrow: 'Replay',
+                heading: 'Revivez le parcours.',
+                description: 'Relancez tout le tracé, mettez en pause et inspectez les points clés.',
+                play: 'Lecture',
+                pause: 'Pause',
+                reset: 'Reset',
+                speed: 'Vitesse :',
+                ready: 'Replay prêt',
+                complete: 'Replay terminé'
+            },
+            progress: {
+                title: 'HORIZON – Progression',
+                eyebrow: 'Objectifs',
+                heading: 'Badges et progression.',
+                description: 'Les badges montrent votre progression sur le parcours.',
+                hiddenSectionTitle: 'Étapes cachées',
+                hiddenSectionTranslation: 'Hidden milestones / Versteckte Meilensteine'
+            },
+            project: {
+                title: 'HORIZON – Projet',
+                eyebrow: 'HORIZON',
+                heading: 'Qu\'est-ce que le projet HORIZON ?',
+                intro: 'HORIZON est bien plus qu\'une simple traversée de la Suisse. C\'est un projet qui repousse les limites, explore le territoire pas à pas et partage chaque instant en temps réel.',
+                cardTitles: ['Ce qu\'est HORIZON', 'Motivation', 'Préparation', 'Équipement', 'Nutrition', 'Parcours', 'Soutien', 'Curiosités'],
+                cardTexts: [
+                    'HORIZON est une traversée de la Suisse d\'est en ouest à pied, sur plus de 500 km et plus de 6 000 mètres de dénivelé positif.',
+                    'Le projet permet de sortir de sa zone de confort et transformer une idée exigeante en effort partagé et discipliné.',
+                    'Des mois d\'entraînement, d\'analyse du parcours, de logistique et de développement de la plateforme sont nécessaires avant le départ.',
+                    'Chaque gramme compte : sac, sécurité, GPS, vêtements techniques et tout le nécessaire pour s\'adapter au terrain et au climat.',
+                    'Les longues journées de marche exigent une gestion attentive de l\'hydratation, de l\'énergie et de la récupération.',
+                    'Le parcours traverse lacs, vallées, forêts, cols alpins et sentiers de haute altitude, avec adaptation constante aux conditions.',
+                    'Même si chaque étape se fait à pied, l\'expédition reste un effort d\'équipe avec soutien logistique et responsabilité partagée.',
+                    'HORIZON partage aussi photos, histoires et rencontres pour faire participer les followers au voyage.'
+                ]
+            },
+            admin: { title: 'HORIZON – Admin' }
+        },
+        status: { notStarted: 'Pas encore commencé', moving: 'En mouvement', paused: 'En pause', ended: 'Journée terminée', completed: 'Défi terminé' },
+        dynamic: {
+            noDescription: 'Aucune description disponible.',
+            dateUnset: 'Date non définie',
+            update: 'Mise à jour',
+            photo: 'Photo',
+            locationUnset: 'Lieu non défini',
+            galleryEmptyTitle: 'Galerie vide',
+            galleryEmptyText: 'Aucune image disponible pour le moment. Les photos seront ajoutées lors de la prochaine publication.',
+            diaryEmptyTitle: 'Journal vide',
+            diaryEmptyText: 'Aucune entrée publiée pour le moment. Les récits et mises à jour seront ajoutés pendant l\'expédition.',
+            countdownUpdated: 'Compte à rebours mis à jour en temps réel.',
+            countdownStarted: 'Le départ prévu est en cours.',
+            liveNotAvailable: 'En attente du départ : aucune donnée live disponible.',
+            liveTrackingActive: 'Tracker actif et mis à jour.',
+            waitingNextPoint: 'Données disponibles, attente du prochain point.',
+            visitorDistance: 'Distance du visiteur',
+            visitorFromStart: 'Distance depuis le départ',
+            notSupported: 'Non pris en charge',
+            permissionDenied: 'Permission refusée',
+            replayProgress: 'Replay {current}/{total}',
+            progressEmptyTitle: 'Aucun badge configuré',
+            progressEmptyText: 'Aucune étape n\'est actuellement définie. Vous pouvez ajouter des badges quand le suivi réel commencera.',
+            badgeUnlocked: 'Débloqué',
+            badgePending: 'En attente'
         }
     }
 };
@@ -587,10 +779,18 @@ function getDictionary() {
 function getPreferredLanguage() {
     try {
         const stored = localStorage.getItem(languageStorageKey);
-        if (supportedLanguages.includes(stored)) return normalizeLanguage(stored);
+        if (stored && supportedLanguages.includes(normalizeLanguage(stored))) {
+            return normalizeLanguage(stored);
+        }
     } catch (error) {
         // ignore storage access issues
     }
+
+    const browserLanguage = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+    const candidate = String(browserLanguage).trim();
+    if (candidate.startsWith('it')) return 'it';
+    if (candidate.startsWith('de')) return 'de';
+    if (candidate.startsWith('fr')) return 'fr';
     return defaultLanguage;
 }
 function persistPreferredLanguage(lang) {
@@ -623,12 +823,40 @@ function setAttribute(selector, attribute, value) {
     const node = document.querySelector(selector);
     if (node && value !== undefined) node.setAttribute(attribute, value);
 }
+function applyDataI18n() {
+    document.querySelectorAll('[data-i18n]').forEach((element) => {
+        const key = element.getAttribute('data-i18n');
+        if (!key) return;
+        const value = resolveText(key);
+        if (typeof value === 'string' && value) {
+            element.textContent = value;
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-attr]').forEach((element) => {
+        const mapping = element.getAttribute('data-i18n-attr');
+        if (!mapping) return;
+        try {
+            const parsed = JSON.parse(mapping);
+            Object.entries(parsed).forEach(([attrName, key]) => {
+                const value = resolveText(key);
+                if (typeof value === 'string' && value) {
+                    element.setAttribute(attrName, value);
+                }
+            });
+        } catch (error) {
+            // ignore malformed attribute maps
+        }
+    });
+}
 function applyNavigationTranslations() {
     const nav = document.querySelector('.main-nav');
     const labels = resolveText('common.nav');
-    if (nav && Array.isArray(labels)) {
-        nav.querySelectorAll('a').forEach((link, index) => {
-            if (labels[index]) link.textContent = labels[index];
+    if (nav && labels && typeof labels === 'object') {
+        nav.querySelectorAll('[data-nav-key]').forEach((link) => {
+            const key = link.getAttribute('data-nav-key');
+            const label = labels[key];
+            if (label) link.textContent = label;
         });
     }
     const navAria = t('common.navAria');
@@ -636,6 +864,7 @@ function applyNavigationTranslations() {
 }
 function applyStaticTranslations() {
     const page = document.body?.dataset?.page || '';
+    applyDataI18n();
     applyNavigationTranslations();
     const subtitle = resolveText(`common.brands.${page}`);
     setText('.brand-subtitle', subtitle);
@@ -814,9 +1043,10 @@ function translateStatus(label) {
 }
 function onLanguageSelected(targetLanguage) {
     const language = normalizeLanguage(targetLanguage);
-    const current = getPreferredLanguage();
-    if (language === current) return;
     persistPreferredLanguage(language);
+    currentLanguage = language;
+    document.documentElement.lang = language;
+    applyStaticTranslations();
     window.location.reload();
 }
 function buildLanguageSwitcher(className) {
@@ -834,7 +1064,8 @@ function buildLanguageSwitcher(className) {
     const options = [
         { value: 'it', label: t('common.languageNames.it') },
         { value: 'en', label: t('common.languageNames.en') },
-        { value: 'de', label: t('common.languageNames.de') }
+        { value: 'de', label: t('common.languageNames.de') },
+        { value: 'fr', label: t('common.languageNames.fr') }
     ];
     options.forEach(option => {
         const element = document.createElement('option');
@@ -852,20 +1083,15 @@ function initializeLanguageSwitcher() {
     const nav = topbar?.querySelector('.main-nav');
     if (!topbar || !nav || topbar.dataset.languageSwitcherInit === 'true') return;
 
-    const existingDesktop = topbar.querySelector('.lang-switcher-desktop .lang-switcher-select');
-    const existingMobile = nav.querySelector('.lang-switcher-mobile .lang-switcher-select');
+    const existingDesktop = topbar.querySelector('.lang-switcher-desktop .lang-switcher-select') || topbar.querySelector('#langSwitcherDesktop');
+    const existingMobile = nav.querySelector('.lang-switcher-mobile .lang-switcher-select') || nav.querySelector('#langSwitcherMobile');
 
-    if (existingDesktop && existingMobile) {
-        topbar.dataset.languageSwitcherInit = 'true';
-        return;
-    }
-
-    const desktop = buildLanguageSwitcher('lang-switcher-desktop');
-    const mobile = buildLanguageSwitcher('lang-switcher-mobile');
+    const desktop = existingDesktop ? { select: existingDesktop, wrapper: existingDesktop.closest('.lang-switcher') } : buildLanguageSwitcher('lang-switcher-desktop');
+    const mobile = existingMobile ? { select: existingMobile, wrapper: existingMobile.closest('.lang-switcher') } : buildLanguageSwitcher('lang-switcher-mobile');
 
     const syncValue = value => {
-        desktop.select.value = value;
-        mobile.select.value = value;
+        if (desktop.select) desktop.select.value = value;
+        if (mobile.select) mobile.select.value = value;
     };
 
     desktop.select.addEventListener('change', event => {
@@ -879,8 +1105,8 @@ function initializeLanguageSwitcher() {
         onLanguageSelected(value);
     });
 
-    topbar.appendChild(desktop.wrapper);
-    nav.appendChild(mobile.wrapper);
+    if (!existingDesktop) topbar.appendChild(desktop.wrapper);
+    if (!existingMobile) nav.appendChild(mobile.wrapper);
     topbar.dataset.languageSwitcherInit = 'true';
 }
 function initializeLanguageSupport() {
@@ -905,7 +1131,7 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 function getFirebaseClientConfig() {
-    return window.NorthLineFirebaseConfig || null;
+    return window.HorizonFirebaseConfig || window.NorthLineFirebaseConfig || null;
 }
 function hasUsableFirebaseConfig() {
     const config = getFirebaseClientConfig();
@@ -1319,10 +1545,10 @@ function useMediaModal(items, onChange = null) {
 }
 function setTheme(theme) {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem('northline-theme', theme);
+    localStorage.setItem('horizon-theme', theme);
 }
 function initializeTheme() {
-    const saved = localStorage.getItem('northline-theme');
+    const saved = localStorage.getItem('horizon-theme');
     setTheme(saved === 'light' ? 'light' : 'dark');
     document.getElementById('themeToggle')?.addEventListener('click', () => {
         setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
@@ -2310,8 +2536,8 @@ const hiddenProgressDefinitionsByLocale = {
             status: 'Sbloccato'
         },
         {
-            id: 'northline-peak',
-            title: 'Tetto della NorthLine',
+            id: 'horizon-peak',
+            title: 'HORIZON summit',
             subtitle: 'Raggiunto il punto piu alto del percorso.',
             status: 'Sbloccato'
         },
@@ -2342,8 +2568,8 @@ const hiddenProgressDefinitionsByLocale = {
             status: 'Unlocked'
         },
         {
-            id: 'northline-peak',
-            title: 'NorthLine summit',
+            id: 'horizon-peak',
+            title: 'HORIZON summit',
             subtitle: 'Reached the highest point of the route.',
             status: 'Unlocked'
         },
@@ -2374,8 +2600,8 @@ const hiddenProgressDefinitionsByLocale = {
             status: 'Freigeschaltet'
         },
         {
-            id: 'northline-peak',
-            title: 'NorthLine-Gipfel',
+            id: 'horizon-peak',
+            title: 'HORIZON summit',
             subtitle: 'Den hoechsten Punkt der Route erreicht.',
             status: 'Freigeschaltet'
         },
@@ -2444,7 +2670,7 @@ function buildCantonProgressFromKeys(keys, locale) {
     };
 }
 
-const cantonProgressCacheKey = 'northline-canton-progress-cache-v3';
+const cantonProgressCacheKey = 'horizon-canton-progress-cache-v3';
 const cantonKeyToLabels = {
     it: {
         ticino: 'Ticino',
@@ -3123,7 +3349,7 @@ async function initDashboardPage() {
     const summary = buildSummary(points) || buildDashboardPreStartSummary();
     updateDashboardSummary(summary);
     const xAxisSelect = document.getElementById('chartXAxisMode');
-    const storedXAxisMode = localStorage.getItem('northline-chart-x-axis');
+    const storedXAxisMode = localStorage.getItem('horizon-chart-x-axis');
     const xAxisMode = storedXAxisMode === 'time' ? 'time' : 'distance';
     if (xAxisSelect) xAxisSelect.value = xAxisMode;
     const hasLiveData = points.length > 0;
@@ -3184,7 +3410,7 @@ async function initDashboardPage() {
     if (xAxisSelect) {
         xAxisSelect.addEventListener('change', event => {
             const mode = event.target.value === 'time' ? 'time' : 'distance';
-            localStorage.setItem('northline-chart-x-axis', mode);
+            localStorage.setItem('horizon-chart-x-axis', mode);
             renderCharts(mode);
         });
     }
@@ -3449,7 +3675,7 @@ function bindAdminProgressUnlocksForm() {
                 .filter(Boolean);
             await persistProgressUnlocks(selectedIds);
             await refreshForm();
-            setAdminFeedbackMessage(notice, 'Traguardi nascosti aggiornati su Firebase.', false);
+            setAdminFeedbackMessage(notice, 'Hidden milestones updated in Firebase.', false);
         } catch (error) {
             setAdminFeedbackMessage(notice, `Salvataggio traguardi nascosti fallito: ${error.message || 'errore sconosciuto'}.`, true);
         } finally {
@@ -4358,7 +4584,7 @@ async function initProgressPage() {
     const copy = translations[locale] || translations.it;
     const hiddenCopy = {
         it: {
-            title: 'Traguardi nascosti',
+            title: 'Hidden milestones',
             description: 'Questi obiettivi compaiono solo dopo lo sblocco manuale dall\'admin.'
         },
         en: {
@@ -4370,7 +4596,7 @@ async function initProgressPage() {
             description: 'Diese Ziele erscheinen erst nach manueller Freischaltung im Admin.'
         }
     }[locale] || {
-        title: 'Traguardi nascosti',
+        title: 'Hidden milestones',
         description: 'Questi obiettivi compaiono solo dopo lo sblocco manuale dall\'admin.'
     };
     const formatDistance = value => `${value.toFixed(1)} km`;

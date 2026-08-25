@@ -19,7 +19,7 @@
             event.preventDefault();
             const formData = new FormData(form);
             const forcedStatus = String(formData.get('forcedStatus') || '').trim();
-            const cacheKey = 'northline-live-status-force';
+            const cacheKey = 'horizon-live-status-force';
             if (!forcedStatus) {
                 localStorage.removeItem(cacheKey);
             } else {
@@ -39,5 +39,4 @@
     });
 
     window.HorizonStatus = horizonStatus;
-    window.NorthLineStatus = horizonStatus;
 })();

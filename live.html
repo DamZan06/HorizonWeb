@@ -6,20 +6,20 @@
     <title>HORIZON — Live Expedition</title>
     <meta name="description" content="Follow HORIZON live across Switzerland. Real-time route progress, current position, altitude and expedition statistics.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="canonical" href="https://damzan06.github.io/Horizon/live.html">
+    <link rel="canonical" href="https://damzan06.github.io/HorizonWebWeb/live.html">
     <meta property="og:title" content="HORIZON — Live Expedition">
     <meta property="og:description" content="Follow the HORIZON expedition live across Switzerland in real time.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://damzan06.github.io/Horizon/live.html">
-    <meta property="og:image" content="https://damzan06.github.io/Horizon/assets/preview.png?v=20260715s">
-    <meta property="og:image:secure_url" content="https://damzan06.github.io/Horizon/assets/preview.png?v=20260715s">
+    <meta property="og:url" content="https://damzan06.github.io/HorizonWebWeb/live.html">
+    <meta property="og:image" content="https://damzan06.github.io/HorizonWebWeb/assets/preview.png?v=20260715s">
+    <meta property="og:image:secure_url" content="https://damzan06.github.io/HorizonWebWeb/assets/preview.png?v=20260715s">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1254">
     <meta property="og:image:height" content="1254">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="HORIZON — Live Expedition">
     <meta name="twitter:description" content="Follow the HORIZON expedition live across Switzerland in real time.">
-    <meta name="twitter:image" content="https://damzan06.github.io/Horizon/assets/preview.png?v=20260715s">
+    <meta name="twitter:image" content="https://damzan06.github.io/HorizonWebWeb/assets/preview.png?v=20260715s">
     <link rel="stylesheet" href="style.css?v=20260725d">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
@@ -35,23 +35,23 @@
         <img src="assets/favicon-v2.png?v=20260715r" alt="HORIZON logo" class="brand-icon">
         <div>
             <span class="brand-title">HORIZON</span>
-            <span class="brand-subtitle">Live Journey</span>
+            <span class="brand-subtitle" data-i18n="common.brands.live">Live Journey</span>
         </div>
     </a>
     <button class="topbar-menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav">
         ☰
     </button>
     <nav class="main-nav" id="mainNav" aria-label="Main navigation">
-        <a href="index.html">Home</a>
-        <a href="live.html" aria-current="page">Live</a>
-        <a href="project.html">The challenge</a>
-        <a href="project.html#route">Route</a>
-        <a href="gallery.html">Journey</a>
-        <a href="replay.html">Replay</a>
-        <a href="project.html#about">About</a>
+        <a href="index.html" data-nav-key="home">Home</a>
+        <a href="live.html" aria-current="page" data-nav-key="live">Live</a>
+        <a href="project.html" data-nav-key="challenge">The challenge</a>
+        <a href="project.html#route" data-nav-key="route">Route</a>
+        <a href="gallery.html" data-nav-key="journey">Journey</a>
+        <a href="replay.html" data-nav-key="replay">Replay</a>
+        <a href="project.html#about" data-nav-key="about">About</a>
         <div class="lang-switcher lang-switcher-mobile" aria-label="Language selector">
-            <label class="lang-switcher-label" for="langSwitcherMobile">Language</label>
-            <select id="langSwitcherMobile" class="lang-switcher-select" aria-label="Language">
+            <label class="lang-switcher-label" for="langSwitcherMobile" data-i18n="common.languageLabel">Language</label>
+            <select id="langSwitcherMobile" class="lang-switcher-select" data-i18n-attr='{"aria-label":"common.languageAria"}' aria-label="Language">
                 <option value="en">English</option>
                 <option value="it">Italiano</option>
                 <option value="de">Deutsch</option>
@@ -60,8 +60,8 @@
         </div>
     </nav>
     <div class="lang-switcher lang-switcher-desktop" aria-label="Language selector">
-        <label class="lang-switcher-label" for="langSwitcherDesktop">Language</label>
-        <select id="langSwitcherDesktop" class="lang-switcher-select" aria-label="Language">
+        <label class="lang-switcher-label" for="langSwitcherDesktop" data-i18n="common.languageLabel">Language</label>
+        <select id="langSwitcherDesktop" class="lang-switcher-select" data-i18n-attr='{"aria-label":"common.languageAria"}' aria-label="Language">
             <option value="en">English</option>
             <option value="it">Italiano</option>
             <option value="de">Deutsch</option>
@@ -79,7 +79,7 @@
         </section>
         <div class="live-status" aria-live="polite">
             <span class="status-dot status-moving" aria-hidden="true"></span>
-            <span>LIVE · Updated 1 min ago</span>
+            <span data-i18n="dynamic.liveTrackingActive">LIVE · Updated 1 min ago</span>
         </div>
         <section class="map-layout">
             <aside class="stats-panel">
@@ -144,19 +144,19 @@
             <div class="map-wrap">
                 <div id="map"></div>
                 <div class="map-actions" aria-label="Map controls">
-                    <button id="centerUserBtn" class="geo-button" title="Center on my location" aria-label="Center on my location">
+                    <button id="centerUserBtn" class="geo-button" data-i18n-attr='{"title":"pages.live.centerUser","aria-label":"pages.live.centerUser"}' title="Center on my location" aria-label="Center on my location">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a3 3 0 1 0-3-3 3 3 0 0 0 3 3Zm0 2c-3.87 0-7 2.13-7 4.75V20h14v-1.25C19 16.13 15.87 14 12 14Z"/></svg>
                     </button>
-                    <button id="centerLiveBtn" class="geo-button" title="Center on live position" aria-label="Center on live position">
+                    <button id="centerLiveBtn" class="geo-button" data-i18n-attr='{"title":"pages.live.centerLive","aria-label":"pages.live.centerLive"}' title="Center on live position" aria-label="Center on live position">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.75a9.25 9.25 0 1 0 9.25 9.25A9.26 9.26 0 0 0 12 2.75Zm0 4.75a4.5 4.5 0 1 1-4.5 4.5A4.5 4.5 0 0 1 12 7.5Zm0 11.75a7.84 7.84 0 0 1-5.85-2.67A8.63 8.63 0 0 1 12 14.5a8.63 8.63 0 0 1 5.85 2.08A7.84 7.84 0 0 1 12 19.25Z"/></svg>
                     </button>
-                    <button id="mapFullscreenBtn" class="geo-button" title="Open fullscreen map" aria-label="Open fullscreen map">
+                    <button id="mapFullscreenBtn" class="geo-button" data-i18n-attr='{"title":"pages.live.fullscreenMap","aria-label":"pages.live.fullscreenMap"}' title="Open fullscreen map" aria-label="Open fullscreen map">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5M4 9.5h16M9.5 4v16"/></svg>
                     </button>
                 </div>
             </div>
         </section>
-        <p class="map-accessibility" aria-live="polite">
+        <p class="map-accessibility" aria-live="polite" data-i18n="dynamic.liveTrackingActive">
             Current position: live signal active. Distance completed: available. Distance remaining: available. Current altitude: available. Last update: 1 minute ago.
         </p>
     </main>

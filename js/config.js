@@ -13,5 +13,5 @@
     };
 
     window.HorizonConfig = Object.assign(window.HorizonConfig || {}, config);
-    window.NorthLineConfig = window.HorizonConfig;
+    
 })();

@@ -1,1498 +1,1692 @@
-You are working on the existing HORIZON website.
-HORIZON is an extreme human-powered long-distance hiking expedition crossing Switzerland from east to west.
-The website is not a generic hiking website and must not look like a SaaS dashboard.
-It should feel like the official digital platform of a serious, prestigious, brutal Alpine expedition.
-Your task is to audit, redesign and improve the EXISTING website, while preserving all currently working functionality.
-________________________________________
-0. FIRST: ANALYZE THE ENTIRE EXISTING PROJECT
-Before changing anything, inspect the complete project:
-•	all HTML pages
-•	style.css
-•	all CSS files
-•	all JavaScript files
-•	/js/
-•	/assets/
-•	/data/
-•	Firebase configuration and integration
-•	Leaflet map implementation
-•	GPX route rendering
-•	live position system
-•	replay system
-•	gallery/journey system
-•	language/i18n system
-•	mobile navigation
-•	existing breakpoints
-•	metadata
-•	SEO configuration
-Do NOT blindly rewrite the website.
-Understand the current architecture first.
-Preserve all working functionality.
-Refactor duplicated or conflicting CSS/JS where useful.
-Do not introduce a heavy framework unless absolutely necessary.
-The site should remain lightweight and suitable for GitHub Pages.
-________________________________________
-1. PRIMARY OBJECTIVE
-Transform HORIZON into a website that is:
-•	extremely easy to understand
-•	visually coherent
-•	mobile-first
-•	fully responsive
-•	accessible
-•	fast
-•	reliable
-•	easy to navigate
-•	visually premium
-•	emotionally powerful
-•	suitable for following a real expedition live
-The visitor should understand within approximately 3 seconds:
-1.	What HORIZON is.
-2.	That it crosses Switzerland.
-3.	That it can be followed live.
-4.	Where the expedition currently is.
-5.	How much has been completed.
-6.	Where to find the route, journey and replay.
-Prioritize usability over decorative complexity.
-________________________________________
-ADDITION — CREATE A REAL HORIZON HOMEPAGE
-The current website lacks a true homepage.
-live.html must remain the operational LIVE page, focused on:
-•	current position
-•	map
-•	progress
-•	live statistics
-•	expedition status
-But create or completely redesign:
-index.html
-as the real emotional and informational entrance to HORIZON.
-The homepage must answer, within seconds:
-What is HORIZON?
-Who is doing it?
-What are they attempting?
-Why are they doing it?
-Where does the route go?
-How can I follow them live?
-The homepage should NOT duplicate the LIVE dashboard.
-Its purpose is different:
-index.html = story, identity, scale, motivation and entry point
-live.html = real-time expedition tracking
-________________________________________
-HOMEPAGE CONCEPT
-The homepage should feel cinematic and powerful while remaining extremely usable.
-The visitor should experience HORIZON progressively:
-THE IDEA → THE SCALE → THE PEOPLE → THE ROUTE → THE MOTIVATION → THE EXPEDITION → FOLLOW LIVE
-Use strong photography, generous spacing, typography and real expedition information instead of filling the page with cards.
-Avoid a generic corporate landing-page design.
-The homepage should feel more like the digital introduction to an expedition documentary.
-________________________________________
-HOMEPAGE — HERO SECTION
-Create a full-width cinematic hero section.
-Use an existing HORIZON Alpine image if an appropriate one exists in the project assets.
-The hero should visually communicate:
-•	Swiss Alps
-•	enormous distance
-•	isolation
-•	sunset / dramatic atmosphere
-•	expedition
-•	human scale versus landscape
-Do not make the hero unnecessarily tall on mobile.
-Desktop:
-approximately 80–90svh
-Mobile:
-approximately 70–80svh
-Overlay content should approximately contain:
-Small label:
-SWITZERLAND · EAST TO WEST
-Main title:
-HORIZON
-Main statement:
-Across Switzerland. On foot.
-or a similarly concise HORIZON statement.
-Short supporting sentence:
-Two people. One continuous journey from the eastern edge of Switzerland to the western edge.
-Primary CTA:
-FOLLOW LIVE
-Secondary CTA:
-DISCOVER HORIZON
-The FOLLOW LIVE button must lead to live.html.
-Make the CTA immediately visible.
-Do not hide the essential information below the fold.
-________________________________________
-IMPORTANT — HORIZON IS NOW A TWO-PERSON EXPEDITION
-Update the entire website narrative accordingly.
-This edition of HORIZON is undertaken by two people travelling together on foot.
-Do NOT describe the expedition as a solo challenge.
-Do NOT accidentally use singular language where the project refers to both participants.
-Use language such as:
-•	we
-•	us
-•	together
-•	two people
-•	two hikers
-•	two friends
-•	our route
-•	our journey
-•	our progress
-where appropriate.
-However, do not turn the project into a sentimental friendship website.
-The central subject remains:
-HORIZON
-The two participants are the humans attempting it.
-The relationship between them adds another dimension to the expedition:
-shared effort,
-shared decisions,
-shared fatigue,
-shared responsibility,
-and experiencing the entire crossing together.
-________________________________________
-HOMEPAGE SECTION 1 — WHAT IS HORIZON?
-Create a strong introductory editorial section.
-Suggested heading:
-WHAT IS HORIZON?
-or:
-THE CHALLENGE
-This section should explain the project clearly to somebody who has never heard of HORIZON.
-Do not write generic motivational marketing copy.
-The content should explain:
-•	HORIZON is an extreme long-distance journey across Switzerland.
-•	The route crosses the country from east to west.
-•	The journey begins at/near Piz Chavalatsch in the far east.
-•	The destination is Chancy in the far west.
-•	The entire journey is completed on foot.
-•	Two people undertake the complete expedition together.
-•	The challenge is continuous and human-powered.
-•	Distance, elevation, terrain, weather, fatigue and recovery make the challenge difficult.
-•	The website allows people to follow the expedition and its progress.
-Write approximately 2–3 concise paragraphs.
-The first paragraph should explain WHAT.
-The second should explain HOW.
-The third may explain WHY.
-Do not invent numerical statistics.
-If route statistics already exist in project data, retrieve them from the existing project rather than hard-coding conflicting numbers.
-________________________________________
-HOMEPAGE SECTION 2 — SHOW THE SCALE
-Immediately after introducing HORIZON, communicate its scale visually.
-Use a restrained statistics section.
-Possible statistics:
-TOTAL DISTANCE
-ELEVATION GAIN
-START
-PIZ CHAVALATSCH
-FINISH
-CHANCY
-EAST → WEST
-TWO PEOPLE
-ONE JOURNEY
-Use actual project values where available.
-Do not invent numbers.
-This section should make the visitor think:
-"This is much bigger than a normal hike."
-Use large typography rather than many dashboard cards.
-________________________________________
-HOMEPAGE SECTION 3 — THE TWO PEOPLE
-Create a dedicated human section.
-Suggested heading:
-THE PEOPLE BEHIND HORIZON
-or simply:
-THE TEAM
-The purpose is to introduce the two participants without making the site look corporate.
-Use one photograph showing both participants if available.
-Alternatively use two equal portraits.
-IMPORTANT:
-Both participants must have equal visual importance.
-Do not visually present one person as the protagonist and the other as an assistant.
-They are completing the expedition together.
-For each person provide space for:
-NAME
-short description
-background
-connection to outdoor endurance / sport / adventure
-personal motivation for HORIZON
-what the expedition means to that person
-Keep each biography relatively short.
-Approximately 80–150 words per participant is enough.
-Do not invent personal information.
-If the information is not already available in the project, insert clearly identifiable placeholder content for the owner to replace.
-Example structure only:
-[NAME]
-[Write 2–3 sentences about who this person is, their background, relationship with endurance/outdoor challenges, and why they decided to attempt HORIZON.]
-Do the same for both participants.
-________________________________________
-HOMEPAGE SECTION 4 — WHY HORIZON?
-Create an editorial section explaining the motivation behind the project.
-Heading:
-WHY HORIZON?
-This is one of the most important pieces of storytelling.
-The text should NOT sound like:
-"Believe in yourself and never give up."
-Avoid generic motivational clichés.
-Instead provide placeholders/instructions for the website owner to explain:
-PARAGRAPH 1 — ORIGIN
-Explain where the idea came from.
-Describe what made crossing Switzerland from one extreme to the other interesting enough to become a real project.
-Possible questions the paragraph should answer:
-•	When did the idea first appear?
-•	Why Switzerland?
-•	Why east to west?
-•	Why on foot?
-•	Why did this idea remain interesting enough to actually attempt?
-________________________________________
-PARAGRAPH 2 — PROGRESSION
-Explain that HORIZON did not appear in isolation.
-If previous endurance projects or experiences are relevant, explain how they progressively increased the ambition, experience and understanding required for HORIZON.
-Do not make this section a list of achievements.
-The point is to show progression.
-Structure conceptually as:
-previous experience → lessons learned → larger ambition → HORIZON.
-________________________________________
-PARAGRAPH 3 — WHY TWO PEOPLE?
-Explain why this edition is being completed together.
-This paragraph can explore how doing the challenge with another person changes the expedition.
-Possible themes:
-•	responsibility for another person
-•	matching pace
-•	making decisions together
-•	dealing with difficult moments together
-•	motivation when one person struggles
-•	sharing the experience
-•	reaching the other side together
-Avoid overly sentimental writing.
-Make it authentic.
-________________________________________
-PARAGRAPH 4 — THE REAL OBJECTIVE
-Explain what success actually means.
-Success should not necessarily be presented only as:
-"reaching Chancy."
-Consider the deeper objective:
-discovering how far the body and mind can continue,
-experiencing Switzerland at walking speed,
-dealing with uncertainty,
-learning from the journey,
-and seeing what remains when comfort disappears.
-This paragraph should give HORIZON meaning beyond a number of kilometres.
-________________________________________
-HOMEPAGE SECTION 5 — THE ROUTE
-Create a visually powerful section introducing the route.
-Heading:
-EAST TO WEST
-or:
-THE ROUTE
-Show the Switzerland outline and the actual HORIZON route.
-IMPORTANT:
-Use the real route data already available in the project.
-Do not redraw or simplify the route artistically.
-Show:
-PIZ CHAVALATSCH
-START
-CHANCY
-FINISH
-Optionally show selected major checkpoints.
-Accompany it with a short explanation describing how the route crosses different Swiss landscapes and regions.
-Do not invent geographic details unless they can be verified from the actual route.
-CTA:
-EXPLORE THE ROUTE
-________________________________________
-HOMEPAGE SECTION 6 — WHAT MAKES IT DIFFICULT?
-Create a section that communicates difficulty without exaggeration.
-Possible heading:
-THE CHALLENGE IS NOT JUST THE DISTANCE
-Use 4–6 concise elements such as:
-DISTANCE
-ELEVATION
-WEATHER
-RECOVERY
-NAVIGATION
-FATIGUE
-Each should have only a short explanation.
-For example:
-DISTANCE
-The body must continue absorbing kilometres day after day.
-ELEVATION
-Distance alone does not describe the physical cost of crossing Switzerland.
-WEATHER
-Heat, rain, cold and rapidly changing Alpine conditions can completely alter the day.
-RECOVERY
-Every day begins with what remains from the previous one.
-TWO PEOPLE
-Pace, decisions and difficult moments are shared throughout the expedition.
-Keep this section grounded and factual.
-Do not dramatize artificially.
-________________________________________
-HOMEPAGE SECTION 7 — THE EXPEDITION PHILOSOPHY
-Create one visually minimal section with very little content.
-Possible large statement:
-THE DISTANCE IS ONLY PART OF IT.
-Then a short paragraph explaining the underlying philosophy.
-The owner should be able to replace this text with a personal statement.
-Suggested writing direction:
-HORIZON is not about proving that two people are exceptional.
-It is about deliberately entering a situation where the outcome is uncertain and discovering what is required to continue.
-Keep this section restrained.
-Do not use multiple inspirational quotes.
-One strong thought is enough.
-________________________________________
-HOMEPAGE SECTION 8 — FOLLOW THE JOURNEY
-Near the bottom of the homepage create a strong transition from story to live functionality.
-Heading:
-FOLLOW HORIZON
-Text:
-Explain that during the expedition the website shows the current position, route progress and expedition statistics.
-If the expedition is currently active, display:
-● LIVE NOW
-and a strong:
-FOLLOW LIVE
-button.
-If it has not started yet, display the appropriate pre-expedition state instead.
-If it is completed, change the CTA toward:
-EXPLORE THE JOURNEY
-or:
-WATCH THE REPLAY
-The homepage should react intelligently to expedition status where practical.
-________________________________________
-HOMEPAGE FINAL SECTION
-End with a powerful but restrained closing.
-For example:
-PIZ CHAVALATSCH → CHANCY
-EAST → WEST
-ON FOOT.
-Then:
-HORIZON
-Do not add unnecessary paragraphs after this.
-________________________________________
-CONTENT PLACEHOLDERS
-Where personal information is missing, NEVER invent it.
-Instead create clearly marked content placeholders in the HTML source such as:
-<!-- CONTENT: Explain how the idea for HORIZON began. 80–120 words. -->
-or temporary visible development text such as:
-[Tell the story of how HORIZON began.]
-Do this for:
-•	project origin
-•	participant 1 biography
-•	participant 2 biography
-•	why the two participants decided to do it together
-•	personal motivation
-•	previous relevant experiences
-•	expedition philosophy
-This allows the site owner to replace these sections with authentic text later.
-________________________________________
-STORYTELLING RULE
-Every homepage section must have a reason to exist.
-The visitor's mental journey should be:
-1.	WHAT AM I LOOKING AT?
-2.	HOW BIG IS THIS?
-3.	WHO IS DOING IT?
-4.	WHY?
-5.	WHERE ARE THEY GOING?
-6.	WHY IS IT DIFFICULT?
-7.	WHAT DOES IT MEAN?
-8.	WHERE ARE THEY NOW?
-This final question naturally leads to:
-live.html
-________________________________________
-HOMEPAGE RESPONSIVE BEHAVIOR
-The homepage must be designed mobile-first.
-On mobile:
-•	avoid huge empty hero areas
-•	keep important text visible
-•	make CTA buttons easy to tap
-•	stack editorial sections naturally
-•	avoid alternating layouts that create strange reading order
-•	keep statistics readable
-•	maintain photographs at useful aspect ratios
-•	avoid text over complex photographs unless contrast is guaranteed
-•	never create horizontal scrolling
-The emotional quality must survive on a 360–390px phone.
-________________________________________
-HOMEPAGE ACCESSIBILITY
-All previous accessibility requirements apply to the homepage.
-Additionally:
-•	hero background images must not contain essential information
-•	portraits need meaningful alt text
-•	decorative imagery should use empty alt text
-•	CTA wording must be descriptive
-•	route visualization needs a textual alternative
-•	section heading hierarchy must remain logical
-•	text over imagery must meet contrast requirements
-•	animations must respect reduced-motion settings
-________________________________________
-UPDATE THE GLOBAL NAVIGATION
-Once the homepage exists, clicking:
-HORIZON logo
-must lead to:
-index.html
-Consider adding:
+You are performing the **SECOND PASS** on the existing HORIZON website.
+
+A major redesign has already been completed.
+
+DO NOT redesign the website from scratch.
+
+The current direction is good and must be preserved.
+
+Your task is now to:
+
+* audit what was actually implemented
+* identify incomplete parts
+* fix inconsistencies
+* fix deployment problems
+* complete accessibility
+* complete internationalization
+* improve the homepage storytelling
+* polish responsive behavior
+* remove legacy NORTHLINE / old-blue design remnants
+* ensure the deployed GitHub Pages website matches the repository
+* make HORIZON feel production-ready
+
+---
+
+# 1. FIRST — VERIFY THE DEPLOYED WEBSITE
+
+The repository and the public GitHub Pages website currently appear not to be fully synchronized.
+
+The repository contains an updated `live.html`, but the public URL may still display an older version containing elements such as:
+
+* "Statistiche Live"
+* "Stato attuale"
+* old emoji map controls
+* older mixed-language content
+
+PUBLIC URL:
+
+`https://damzan06.github.io/HorizonWeb/live.html`
+
+Repository:
+
+`HorizonWeb`
+
+Before making visual changes:
+
+1. compare the currently deployed HTML with the current branch used by GitHub Pages;
+2. identify which branch/folder GitHub Pages is publishing;
+3. verify whether Pages deploys from:
+
+   * main/root
+   * docs/
+   * another branch
+   * GitHub Actions;
+4. check whether an old deployment workflow is still active;
+5. verify service workers or aggressive caching are not serving stale HTML;
+6. verify relative file paths;
+7. verify GitHub Pages build/deployment status.
+
+The final public website MUST correspond to the latest intended source files.
+
+Do not consider the work complete if only the repository is correct but the public website is stale.
+
+---
+
+# 2. FIX ALL HORIZON URLS
+
+There is an important remaining metadata problem.
+
+The actual public project path is:
+
+`https://damzan06.github.io/HorizonWeb/`
+
+NOT:
+
+`https://damzan06.github.io/Horizon/`
+
+Audit every HTML file.
+
+Fix:
+
+* canonical URLs
+* og:url
+* og:image
+* og:image:secure_url
+* twitter:image
+* structured data URLs
+* sitemap URLs
+* internal absolute URLs
+* share URLs
+
+Examples:
+
+Homepage canonical:
+
+`https://damzan06.github.io/HorizonWeb/`
+
+Live:
+
+`https://damzan06.github.io/HorizonWeb/live.html`
+
+Project:
+
+`https://damzan06.github.io/HorizonWeb/project.html`
+
+Gallery:
+
+`https://damzan06.github.io/HorizonWeb/gallery.html`
+
+Replay:
+
+`https://damzan06.github.io/HorizonWeb/replay.html`
+
+Use the real project name and path consistently.
+
+Search the entire repository for:
+
+`/Horizon/`
+
+and replace incorrect instances with:
+
+`/HorizonWeb/`
+
+when referring to this website.
+
+Also search for:
+
+`northline`
+`NorthLine`
+`NORTHLINE`
+
+and remove legacy references unless intentionally retained for compatibility code that is still required.
+
+---
+
+# 3. REMOVE THE REMAINING NORTHLINE TECHNICAL LEGACY
+
+The i18n system currently still exposes something such as:
+
+`window.NorthLineI18n`
+
+This is legacy naming.
+
+Refactor it to use only HORIZON naming if nothing depends on the old alias.
+
+Search globally for:
+
+* NorthLine
+* northline
+* NORTHLINE
+* old project names
+* old asset references
+* old Firebase naming where not required
+* old comments
+* old variable names
+
+Do NOT remove compatibility aliases blindly.
+
+First check whether another script still uses them.
+
+If not needed, remove them.
+
+The codebase should feel like a real HORIZON project internally, not a reskinned NORTHLINE site.
+
+---
+
+# 4. COMPLETE THE LANGUAGE SYSTEM
+
+The language selector currently exists and supports:
+
+English
+Italian
+German
+French
+
+This is good.
+
+However, the current translation catalog mainly covers navigation and a few global labels.
+
+Complete it.
+
+EVERY meaningful visible UI string should use the translation system.
+
+This includes the homepage.
+
+Translate:
+
 HOME
-to the mobile navigation if it improves clarity.
-Desktop does not necessarily need a HOME text item if the HORIZON logo clearly links home.
-The primary architecture should become:
-HOME / HORIZON LOGO
-LIVE
+
+HORIZON 2026
+
+countdown labels
+
+Days
+Hours
+Minutes
+Seconds
+
+countdown messages
+
+CROSSING SWITZERLAND. ONE STEP AT A TIME.
+
+hero description
+
+FOLLOW THE JOURNEY
+
+DISCOVER HORIZON
+
+Not started
+
+Waiting for departure
+
+distance
+
+remaining
+
+progress
+
+time
+
+elevation
+
+estimated steps
+
+estimated arrival
+
+DISTANCE
+
+ELEVATION
+
+CHALLENGE
+
+ONE COUNTRY. ONE DIRECTION.
+
+WHY HORIZON?
+
 THE CHALLENGE
-ROUTE
-JOURNEY
-REPLAY
-ABOUT
-Do not make LIVE function as the homepage anymore.
-________________________________________
-FINAL HOMEPAGE PRINCIPLE
-The homepage should not explain everything.
-It should make visitors understand enough to care.
-Use:
-strong images,
-real numbers,
-real geography,
-real people,
-short text,
-large typography,
-and deliberate empty space.
-HORIZON should feel like a real expedition before the visitor ever opens the live map.
-The LIVE page answers:
-Where are they now?
-The homepage answers:
-Why are they doing this in the first place?
-________________________________________
-2. HORIZON VISUAL IDENTITY
-The current website feels too much like a generic blue digital dashboard.
-Redesign the visual language around the identity of HORIZON.
-The desired feeling is:
-Swiss Alps + expedition + endurance + darkness + distance + premium outdoor documentary
-Think of a visual combination inspired by:
-•	serious mountaineering expeditions
-•	Swiss cartography
-•	premium outdoor brands
-•	cinematic Alpine photography
-•	vintage expedition documentation
-•	modern GPS expedition interfaces
-Do NOT make it look:
-•	futuristic
-•	cyberpunk
-•	gaming-like
-•	like a cryptocurrency dashboard
-•	like a generic SaaS product
-•	overly glossy
-•	overly colorful
-________________________________________
-3. COLOR SYSTEM
-Replace the overly bright electric-blue identity with a more sophisticated expedition palette.
-Use approximately:
-Background:
-#07100F or similarly deep charcoal/navy-black
-Elevated surface:
-#0E1918
-Secondary surface:
-#142220
-Primary text:
-#F1EDE3
-Secondary text:
-#A9AEA6
-Muted text:
-#7F8983
-Borders:
-subtle warm white / gray at approximately 10–15% opacity
-Primary HORIZON accent:
-warm expedition amber / orange
-Example:
-#E8953F
-Secondary warm accent:
-#D9B36C
-Optional cold geographic accent:
-muted Alpine blue such as:
-#6F9EAD
-Danger/emergency:
-reserved red only when semantically necessary.
-Do NOT use bright blue everywhere.
-The accent color must guide attention toward:
-•	live position
-•	current progress
-•	important actions
-•	active navigation
-•	route highlights
-Maintain WCAG AA contrast for normal text wherever possible.
-Do not use low-contrast gray text simply because it looks elegant.
-________________________________________
-4. TYPOGRAPHY
-Typography must feel strong, clean and expedition-oriented.
-Use a highly readable sans-serif for body/UI text.
-Headings can be more condensed, bold and editorial.
-Do not use excessively small typography.
-Recommended scale:
-Body:
-16–18px desktop
-16px minimum mobile
-Secondary labels:
-14–15px
-Navigation:
-15–16px
-Statistics labels:
-13–15px
-Statistics values:
-24–32px depending on hierarchy
-H1 desktop:
-48–64px where appropriate
-H1 mobile:
-34–42px
-H2:
-28–36px
-Use:
-clamp() for responsive typography.
-Maintain body line-height around:
-1.5–1.7
-Avoid excessively wide paragraphs.
-Ideal readable text width:
-approximately 60–70ch.
-________________________________________
-5. GLOBAL PAGE WIDTH AND SPACING
-Create a coherent spacing system instead of arbitrary values.
-Use a max content width around:
-1280–1360px
-for normal content.
-The live map may use more width where useful.
-Suggested horizontal page padding:
-Desktop:
-32–48px
-Tablet:
-24px
-Mobile:
-16–20px
-Use a spacing scale such as:
-4
-8
-12
-16
-24
-32
-48
-64
-96px
-Avoid unnecessarily huge empty areas.
-Avoid elements touching screen edges.
-________________________________________
-6. HEADER / NAVIGATION
-Redesign the current header.
-Desktop:
-Left:
-HORIZON logo + HORIZON
-Center/right:
-main navigation
-Far right:
-language selector
-Suggested navigation:
-LIVE
-THE CHALLENGE
-ROUTE
-JOURNEY
-REPLAY
-ABOUT
-Clearly indicate the active page.
-The header should:
-•	remain sticky
-•	be compact
-•	have strong contrast
-•	use subtle backdrop blur
-•	not occupy too much vertical space
-Target desktop height:
-approximately 64–72px.
-________________________________________
-7. MOBILE NAVIGATION
-The current desktop navigation must not simply be squeezed onto smaller screens.
-At approximately < 768px:
-Show:
-HORIZON logo/name on the left
-Menu button on the right.
-Opening the menu should display a proper accessible mobile navigation drawer or overlay.
-Requirements:
-•	large touch targets
-•	minimum approximately 44×44px
-•	Escape closes menu
-•	clicking outside closes it
-•	keyboard navigation works
-•	focus is visible
-•	aria-expanded
-•	aria-controls
-•	appropriate labels
-•	focus should not become trapped behind the overlay
-Include language selection inside the mobile menu.
-Prevent background scrolling while open.
-________________________________________
-8. LANGUAGE SYSTEM — VERY IMPORTANT
-The current website mixes Italian and English.
-This must be fixed completely.
-The site must support at least:
-•	English
-•	Italian
-•	German
-Preferably also:
-•	French
-Every visible UI string must belong to the translation system.
-NO hard-coded mixed-language UI strings.
-Examples that currently need translation include concepts such as:
-•	Live statistics
-•	Current status
-•	Distance
-•	Remaining
-•	Completed
-•	Speed
-•	Altitude
-•	Last update
-•	Route progress
-•	Time
-•	Elevation gain
-•	Steps
-•	Distance from start
-•	map buttons
-•	loading states
-•	errors
-•	offline status
-When language changes:
-•	update all visible strings
-•	update navigation
-•	update buttons
-•	update accessibility labels where applicable
-•	update document <html lang="">
-•	store preference in localStorage
-•	restore it on future visits
-Fallback language:
-English.
-If browser language matches IT/DE/FR, it may initially use that language when no preference has been stored.
-Do not mix languages on any page.
-________________________________________
-9. LIVE PAGE — INFORMATION HIERARCHY
-The LIVE page is the most important page.
-It should immediately communicate:
+
+THE ROUTE
+
+FIELD NOTES
+
 FOLLOW HORIZON
-then a short sentence such as:
-"Follow the expedition across Switzerland in real time."
-Immediately below, provide a compact live status indicator:
-● LIVE
-or
-LAST UPDATE · 2 MIN AGO
-The live state must be obvious.
-________________________________________
-10. REDESIGN THE LIVE STATISTICS
-The current statistics panel contains too many values with almost identical visual importance.
-Create hierarchy.
-PRIMARY statistics:
-DISTANCE
-COMPLETED
-REMAINING
-These should be visually strongest.
-SECONDARY:
-CURRENT SPEED
-ALTITUDE
-ELEVATION GAIN
-ELAPSED TIME
-TERTIARY:
-STEPS
-LAST UPDATE
-DISTANCE FROM START or other supporting information
-Use large numbers and smaller labels.
-Example visual structure:
-DISTANCE
-428.7 km
-COMPLETED
-61%
-REMAINING
-272.3 km
-Do not make every card equally visually dominant.
-________________________________________
-11. PROGRESS BAR
-Make route progress one of the central visual elements.
-Use a strong horizontal progress bar.
-Show:
-61%
-and optionally:
-428 / 700 KM
-The filled section should use the HORIZON accent.
-The remaining section should be dark and clearly distinguishable.
-Animations must be subtle.
-Respect:
-prefers-reduced-motion.
-________________________________________
-12. MAP — MAIN ELEMENT
-The map should become the visual protagonist of the LIVE page.
-Desktop layout:
-approximately:
-statistics:
-30%
-map:
-70%
-or
-320–360px statistics panel + flexible map.
-Do not allow the statistics panel to make the map unnecessarily small.
-The route must remain clearly visible.
-The live position must be visually dominant.
-________________________________________
-13. MAP HEIGHT
-The current map uses a large fixed/minimum height.
-Make this responsive.
-Desktop:
-approximately:
-min(72vh, 760px)
-with sensible minimum around:
-560px
-Tablet:
-approximately:
-520–620px
-Mobile:
-approximately:
-55–65svh
-with minimum around:
-420px
-Use modern viewport units where appropriate:
-svh
-dvh
-Do not force a 680px map on every device.
-________________________________________
-14. MOBILE LIVE PAGE
-This page must work extremely well on smartphones.
-On mobile use this order:
-1.	compact page title
-2.	LIVE status
-3.	main progress information
-4.	MAP
-5.	primary statistics
-6.	secondary statistics
-Do NOT force users to scroll through a huge statistics panel before reaching the map.
-The map should appear very early.
-Consider a compact horizontal statistics strip above or below the map:
-DISTANCE | COMPLETE | REMAINING
-Then place detailed statistics farther down.
-________________________________________
-15. MAP CONTROLS
-Replace ambiguous emoji-only controls such as:
-👤
-📍
-⛶
-with consistent SVG icons.
-Use icons for:
-•	my position
-•	live expedition position
-•	fullscreen
-Provide:
-aria-label
-title
-and accessible focus states.
-On desktop, optional tooltips may explain the icons.
-On mobile, touch targets must be at least approximately 44×44px.
-Do not rely exclusively on emoji because appearance changes across operating systems.
-________________________________________
-16. FULLSCREEN MAP
-Improve fullscreen behavior.
-When fullscreen is active:
-•	map occupies the complete viewport
-•	controls remain accessible
-•	safe areas are respected on mobile
-•	provide an obvious close/exit fullscreen control
-•	prevent page scrolling underneath
-•	call Leaflet invalidateSize() after resizing
-•	support orientation changes
-•	preserve current map center/zoom where appropriate
-Use:
-env(safe-area-inset-top)
-env(safe-area-inset-bottom)
-where useful.
-________________________________________
-17. LIVE DATA STATES
-Do not display only:
---
-when data is unavailable.
-Implement proper states:
-LOADING
-Show a subtle loading state/skeleton.
-LIVE
-Show data normally.
-STALE
-If the last update is older than an appropriate threshold, clearly show:
-"Last update 18 min ago"
-and change the LIVE indicator to something like:
-"Signal delayed"
-OFFLINE / UNAVAILABLE
-Show:
-"Live position temporarily unavailable."
-Do not make the visitor wonder whether the website is broken.
-________________________________________
-18. LAST UPDATE
-Instead of showing only a timestamp, show human-readable relative time.
-Example:
-UPDATED 42 SEC AGO
-UPDATED 3 MIN AGO
-Signal freshness should be immediately understandable.
-Optionally display the exact timestamp on hover/tap or beneath it.
-________________________________________
-19. MAP ROUTE VISUALIZATION
-The HORIZON route must be extremely clear.
-Differentiate:
-COMPLETED ROUTE
-and
-REMAINING ROUTE.
-Example:
-Completed:
-strong warm HORIZON accent
-Remaining:
-muted desaturated line
-Current position:
-strong marker with subtle halo
-Start:
-Piz Chavalatsch
-Finish:
-Chancy
-Clearly distinguish:
-start
-current position
-finish
-checkpoints
-Do not overcrowd the map with labels.
-________________________________________
-20. ACCESSIBILITY
-Audit the complete site for WCAG 2.2 AA principles.
-Implement:
-•	semantic HTML
-•	one logical H1 per page
-•	logical heading hierarchy
-•	proper <nav>
-•	proper <main>
-•	appropriate <section>
-•	meaningful buttons
-•	accessible form labels
-•	alt text
-•	keyboard navigation
-•	visible :focus-visible
-•	sufficient contrast
-•	minimum touch target sizes
-•	screen-reader-friendly dynamic updates
-•	no information communicated by color alone
-Add a skip link:
-"Skip to main content"
-visible when focused.
-For dynamically changing live information, use ARIA carefully.
-Do NOT announce every GPS update to screen readers.
-Only announce meaningful state changes.
-________________________________________
-21. KEYBOARD ACCESSIBILITY
-Every interactive control must be usable without a mouse.
-Test:
-Tab
-Shift+Tab
-Enter
-Space
-Escape
-Never remove focus outlines without replacing them.
-Use a clearly visible focus ring.
-________________________________________
-22. MOTION ACCESSIBILITY
-Add support for:
-@media (prefers-reduced-motion: reduce)
-Disable or greatly reduce:
-•	smooth scrolling
-•	unnecessary transitions
-•	pulsing markers
-•	large movement animations
-•	decorative animation
-The interface must remain fully understandable without motion.
-________________________________________
-23. RESPONSIVE BREAKPOINTS
-Do not design only for desktop and phone.
-Explicitly test approximately:
-320px
-360px
-390px
-430px
-768px
-1024px
-1280px
-1440px
-1920px
-Suggested conceptual breakpoints:
-Mobile:
-< 640px
-Large mobile / small tablet:
-640–767px
-Tablet:
-768–1023px
-Desktop:
->= 1024px
-Large desktop:
->= 1440px
-Use fluid CSS rather than excessive breakpoint-specific hacks.
-________________________________________
-24. CARDS
-Reduce the generic dashboard feeling.
-Avoid excessive floating rounded cards.
-Use cards only where they help information grouping.
-Reduce radius from oversized values such as 24–30px where appropriate.
-Recommended:
-12–18px
-for most UI surfaces.
-Map may use approximately:
-16–20px.
-Use subtle borders rather than excessive shadows.
-________________________________________
-25. SHADOWS
-Avoid strong glowing blue shadows.
-Use subtle natural depth:
-0 12px 32px rgba(0,0,0,.25)
-or similar.
-The site should feel physical and sophisticated rather than neon.
-________________________________________
-26. HEADER + PAGE TITLE SPACING
-Reduce unnecessary vertical space between:
-header
-page title
-live information
-map
-The important content should appear above the fold on common laptop screens.
-On the LIVE page, users should see at least part of the map immediately without excessive scrolling.
-________________________________________
-27. CONTENT LANGUAGE / COPY
-Rewrite generic or awkward copy where necessary.
-Tone:
-•	concise
-•	serious
-•	confident
-•	human
-•	expedition-oriented
-Avoid exaggerated marketing clichés.
-Examples:
-Instead of generic:
-"Follow the journey across Switzerland in real time."
-Possible:
-"Follow HORIZON across Switzerland — live."
-Instead of:
-"Stato attuale"
-English:
-"Current status"
-German:
-"Aktueller Stand"
-Italian:
-"Stato attuale"
-French:
-"État actuel"
-Keep labels short.
-________________________________________
-28. CONSISTENT NAMING
-Make page names consistent everywhere.
-Use:
-LIVE
-THE CHALLENGE
-ROUTE
-JOURNEY
-REPLAY
-ABOUT
-Do not have two navigation items unnecessarily linking to the same destination unless there is a deliberate UX reason.
-If ROUTE and LIVE currently point to the same page, either:
-A. create a meaningful route section/page
-or
-B. remove the duplicate navigation entry.
-Likewise ensure ABOUT and THE CHALLENGE have distinct purposes if both remain.
-________________________________________
-29. SEO — FIX EXISTING HORIZON/NORTHLINE ERRORS
-Audit all pages for remnants of the previous NORTHLINE project.
-IMPORTANT:
-The current HORIZON site must never use canonical or OpenGraph URLs pointing to:
-/northline/
-Replace these with the correct HORIZON URLs.
-For example, LIVE canonical should correspond to the actual HORIZON live page.
-Audit:
-•	canonical
-•	og:url
-•	og:image
-•	Twitter image
-•	sitemap
-•	structured data
-•	internal links
-•	asset paths
-•	metadata
-Remove old NORTHLINE references unless intentionally preserved somewhere.
-________________________________________
-30. SOCIAL PREVIEW
-Create consistent OpenGraph metadata.
-Every important page should have:
-•	correct title
-•	useful description
-•	correct canonical URL
-•	og:title
-•	og:description
-•	og:type
-•	og:url
-•	HORIZON preview image
-•	Twitter card metadata
-Use a proper HORIZON social image.
-________________________________________
-31. PAGE TITLES
-Use descriptive titles.
-Examples:
-HORIZON — Live Expedition
-HORIZON — The Challenge
-HORIZON — Route Across Switzerland
-HORIZON — Journey
-HORIZON — Expedition Replay
-Avoid unnecessary generic wording.
-________________________________________
-32. PERFORMANCE
-Keep the website lightweight.
-Audit unnecessary dependencies.
-Do not load Chart.js on pages that do not actually use charts.
-Do not load large JS libraries globally if only one page needs them.
-Use:
-defer
-where appropriate.
-Avoid render-blocking scripts.
-Optimize images.
-Use:
-loading="lazy"
-for below-the-fold images.
-Set image width/height or aspect-ratio to reduce layout shift.
-Use modern image formats where practical.
-Do not sacrifice map functionality.
-________________________________________
-33. THIRD-PARTY LIBRARIES
-The website currently depends on libraries such as Leaflet and related external scripts.
-Keep required functionality, but make loading robust.
-Where appropriate:
-•	pin explicit versions
-•	avoid unnecessary latest/unversioned dependencies
-•	use integrity attributes where practical
-•	avoid loading libraries on pages that do not need them
-Do not break Leaflet or GPX rendering.
-________________________________________
-34. MAP ACCESSIBILITY
-Maps are inherently difficult for some users.
-Provide a short textual alternative near the map containing essential information such as:
-Current position
-Distance completed
-Distance remaining
-Current altitude
+
+LIVE JOURNEY
+
+LIVE STATISTICS
+
+Current status
+
+Distance
+
+Remaining
+
+Completed
+
+Speed
+
+Altitude
+
 Last update
-The website must remain informative even if the visitor cannot interact with the map.
-________________________________________
-35. GEOLOCATION PRIVACY
-When using visitor geolocation:
-Do NOT request location immediately on page load unless necessary.
-Request it only after the visitor deliberately presses:
-"My location"
-Explain why location is requested.
-Handle:
-permission denied
-location unavailable
-timeout
-without breaking the interface.
-________________________________________
-36. MOBILE SAFE AREAS
-Support modern phones with notches and home indicators.
-For fullscreen interfaces consider:
-env(safe-area-inset-top)
-env(safe-area-inset-right)
-env(safe-area-inset-bottom)
-env(safe-area-inset-left)
-Especially for map controls.
-________________________________________
-37. LOADING EXPERIENCE
-Avoid abrupt layout changes.
-Reserve space for:
-•	map
-•	statistics
-•	images
-Use lightweight skeleton states where useful.
-Avoid large cumulative layout shift when Firebase data arrives.
-________________________________________
-38. ERROR HANDLING
-Create user-friendly states for:
-Firebase unavailable
-GPS unavailable
-GPX unavailable
-map tiles unavailable
-network offline
-Do not expose technical JavaScript errors to normal visitors.
-Use concise messages such as:
-"Live data temporarily unavailable."
-"Connection lost. Trying again…"
-"Map tiles could not be loaded."
-________________________________________
-39. CONNECTION STATUS
-Because HORIZON may be followed from mobile networks and remote areas, support unstable connectivity gracefully.
+
+Route progress
+
+Time
+
+Elevation gain
+
+Steps
+
+map control labels
+
+loading messages
+
+errors
+
+offline messages
+
+replay UI
+
+gallery UI
+
+project page
+
+footer
+
+accessibility labels where appropriate.
+
+---
+
+# 5. DO NOT TRANSLATE BY DOM INDEX
+
+The current navigation translation logic relies on link order / array indexes.
+
+Refactor this into explicit translation keys.
+
+Instead of conceptually:
+
+`nav[0]`
+`nav[1]`
+`nav[2]`
+
+use:
+
+`nav.home`
+`nav.live`
+`nav.challenge`
+`nav.route`
+`nav.journey`
+`nav.replay`
+`nav.about`
+
+Use markup such as:
+
+`data-i18n="nav.home"`
+
+or an equivalent robust architecture.
+
+Do this for all translatable UI strings.
+
+This prevents translations from breaking when navigation order changes.
+
+---
+
+# 6. TRANSLATION FALLBACK
+
+Create a safe fallback system.
+
+Default language:
+
+English.
+
+If a translation key does not exist in the selected language:
+
+use the English version.
+
+Do not display:
+
+undefined
+blank strings
+translation keys
+
+to visitors.
+
+---
+
+# 7. INITIAL LANGUAGE DETECTION
+
+If the user has not previously selected a language:
+
+detect:
+
+`navigator.language`
+
+Support:
+
+English
+Italian
+German
+French
+
+Examples:
+
+`it-CH` → Italian
+`de-CH` → German
+`fr-CH` → French
+
+Then persist the selected language in:
+
+`localStorage`
+
+Manual language selection must always override browser detection.
+
+---
+
+# 8. UPDATE DOCUMENT LANGUAGE
+
+Whenever language changes:
+
+update:
+
+`<html lang="">`
+
+Also update dynamic:
+
+* aria-labels
+* title attributes
+* status text
+* map control descriptions
+* accessibility text
+
+Do not only translate visible text.
+
+---
+
+# 9. REMOVE OLD ELECTRIC BLUE DESIGN REMNANTS
+
+The new HORIZON color system already exists:
+
+background near:
+`#07100f`
+
+surface:
+`#0e1918`
+
+text:
+`#f1ede3`
+
+primary accent:
+`#e8953f`
+
+secondary:
+`#d9b36c`
+
+This direction is correct.
+
+However, the stylesheet still contains many remnants of the previous bright-blue identity.
+
+Search for colors such as:
+
+`#49a8ff`
+
+`#9dd6ff`
+
+`#70d4ff`
+
+`rgba(73, 168, 255, ...)`
+
+and similar bright digital blues.
+
+Audit every occurrence.
+
+Replace them where they are purely decorative with HORIZON variables.
+
 Use:
-navigator.onLine
-and appropriate network event listeners.
-Do not remove the existing map simply because a live update temporarily fails.
-Keep the last known valid position and clearly label it:
-"Last known position"
-when necessary.
-________________________________________
-40. ACCESSIBLE LIVE STATUS
-Use a status component such as:
-● LIVE
-Updated 1 min ago
-But do not rely only on the green/orange/red dot.
-Always include text.
-Possible states:
+
+`var(--accent)`
+
+`var(--accent-soft)`
+
+`var(--accent-cold)`
+
+as appropriate.
+
+---
+
+# 10. BLUE MAY REMAIN ONLY WHEN SEMANTIC
+
+Do NOT eliminate all cool colors blindly.
+
+Muted Alpine blue may still be used for:
+
+* cartography
+* geographic reference
+* secondary route data
+* water
+* neutral information
+
+But it should NOT dominate:
+
+buttons
+focus states
+glows
+headings
+cards
+quotes
+active states
+
+Primary brand emphasis should feel warm amber/gold.
+
+---
+
+# 11. FIX THE LANGUAGE SELECTOR VISUAL DESIGN
+
+The desktop language selector currently appears visually disconnected from the HORIZON palette.
+
+Make it match the header.
+
+Use:
+
+dark translucent surface
+subtle border
+ivory text
+amber focus
+compact size
+
+Avoid light gray native-looking UI that appears pasted onto the dark website.
+
+Keep native select usability.
+
+---
+
+# 12. HOMEPAGE — CURRENT DIRECTION IS GOOD
+
+Do NOT replace the current homepage.
+
+Preserve its main architecture:
+
+* countdown
+* hero
+* live status
+* challenge statistics
+* project introduction
+* why HORIZON
+* challenge
+* route
+* journey
+* final CTA
+
+Improve it.
+
+The website now has a real homepage.
+
+The objective is refinement, not reconstruction.
+
+---
+
+# 13. ADD A REAL TEAM SECTION
+
+The homepage currently explains that HORIZON is a two-person expedition.
+
+Now introduce the actual people.
+
+Create a section between the project introduction / WHY HORIZON and the challenge section.
+
+Suggested heading:
+
+`THE TEAM`
+
+Eyebrow:
+
+`TWO PEOPLE. ONE ROUTE.`
+
+The section must visually give both participants equal importance.
+
+Structure:
+
+---
+
+THE TEAM
+
+Two people will cross Switzerland together.
+
+[ PERSON 1 ]      [ PERSON 2 ]
+
+Photo             Photo
+
+Name              Name
+
+Short bio         Short bio
+
+Motivation        Motivation
+
+---
+
+Do NOT present one participant as:
+
+leader / main athlete
+
+and the other as:
+
+support / companion
+
+if both walk the complete route.
+
+They are equal participants.
+
+---
+
+# 14. TEAM CONTENT PLACEHOLDERS
+
+Do NOT invent personal facts.
+
+Use explicit content placeholders.
+
+Participant 1:
+
+`[NAME]`
+
+Bio guidance:
+
+Write approximately 70–120 words explaining:
+
+* who this person is
+* relevant sport/outdoor/endurance background
+* connection with HORIZON
+* personal reason for attempting the crossing
+
+Participant 2:
+
+same structure and same visual weight.
+
+Add comments in HTML such as:
+
+`<!-- CONTENT: Replace with participant biography. 70–120 words. -->`
+
+---
+
+# 15. ADD "WHY TOGETHER?"
+
+Include a short shared paragraph.
+
+Suggested heading:
+
+`WHY TOGETHER?`
+
+Do not write sentimental cliché text.
+
+The final owner-written text should explain themes such as:
+
+* shared responsibility
+* adapting pace to each other
+* making decisions together
+* helping each other through difficult periods
+* sharing the complete crossing
+* reaching Chancy as a team
+
+Use a clear placeholder if authentic copy is not available.
+
+---
+
+# 16. HOMEPAGE HERO — MAKE "TWO PEOPLE" IMMEDIATELY CLEAR
+
+Current hero description communicates the route but does not emphasize strongly enough that two people are doing it together.
+
+Adjust the supporting sentence.
+
+Conceptually:
+
+`Two people. 500 kilometres. One continuous crossing of Switzerland from east to west.`
+
+Do not necessarily use this exact wording.
+
+Maintain the clean HORIZON tone.
+
+Do not overload the hero.
+
+---
+
+# 17. HOMEPAGE HERO IMAGE
+
+The homepage currently references a generic remote Unsplash mountain image.
+
+Replace generic third-party imagery with actual HORIZON visual assets whenever suitable project assets exist.
+
+Priority:
+
+1. real photograph connected to HORIZON
+2. HORIZON poster/background artwork
+3. real Swiss Alpine route environment
+4. only then use external stock imagery
+
+Avoid making the homepage look like a generic Alpine travel site.
+
+HORIZON should visually belong to this expedition.
+
+---
+
+# 18. REMOVE RUNTIME DEPENDENCE ON RANDOM EXTERNAL HERO IMAGES
+
+If external Unsplash images remain:
+
+do not use dynamic query URLs that could change unexpectedly.
+
+Prefer downloading an appropriate image into:
+
+`assets/`
+
+and referencing it locally.
+
+Benefits:
+
+* faster loading
+* predictable appearance
+* offline resilience
+* privacy
+* no external image failure
+* consistent visual branding
+
+Optimize the image as WebP/AVIF where practical.
+
+---
+
+# 19. HOMEPAGE HERO HEIGHT
+
+Review the hero composition on real mobile screens.
+
+Ensure the important information appears quickly.
+
+On mobile, the user should see within the first viewport or very shortly after:
+
+HORIZON
+
+what it is
+
+direction
+
+primary CTA
+
+Avoid allowing the live-statistics panel to push the project explanation extremely far down.
+
+---
+
+# 20. COUNTDOWN — VERIFY THE REAL DATE
+
+The homepage currently contains:
+
+`1 Agosto · ore 04:00`
+
+Audit this date.
+
+It must not be an old NORTHLINE date or temporary placeholder.
+
+Create the start date from one centralized configuration value.
+
+For example:
+
+`HORIZON_START_DATE`
+
+Do not hard-code the date independently into multiple files.
+
+Use the configured expedition start time for:
+
+countdown
+status logic
+homepage
+metadata where appropriate
+replay state
+
+---
+
+# 21. COUNTDOWN STATES
+
+Implement clean countdown states.
+
+BEFORE EXPEDITION:
+
+`STARTS IN`
+
+Days / Hours / Minutes
+
+DURING EXPEDITION:
+
+hide countdown completely.
+
+Replace it with:
+
+`HORIZON IS LIVE`
+
+AFTER FINISH:
+
+do not show a negative countdown.
+
+Show:
+
+`EXPEDITION COMPLETED`
+
+with links to:
+
+Journey
+Replay
+
+---
+
+# 22. DO NOT UPDATE SECONDS IF THEY ADD NO VALUE
+
+On the homepage, consider whether updating seconds is actually useful.
+
+A high-frequency seconds counter creates visual noise and unnecessary JS updates.
+
+If departure is still days away:
+
+show:
+
+Days
+Hours
+Minutes
+
+Only introduce seconds shortly before start, or omit them entirely.
+
+---
+
+# 23. HOME LIVE PANEL — SIMPLIFY BEFORE START
+
+Before the expedition has started, do not show a large dashboard filled with:
+
+`--`
+
+The current home hero panel contains many empty future metrics.
+
+Instead, before the start:
+
+show:
+
+NOT STARTED
+
+Starting:
+[date/time]
+
+Route:
+Piz Chavalatsch → Chancy
+
+Distance:
+~500 km
+
+CTA:
+VIEW THE ROUTE
+
+Then, once live data exists, transform this panel into real live statistics.
+
+A visitor should never see a wall of meaningless `--`.
+
+---
+
+# 24. HOME LIVE PANEL — DURING EXPEDITION
+
+During HORIZON, the homepage live panel should show only the most useful information:
+
+CURRENT STATUS
+
+DISTANCE
+PROGRESS
+REMAINING
+LAST UPDATE
+
+Optionally:
+
+ETA
+
+Do not replicate the entire live dashboard.
+
+The full statistics belong in:
+
+`live.html`
+
+---
+
+# 25. LIVE PAGE — KEEP THE MAP AS THE MAIN ELEMENT
+
+The current redesigned Live page architecture is much better.
+
+Preserve it.
+
+But reduce the desktop statistics column from the current fixed 360px if necessary.
+
+Aim around:
+
+320–340px
+
+while letting the map use the majority of the viewport.
+
+At large desktop widths, the map should feel dominant.
+
+---
+
+# 26. LIVE PAGE — MOBILE ORDER
+
+Verify actual DOM and CSS order on mobile.
+
+Target order:
+
+LIVE JOURNEY
+
+FOLLOW HORIZON
+
+status
+
+primary statistics
+
+progress bar
+
+MAP
+
+secondary statistics
+
+The map must appear early.
+
+Do not make users scroll past ten statistics before reaching the live position.
+
+---
+
+# 27. PRIMARY MOBILE STATISTICS
+
+On mobile create a compact primary statistics strip.
+
+Use:
+
+DISTANCE
+
+COMPLETE
+
+REMAINING
+
+Prefer 3 columns when comfortable.
+
+At very narrow widths such as 320px:
+
+allow an intelligent 2-column arrangement rather than shrinking typography excessively.
+
+---
+
+# 28. REPLACE EMOJI MAP CONTROLS
+
+The repository still contains character/emoji-based controls such as:
+
+person
+pin
+fullscreen symbol
+
+Replace these with real SVG icons.
+
+Use inline SVG or an icon asset set.
+
+Do not use emoji.
+
+Controls:
+
+MY LOCATION
+
+LIVE POSITION
+
+FULLSCREEN
+
+Each needs:
+
+`aria-label`
+`title`
+visible focus
+44×44 minimum target
+
+---
+
+# 29. MAP CONTROL VISUAL STYLE
+
+Use consistent circular or slightly rounded controls.
+
+Suggested:
+
+48×48 desktop
+
+44–48px mobile
+
+dark translucent background
+
+ivory SVG
+
+amber hover/focus/active
+
+subtle border
+
+Do not create bright blue glowing map buttons.
+
+---
+
+# 30. REMOVE UNUSED CHART.JS FROM LIVE IF UNUSED
+
+The Live page currently loads Chart.js.
+
+Audit whether the page actually uses Chart.js.
+
+If no chart is created on `live.html`, remove:
+
+`chart.js`
+
+from that page.
+
+Load libraries only where they are needed.
+
+Do the same throughout the website.
+
+---
+
+# 31. PIN EXTERNAL DEPENDENCY VERSIONS
+
+Do not use URLs like:
+
+`https://unpkg.com/leaflet/dist/leaflet.js`
+
+without a version.
+
+Pin an explicit known-working version.
+
+Do the same for:
+
+Leaflet CSS
+Leaflet JS
+other CDN libraries
+
+This prevents future updates from unexpectedly breaking HORIZON during the expedition.
+
+---
+
+# 32. LIVE STATUS MUST COME FROM REAL DATA
+
+The HTML currently contains initial text conceptually similar to:
+
+`LIVE · Updated 1 min ago`
+
+Do not show fake live information before real data exists.
+
+Initial state should be neutral:
+
+`Checking live signal…`
+
+Then JavaScript determines:
+
+NOT STARTED
 LIVE
 DELAYED
 OFFLINE
-COMPLETED
-________________________________________
-41. DATA FORMATTING
-Format numbers consistently according to language.
-Examples:
-English:
-428.7 km
-Italian:
-428,7 km
-German:
-428,7 km
-Use Intl.NumberFormat.
-Use sensible decimal precision.
-Do not show unnecessary decimals.
-Speed:
-1 decimal
-Distance:
-1 decimal
-Altitude:
-whole meters
-Progress:
-0 or 1 decimal depending on usefulness.
-________________________________________
-42. DATES AND TIMES
-Use:
-Intl.DateTimeFormat
-instead of manually formatted timestamps.
-Respect the selected language.
-Clearly state timezone where exact timestamps could be ambiguous.
-HORIZON operates in Switzerland, so expedition timestamps should consistently use Swiss local time where appropriate.
-________________________________________
-43. MOBILE STATISTICS DESIGN
-For mobile, redesign statistics into a compact layout.
+RESTING
+FINISHED
+
+Never claim the expedition is live using hardcoded text.
+
+---
+
+# 33. REMOVE FAKE ACCESSIBILITY DATA
+
+The text alternative near the live map must use actual dynamic values.
+
+Do not hard-code sentences such as:
+
+"Current position: live signal active. Distance completed: available."
+
+Populate it from the same real data source used by the map and stats.
+
 Example:
-428 KM
-DISTANCE
-61%
-COMPLETE
-272 KM
-REMAINING
-These three can be shown in a 3-column strip if they fit comfortably.
-If the viewport is too narrow, use a clean 2-column grid instead.
-Never let text become tiny just to preserve three columns.
-________________________________________
-44. DESKTOP STATISTICS DESIGN
-Desktop statistics panel should be approximately:
-300–340px
-unless testing proves 360px works better.
-Primary numbers should be clearly readable.
-The map should receive most horizontal space.
-________________________________________
-45. HORIZON BRAND DETAILS
-Introduce subtle expedition details.
-Possible elements:
-•	small coordinate typography
-•	thin cartographic lines
-•	restrained topographic textures
-•	subtle Swiss-grid references
-•	tiny route metadata
-•	restrained warm highlights
-Do NOT overdecorate.
-The map and expedition data remain the main visual elements.
-________________________________________
-46. DO NOT TURN THIS INTO A POSTER
-Although the HORIZON visual identity comes from an expedition/poster aesthetic, the website must remain a highly usable digital interface.
-Therefore:
-Do NOT:
-•	use distressed fonts for body text
-•	reduce readability
-•	add heavy paper textures behind statistics
-•	use excessive grain
-•	put decorative mountains behind important UI
-•	sacrifice contrast for atmosphere
-Use the expedition aesthetic subtly.
-________________________________________
-47. CSS ARCHITECTURE
-Refactor CSS where necessary.
-Create reusable variables for:
-colors
-spacing
-radius
-typography
-shadows
-transitions
-container widths
-Example conceptual structure:
-:root
-with:
---color-bg
---color-surface
---color-surface-2
---color-text
---color-text-muted
---color-accent
---color-accent-secondary
---color-border
---space-xs
---space-sm
---space-md
---space-lg
---space-xl
---radius-sm
---radius-md
---radius-lg
-Avoid duplicate declarations and contradictory rules.
-________________________________________
-48. INTERACTION STATES
-Every interactive component must have:
-default
-hover
-focus-visible
-active
-disabled
-Do not use hover as the only indication.
-Mobile users do not have hover.
-________________________________________
-49. ACTIVE NAVIGATION
-Clearly mark current page.
+
+Current position:
+46.x, 8.x
+
+Distance:
+143.6 km
+
+Remaining:
+356.4 km
+
+Altitude:
+1,420 m
+
+Updated:
+4 minutes ago
+
+Only update screen-reader content when the values materially change.
+
+---
+
+# 34. ACCESSIBILITY — DO NOT SPAM ARIA-LIVE
+
+The GPS position may update frequently.
+
+Do not put every rapidly changing value inside aggressive:
+
+`aria-live`
+
 Use:
-aria-current="page"
-and a subtle visual indication.
-Do not rely exclusively on color.
-For example use:
-accent text + small underline.
-________________________________________
-50. MOBILE FIRST
-Treat mobile as a primary experience, not a reduced desktop version.
-Many visitors will open HORIZON from:
-WhatsApp
-Instagram
-a shared link
-during the expedition
-Therefore the page must feel excellent immediately on a phone.
-Prioritize:
-fast loading
-map visibility
-large touch controls
-short copy
-live progress
-clear hierarchy
-________________________________________
-51. 320PX REQUIREMENT
-The website must remain usable at 320 CSS pixels width.
-There must be:
-•	no horizontal page scrolling
-•	no clipped buttons
-•	no overlapping labels
-•	no navigation overflow
-•	no statistics escaping containers
-•	no map controls outside the screen
-Do not solve this by making text unreadably small.
-________________________________________
-52. LARGE SCREEN REQUIREMENT
-On screens above approximately 1440px:
-Do not stretch normal text endlessly.
-Maintain sensible max-widths.
-Allow the map to become larger while keeping statistics readable.
-The design should look intentional on 1920px displays.
-________________________________________
-53. PRINT / SHARE OPTIONAL IMPROVEMENT
-If straightforward, create a basic print stylesheet for key expedition statistics.
-Hide:
-navigation
-interactive map controls
-decorative UI
-when printing.
-This is lower priority than mobile/accessibility.
-________________________________________
-54. FOOTER
-Create a restrained footer consistent across pages.
-Possible content:
-HORIZON
-Across Switzerland. East to West.
-Navigation links
-Optional:
-GitHub / social links if already part of the project
-Copyright/year if desired.
-Do not create a huge corporate footer.
-________________________________________
-55. LIVE PAGE DESKTOP TARGET COMPOSITION
-The final desktop LIVE page should approximately feel like:
-HEADER
-FOLLOW HORIZON
-Follow the expedition across Switzerland — live.
-● LIVE · UPDATED 1 MIN AGO
-________________________________________
-| CURRENT STATUS | |
-| | |
-| 428 KM | |
-| DISTANCE | |
-| | MAP |
-| 61% | |
-| COMPLETE | |
-| | |
-| 272 KM | |
-| REMAINING | |
-| | |
-| progress bar | |
-| | |
-| other stats | |
-________________________________________
-The map must visually dominate.
-________________________________________
-56. LIVE PAGE MOBILE TARGET COMPOSITION
-Approximately:
-HORIZON MENU
-LIVE JOURNEY
-FOLLOW HORIZON
-● LIVE · UPDATED 1 MIN AGO
-[ 428 KM ] [ 61% ] [ 272 KM ]
-DISTANCE DONE LEFT
-[========= 61% ============-----]
-[ MAP ]
-[ ]
-[ ]
-[ ]
-[ ]
-CURRENT STATUS
-Speed
-Altitude
-Elevation
-Time
-Steps
-etc.
-This allows the visitor to reach the map immediately.
-________________________________________
-57. TESTING
-After implementation, test the site.
-At minimum verify:
+
+`aria-live="polite"`
+
+only for meaningful status changes.
+
+Do not announce:
+
+every coordinate
+every metre
+every second
+
+to screen readers.
+
+---
+
+# 35. MOBILE NAV DRAWER HEIGHT
+
+The current drawer uses:
+
+`height: 100vh`
+
+Prefer:
+
+`100dvh`
+
+with fallback.
+
+This handles mobile browser toolbars better.
+
+Also account for:
+
+safe-area-inset-top
+safe-area-inset-bottom
+
+---
+
+# 36. MOBILE MENU BACKGROUND
+
+The current mobile navigation still uses older navy values such as:
+
+`rgba(7,17,28,...)`
+
+Align this with the current HORIZON dark green-charcoal system.
+
+Use design variables instead of isolated legacy values.
+
+---
+
+# 37. REMOVE OLD COLOR MAGIC NUMBERS
+
+Refactor repeated literal colors throughout CSS.
+
+Examples:
+
+old blue RGBA values
+random `#edf3fb`
+random dark navy surfaces
+isolated pale-blue text
+
+Create semantic variables.
+
+For example:
+
+`--color-text`
+`--color-text-muted`
+`--color-accent`
+`--color-accent-soft`
+`--color-map`
+`--color-success`
+`--color-warning`
+`--color-danger`
+
+Use them consistently.
+
+---
+
+# 38. REDUCE CARD OVERUSE ON HOMEPAGE
+
+The homepage is significantly better, but many sections still use:
+
+border
+rounded card
+background
+padding
+
+for almost every content group.
+
+Reduce the sense of:
+
+"dashboard made of boxes."
+
+Allow some editorial sections to exist directly on the page background.
+
+Example:
+
+WHY HORIZON
+
+can be a wide editorial text section without another giant rounded rectangle.
+
+Use cards for:
+
+* statistics
+* live status
+* structured data
+
+Use open layouts for:
+
+* storytelling
+* philosophy
+* team introduction
+* photography
+
+---
+
+# 39. CREATE MORE VISUAL RHYTHM
+
+The homepage should alternate naturally between:
+
+text
+
+large image
+
+statistics
+
+route
+
+people
+
+open space
+
+CTA
+
+rather than:
+
+card
+card
+card
+card
+card
+
+Introduce meaningful section spacing.
+
 Desktop:
-Chrome
-Firefox
-Edge
-Mobile simulation:
-iPhone SE-sized viewport
-390px modern iPhone
-430px large phone
-Android approximately 360px
-iPad/tablet
-Check:
-navigation
-language switching
-map
-fullscreen
-geolocation
-live Firebase updates
-progress
+
+approximately 80–120px between major storytelling chapters.
+
+Mobile:
+
+approximately 48–72px.
+
+---
+
+# 40. TEAM PHOTOS
+
+When participant photos are added:
+
+use the same:
+
+aspect ratio
+size
+crop logic
+typographic hierarchy
+
+for both.
+
+Suggested:
+
+portrait 4:5
+
+or environmental 3:2.
+
+Do not make one photo larger.
+
+---
+
+# 41. OPTIONAL TEAM DETAIL
+
+Under each person, provide a concise factual information line.
+
+For example:
+
+`ENDURANCE · CYCLING · MOUNTAINS`
+
+or equivalent.
+
+Only if authentic.
+
+Do not invent categories.
+
+---
+
+# 42. ROUTE SECTION — USE REAL GPX
+
+Verify the homepage route visualization is generated from or directly based on:
+
+the actual HORIZON GPX route.
+
+Do not use an artistic generic SVG approximation.
+
+The route has geographic meaning.
+
+Preserve:
+
+north-up orientation
+actual Switzerland proportions
+east-to-west direction
+Piz Chavalatsch start
+Chancy finish
+
+---
+
+# 43. START / FINISH VISUAL DIRECTION
+
+Because HORIZON goes:
+
+EAST → WEST
+
+and standard maps have east on the right:
+
+PIZ CHAVALATSCH should appear on the RIGHT.
+
+CHANCY should appear on the LEFT.
+
+Do not reverse this visually for aesthetic reasons.
+
+---
+
+# 44. ROUTE LABEL CLARITY
+
+Show clearly:
+
+PIZ CHAVALATSCH
+START · EAST
+
+CHANCY
+FINISH · WEST
+
+Do not overcrowd the route overview with unnecessary place names.
+
+---
+
+# 45. NAVIGATION DUPLICATION
+
+Current navigation contains:
+
+THE CHALLENGE
+
+ROUTE
+
+ABOUT
+
+with some destinations sharing the same `project.html`.
+
+Audit whether these truly deserve separate nav items.
+
+Preferred architecture:
+
+HOME
+LIVE
+THE CHALLENGE
+ROUTE
+JOURNEY
+REPLAY
+
+Then optionally:
+
+ABOUT
+
+Only retain ABOUT if it leads to genuinely distinct information.
+
+If ROUTE points to a section inside THE CHALLENGE page, this is acceptable if the anchor behavior is clear.
+
+---
+
+# 46. PROJECT PAGE
+
+Make `project.html` the deeper editorial page.
+
+Homepage:
+
+short and emotional.
+
+Project page:
+
+detailed.
+
+The project page should contain:
+
+WHAT HORIZON IS
+
+THE TEAM
+
+WHY HORIZON
+
+ROUTE
+
+CHALLENGE
+
+LOGISTICS
+
+RULES / METHOD
+
+PREVIOUS EXPERIENCE if relevant
+
+TECHNOLOGY / LIVE TRACKING if useful
+
+Do not duplicate identical paragraphs verbatim from the homepage.
+
+---
+
+# 47. GALLERY / JOURNEY
+
+The Journey page should increasingly become important during the expedition.
+
+Design it around chronological storytelling.
+
+Each entry may contain:
+
+date
+time
+location
+photo
+short field note
+distance at that moment
+
+Do not make it a generic image gallery.
+
+The feeling should be:
+
+expedition logbook.
+
+---
+
+# 48. JOURNEY EMPTY STATE
+
+Before HORIZON begins, do not merely show:
+
+"Field notes will appear here."
+
+Create a deliberate pre-expedition state.
+
+For example:
+
+`THE JOURNEY HAS NOT STARTED YET.`
+
+`Field notes, images and moments from the route will appear here once HORIZON begins.`
+
+CTA:
+
+`SEE THE ROUTE`
+
+---
+
+# 49. REPLAY EMPTY STATE
+
+Before the expedition exists, explain that replay becomes available once tracking data exists.
+
+Do not show a broken-looking empty chart/map.
+
+After completion:
+
+Replay becomes one of the strongest features.
+
+---
+
+# 50. SEO SOCIAL IMAGE
+
+Verify that:
+
+`assets/preview.png`
+
+actually exists at the correct HORIZONWeb path.
+
+The preview should represent HORIZON, not NORTHLINE.
+
+Recommended social preview:
+
+1200 × 630
+
+or a suitable OpenGraph-compatible ratio.
+
+Include visually:
+
+HORIZON
+PIZ CHAVALATSCH → CHANCY
+EAST → WEST
+
+Avoid tiny unreadable text.
+
+---
+
+# 51. DATE AND CURRENT YEAR
+
+Do not hard-code stale dates unnecessarily.
+
+Use centralized configuration for:
+
+expedition year
+departure
+expected start
+project state
+
+Update footer year dynamically or intentionally.
+
+---
+
+# 52. STATUS ENGINE
+
+Create one shared expedition-state function.
+
+For example:
+
+`getExpeditionState()`
+
+Possible result:
+
+`not-started`
+`live`
+`resting`
+`delayed`
+`offline`
+`completed`
+
+Home and Live must use the SAME state engine.
+
+Do not create separate contradictory status logic.
+
+---
+
+# 53. ONE SOURCE OF TRUTH
+
+Centralize important project configuration.
+
+Create or improve something like:
+
+`js/config.js`
+
+containing:
+
+PROJECT_NAME
+START_NAME
+FINISH_NAME
+START_DATE
+TOTAL_DISTANCE
+EXPECTED_ELEVATION
+ROUTE_FILE
+TIMEZONE
+LIVE_STALE_THRESHOLD
+
+Then use these values throughout the project.
+
+Avoid repeated magic values such as:
+
+500
+10000
+200
+Piz Chavalatsch
+Chancy
+
+across multiple HTML/JS files.
+
+---
+
+# 54. DO NOT BREAK CURRENT FUNCTIONALITY
+
+Preserve:
+
+Firebase
+live tracking
+route data
+Leaflet
 GPX
 replay
 gallery
-keyboard navigation
-focus
-screen resizing
-________________________________________
-58. LIGHTHOUSE TARGETS
-Optimize toward approximately:
-Accessibility:
-95+
-Best Practices:
-95+
-SEO:
-95+
-Performance:
-90+ where realistically possible considering Leaflet/map tiles.
-Do not manipulate Lighthouse scores by removing useful functionality.
-________________________________________
-59. CRITICAL EXISTING ISSUES TO FIX
-Explicitly audit and correct these known problems:
-1.	Mixed Italian and English interface.
-2.	Old NORTHLINE canonical URLs.
-3.	Old NORTHLINE OpenGraph URLs/assets.
-4.	Generic bright-blue dashboard visual identity.
-5.	Fixed/large map dimensions that may not adapt well to smaller screens.
-6.	360px desktop statistics panel consuming unnecessary map space where applicable.
-7.	Emoji-only map controls.
-8.	Duplicate navigation destinations such as LIVE/ROUTE where currently applicable.
-9.	Missing or incomplete accessibility behavior.
-10.	Language selector consistency.
-11.	Mobile information hierarchy.
-12.	Live loading/error/stale states.
-13.	Responsive typography.
-14.	Touch target sizing.
-15.	Third-party dependency loading.
-16.	CSS duplication/conflicts.
-17.	Mobile map usability.
-18.	Visible focus states.
-19.	Correct dynamic document language.
-20.	Correct SEO metadata on every page.
-________________________________________
-60. IMPORTANT — PRESERVE FUNCTIONALITY
-Do NOT break:
-•	Firebase
-•	live tracking
-•	GPS position
-•	GPX route
-•	route calculations
-•	progress calculations
-•	Leaflet
-•	replay
-•	gallery
-•	admin functionality
-•	existing data
-•	existing asset paths unless updated everywhere
-•	GitHub Pages compatibility
-Visual improvements must not destroy functional behavior.
-________________________________________
-61. IMPLEMENTATION STRATEGY
-Work in this order:
-PHASE 1
-Audit project and identify dependencies.
-PHASE 2
-Fix structural/semantic HTML.
-PHASE 3
-Create coherent design tokens and responsive CSS.
-PHASE 4
-Redesign header/navigation.
-PHASE 5
-Redesign LIVE page desktop.
-PHASE 6
-Redesign LIVE page mobile.
-PHASE 7
-Complete i18n implementation.
-PHASE 8
-Improve accessibility.
-PHASE 9
-Fix metadata/SEO/NORTHLINE remnants.
-PHASE 10
-Improve loading/error/offline states.
-PHASE 11
-Performance optimization.
-PHASE 12
-Test all existing functionality.
-________________________________________
-62. DO NOT STOP AT RECOMMENDATIONS
-Do not merely tell me what should be improved.
-Actually modify the project files.
-When necessary, modify:
-•	HTML
-•	CSS
-•	JavaScript
-•	i18n data
-•	metadata
-•	responsive behavior
-Preserve existing working logic whenever possible.
-Before deleting or replacing existing JavaScript logic, understand what it does.
-________________________________________
-63. FINAL QUALITY STANDARD
-The finished website should feel like the official live digital platform for an expedition that is genuinely crossing Switzerland on foot.
-It should communicate:
-DISTANCE.
-ENDURANCE.
-ALPS.
-PRECISION.
-SOLITUDE.
-PROGRESS.
-But the interface itself must remain:
-CALM.
-CLEAR.
-FAST.
-ACCESSIBLE.
-INTUITIVE.
-A visitor opening the site on a phone should immediately know:
-where HORIZON is,
-how far it has travelled,
-how much remains,
-whether the signal is current,
-and how to explore the expedition.
-Do not redesign HORIZON into a generic website.
-Build a serious expedition interface.
+admin
+status logic
+GitHub Pages compatibility
+
+Do not rewrite working systems simply to make code cleaner.
+
+---
+
+# 55. FINAL MOBILE AUDIT
+
+Test:
+
+320 × 568
+360 × 800
+390 × 844
+430 × 932
+
+Verify:
+
+no horizontal scroll
+no clipped HORIZON title
+no overflowing statistics
+no menu overflow
+map controls remain visible
+CTA buttons fit
+language selector fits
+route labels fit
+two-person team section remains balanced
+
+---
+
+# 56. FINAL DESKTOP AUDIT
+
+Test:
+
+1024
+1280
+1440
+1920
+
+Check:
+
+map does not become too narrow
+
+text lines do not become excessively wide
+
+header does not feel empty
+
+language selector aligns correctly
+
+home has enough visual rhythm
+
+team section looks intentional
+
+---
+
+# 57. PERFORMANCE PASS
+
+Run Lighthouse.
+
+Target approximately:
+
+Performance: 90+
+Accessibility: 95+
+Best Practices: 95+
+SEO: 95+
+
+Pay particular attention to:
+
+external Unsplash images
+unnecessary Chart.js
+unversioned CDN scripts
+unused CSS
+layout shifts
+image dimensions
+font loading
+map loading
+
+---
+
+# 58. FINAL DESIGN PRINCIPLE
+
+Do not add more features simply because space exists.
+
+HORIZON should feel restrained.
+
+The visual hierarchy should be:
+
+1. expedition
+2. people
+3. route
+4. live progress
+5. statistics
+6. supporting interface
+
+Not:
+
+UI cards
+widgets
+effects
+decorations.
+
+---
+
+# 59. FINAL CONTENT PRINCIPLE
+
+The homepage should communicate:
+
+**Two people.**
+
+**One country.**
+
+**East to west.**
+
+**On foot.**
+
+**About 500 kilometres.**
+
+Then give visitors a reason to care.
+
+The Live page should answer:
+
+**Where are they now?**
+
+The Project page should answer:
+
+**Why and how are they doing it?**
+
+The Journey page should answer:
+
+**What happened along the way?**
+
+The Replay page should answer:
+
+**How did the entire crossing unfold?**
+
+---
+
+# 60. FINAL TASK
+
+Do not return only recommendations.
+
+Implement the fixes directly.
+
+After implementation provide a concise report containing:
+
+1. deployment issue found and resolution
+2. files modified
+3. metadata URLs corrected
+4. old NORTHLINE references removed
+5. i18n coverage completed
+6. legacy blue styling removed
+7. team section added
+8. live page improvements
+9. mobile improvements
+10. accessibility improvements
+11. performance improvements
+12. remaining manual content placeholders
+
+Do not redesign working components unnecessarily.
+
+This is the final polish pass for HORIZON.

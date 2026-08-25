@@ -9,4 +9,4 @@ const HorizonFirebaseConfig = {
 };
 
 window.HorizonFirebaseConfig = HorizonFirebaseConfig;
-window.NorthLineFirebaseConfig = HorizonFirebaseConfig;
+

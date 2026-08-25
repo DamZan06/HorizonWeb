@@ -108,5 +108,4 @@
     };
 
     window.HorizonI18n = horizonI18n;
-    window.NorthLineI18n = horizonI18n;
 })();
