@@ -21,7 +21,7 @@
     <meta name="twitter:description" content="Follow the HORIZON expedition live across Switzerland in real time.">
     <meta name="twitter:image" content="https://damzan06.github.io/HorizonWeb/assets/preview.png?v=20260715s">
     <link rel="stylesheet" href="style.css?v=20260725d">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
     <link rel="icon" type="image/png" href="assets/favicon-v2.png?v=20260715r">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=20260715r">
@@ -44,11 +44,9 @@
     <nav class="main-nav" id="mainNav" aria-label="Main navigation">
         <a href="index.html" data-nav-key="home">Home</a>
         <a href="live.html" aria-current="page" data-nav-key="live">Live</a>
-        <a href="project.html" data-nav-key="challenge">The challenge</a>
-        <a href="project.html#route" data-nav-key="route">Route</a>
+        <a href="project.html" data-nav-key="project">Project</a>
         <a href="gallery.html" data-nav-key="journey">Journey</a>
         <a href="replay.html" data-nav-key="replay">Replay</a>
-        <a href="project.html#about" data-nav-key="about">About</a>
         <div class="lang-switcher lang-switcher-mobile" aria-label="Language selector">
             <label class="lang-switcher-label" for="langSwitcherMobile" data-i18n="common.languageLabel">Language</label>
             <select id="langSwitcherMobile" class="lang-switcher-select" data-i18n-attr='{"aria-label":"common.languageAria"}' aria-label="Language">
@@ -142,6 +140,7 @@
                 </div>
             </aside>
             <div class="map-wrap">
+                <div class="map-status" aria-live="polite">LOADING MAP…</div>
                 <div id="map"></div>
                 <div class="map-actions" aria-label="Map controls">
                     <button id="centerUserBtn" class="geo-button" data-i18n-attr='{"title":"pages.live.centerUser","aria-label":"pages.live.centerUser"}' title="Center on my location" aria-label="Center on my location">
@@ -160,13 +159,16 @@
             Current position: live signal active. Distance completed: available. Distance remaining: available. Current altitude: available. Last update: 1 minute ago.
         </p>
     </main>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/config.js?v=20260824a"></script>
+    <script src="js/firebase.js?v=20260824a"></script>
+    <script src="js/map.js?v=20260824a"></script>
+    <script src="js/ui.js?v=20260824a"></script>
     <script src="js/i18n.js?v=20260824a"></script>
+    <script src="js/ui/navigation.js?v=20260824a"></script>
     <script src="js/status.js?v=20260824a"></script>
     <script src="js/app.js?v=20260824a"></script>
+    <script src="js/pages/live.js?v=20260824a"></script>
     <script src="script.js?v=20260729a"></script>
 </body>
 </html>

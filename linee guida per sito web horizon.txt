@@ -1,33 +1,24 @@
-You are now performing a **STRUCTURAL REFACTOR + CONTENT EDITORIAL PASS** on the HORIZON website.
+You are performing a focused corrective refactor on the current HORIZON repository.
 
-This is NOT another visual redesign.
+DO NOT redesign the website visually.
 
-The visual identity is already good.
+The previous refactor was only partially completed.
 
-The main problems now are:
+There are now several concrete architectural problems that must be fixed before any more features are added.
 
-1. navigation contains redundant destinations;
-2. the homepage repeats the same ideas too many times;
-3. the Project page duplicates content from the homepage;
-4. values such as distance, elevation, names, dates and endpoints are still repeated in multiple files;
-5. some JavaScript files are far too large;
-6. old runtime logic duplicates newer modular files;
-7. i18n logic and content are spread across multiple locations;
-8. file responsibilities are not always clear.
+The absolute priorities are:
 
-Your objective is:
-
-**LESS CONTENT, BETTER CONTENT.**
-
-**LESS CODE DUPLICATION, CLEARER ARCHITECTURE.**
-
-Do not destroy working functionality.
+1. FIX THE NAVIGATION FOR REAL.
+2. FIX THE LIVE MAP AND ITS LOADING PERFORMANCE.
+3. COMPLETE THE PARTIALLY EMPTY MODULAR ARCHITECTURE.
+4. REMOVE UNUSED DEPENDENCIES.
+5. VERIFY THE DEPLOYED GITHUB PAGES VERSION AFTER CHANGES.
 
 ---
 
-# PART 1 — NAVIGATION
+# 1. IMPORTANT — THE NAVIGATION WAS NOT ACTUALLY CHANGED
 
-The current navigation contains:
+The current public website and repository still use:
 
 HOME
 LIVE
@@ -37,31 +28,48 @@ JOURNEY
 REPLAY
 ABOUT
 
-This is unnecessarily complex.
+This is the old structure.
 
-`The challenge`, `Route` and `About` all belong conceptually to the same Project content.
+Do not leave it like this.
 
-Replace the main navigation with:
+Replace the GLOBAL navigation everywhere with exactly:
 
 HOME
-
 LIVE
-
 PROJECT
-
 JOURNEY
-
 REPLAY
 
-That is the preferred primary navigation.
+That means:
 
-The HORIZON logo must always return to HOME.
+Home:
+`index.html`
+
+Live:
+`live.html`
+
+Project:
+`project.html`
+
+Journey:
+use the current canonical Journey page
+
+Replay:
+`replay.html`
+
+Remove global navbar entries:
+
+THE CHALLENGE
+ROUTE
+ABOUT
+
+Those belong inside Project.
 
 ---
 
-# PROJECT PAGE INTERNAL NAVIGATION
+# 2. PROJECT PAGE INTERNAL NAVIGATION
 
-Inside `project.html`, provide a lightweight in-page navigation if useful:
+Inside `project.html`, optionally create a small secondary anchor navigation:
 
 OVERVIEW
 TEAM
@@ -70,17 +78,85 @@ ROUTE
 CHALLENGE
 HOW IT WORKS
 
-These are NOT global navbar items.
-
-They are sections of the Project page.
-
-Use anchor navigation if appropriate.
+This is not part of the global navbar.
 
 ---
 
-# MOBILE NAVIGATION
+# 3. CHANGE THE NAVBAR IN EVERY PAGE
 
-Mobile should use the same simplified structure:
+Search every HTML file.
+
+The navbar must NOT be manually left different between pages.
+
+Update at least:
+
+index.html
+live.html
+project.html
+gallery/journey page
+replay.html
+
+Also inspect:
+
+dashboard.html
+diary.html
+progress.html
+timeline.html
+admin.html
+
+if they contain the public header.
+
+The final public navbar must be consistent.
+
+---
+
+# 4. CENTRALIZE NAVIGATION DEFINITION
+
+Do not manually maintain the navigation structure independently in every HTML page.
+
+Create something like:
+
+`js/ui/navigation.js`
+
+Define the navigation once:
+
+```js
+const NAV_ITEMS = [
+    { key: 'home', href: 'index.html' },
+    { key: 'live', href: 'live.html' },
+    { key: 'project', href: 'project.html' },
+    { key: 'journey', href: 'gallery.html' },
+    { key: 'replay', href: 'replay.html' }
+];
+```
+
+The exact implementation may differ.
+
+The important requirement is:
+
+ONE canonical navigation definition.
+
+---
+
+# 5. ACTIVE PAGE
+
+Determine the active page from:
+
+`body[data-page]`
+
+or pathname.
+
+Automatically set:
+
+`aria-current="page"`
+
+Do not hard-code it inconsistently across HTML files.
+
+---
+
+# 6. MOBILE NAVIGATION
+
+Mobile menu must contain only:
 
 HOME
 LIVE
@@ -89,1542 +165,1121 @@ JOURNEY
 REPLAY
 LANGUAGE
 
-Do not show redundant links.
+No:
 
-Keep the mobile menu simple enough that all main destinations fit comfortably.
+THE CHALLENGE
+ROUTE
+ABOUT
 
----
-
-# PART 2 — HOMEPAGE CONTENT STRATEGY
-
-The homepage currently explains HORIZON too many times.
-
-Several sections repeat:
-
-* crossing Switzerland
-* east to west
-* 500 km
-* two people
-* endurance
-* uncertainty
-* moving forward
-* distance
-* elevation
-
-Reduce this repetition aggressively.
-
-The homepage should have exactly these narrative sections:
-
-1. HERO
-2. THE SCALE
-3. THE IDEA
-4. THE TEAM
-5. THE ROUTE
-6. FOLLOW HORIZON
-7. FINAL STATEMENT
-
-Remove or merge redundant sections.
+Keep the existing accessible open/close behavior.
 
 ---
 
-# REMOVE THESE CURRENT HOMEPAGE SECTIONS AS SEPARATE SECTIONS
+# 7. CRITICAL MAP ARCHITECTURE PROBLEM
 
-Do NOT keep all of these separately:
+The repository currently contains:
 
-* ONE COUNTRY. ONE DIRECTION.
-* WHY HORIZON?
-* WHAT IS HORIZON?
-* THE SCALE
-* THE CHALLENGE
-* THE CHALLENGE IS NOT JUST THE DISTANCE
-* THE PHILOSOPHY
-* LIVE JOURNEY status legend
-* FIELD NOTES preview
-* FOLLOW HORIZON
-* final CTA
+`js/map.js`
 
-They produce too much repetition.
+but it is EMPTY.
 
-Merge them according to the structure below.
+It also contains:
 
----
+`js/firebase.js`
 
-# HOMEPAGE SECTION 1 — HERO
+but it is EMPTY.
 
-Purpose:
+And:
 
-Immediately communicate what HORIZON is.
+`js/ui.js`
 
-Use:
+is EMPTY.
 
-Eyebrow:
+This is not an acceptable final architecture.
 
-`HORIZON 2026`
+Do not create placeholder modules and then continue using legacy logic elsewhere.
 
-Title:
-
-`HORIZON`
-
-Main line:
-
-`SWITZERLAND. EAST TO WEST. ON FOOT.`
-
-Supporting paragraph:
-
-Write something approximately like:
-
-`Two people will cross Switzerland from Piz Chavalatsch to Chancy, following one continuous route from the eastern edge of the country to the western edge.`
-
-Do NOT mention:
-
-500 km
-10,000 m+
-200 hours
-
-inside this paragraph.
-
-Those numbers belong immediately below.
-
-CTA 1:
-
-`FOLLOW LIVE`
-
-CTA 2:
-
-`DISCOVER THE PROJECT`
-
-The second button goes to:
-
-`project.html`
+Implement the modules or delete them.
 
 ---
 
-# HOMEPAGE SECTION 2 — THE SCALE
+# 8. LIVE.HTML CURRENT SCRIPT PROBLEM
 
-This section is only numbers.
+The Live page currently loads:
 
-Do not add another paragraph explaining the route.
+Leaflet
+leaflet-gpx
+Chart.js
+config.js
+i18n.js
+status.js
+app.js
+script.js
 
-Show:
+But it does NOT explicitly load:
 
-~500 KM
-DISTANCE
+map.js
+firebase.js
 
-10,000+ M
-ELEVATION GAIN
+This means the modular architecture is incomplete.
 
-2
-PEOPLE
-
-EAST → WEST
-DIRECTION
-
-Use values from central project configuration.
-
-Never hard-code these values directly into HTML.
-
-Do not show the same statistic again elsewhere on the homepage unless live data requires it.
+Fix this.
 
 ---
 
-# HOMEPAGE SECTION 3 — THE IDEA
+# 9. TARGET LIVE PAGE ARCHITECTURE
 
-Merge the current:
-
-ONE COUNTRY. ONE DIRECTION.
-
-WHY HORIZON?
-
-WHAT IS HORIZON?
-
-PHILOSOPHY
-
-into ONE editorial section.
-
-Heading:
-
-`WHY HORIZON?`
-
-Use approximately 2 short paragraphs.
-
-Use this narrative:
-
-PARAGRAPH 1:
-
-HORIZON is the next step after increasingly demanding endurance projects.
-
-It is not about choosing an arbitrary large number.
-
-The idea is to take something extremely simple — start at one side of Switzerland and reach the other — and see what happens when that simple idea is extended across hundreds of kilometres.
-
-Suggested content:
-
-`HORIZON grew out of a series of challenges that became progressively longer and more demanding. At some point the idea became simpler rather than more complicated: start at one edge of Switzerland and keep moving until there is no country left in front of us.`
-
-PARAGRAPH 2:
-
-Explain the meaning of the name.
-
-Do NOT use generic motivational language.
-
-Suggested content:
-
-`The horizon works because it is never the next destination. It stays ahead while the landscape, fatigue and conditions constantly change. The goal is not to think about Chancy for 500 kilometres. It is to solve the next section, then the next one, until the horizon finally becomes the finish.`
-
-This is enough.
-
-Delete the current repetitive paragraphs such as:
-
-`One kilometre becomes the next. One step becomes another...`
-
-unless incorporated naturally.
-
-Do not repeat EAST TO WEST again inside this section.
-
----
-
-# HOMEPAGE SECTION 4 — THE TEAM
-
-Keep the two-person section.
-
-Heading:
-
-`THE TEAM`
-
-Subheading:
-
-`Two different reasons to say yes to the same unreasonable idea.`
-
-Participant 1:
-
-DAMIANO ZANONI
-
-Role:
-
-`ENDURANCE · MOUNTAINS · ALWAYS FURTHER`
-
-Use this description:
-
-`For Damiano, HORIZON is the continuation of a progression that has kept becoming longer and more ambitious. Years of mountain biking were followed by increasingly demanding endurance projects across Switzerland, each one revealing something that could be improved, pushed further or attempted differently next time. HORIZON brings those experiences together in one continuous crossing.`
-
-Do NOT repeat:
-
-500 kilometres
-Piz Chavalatsch
-Chancy
-
-inside his biography.
-
-Those facts are already established.
-
-Participant 2:
-
-NICOLAS MOOSER — “NICMOS”
-
-Role:
-
-`ADVENTURE · CHAOS · QUESTIONABLE IDEAS`
-
-Use this description:
-
-`NicMos has a useful tendency to agree to ideas before spending too much time asking whether they are reasonable. He brings a different energy to HORIZON: spontaneity, humour and the willingness to continue when the plan inevitably stops behaving like the plan. If something sounds slightly absurd, there is a good chance he is interested.`
-
-Then add ONE shared paragraph:
-
-Heading:
-
-`WHY TOGETHER?`
-
-Text:
-
-`Crossing Switzerland alone would be one kind of challenge. Doing it together creates another one. Pace, fatigue, navigation and decisions are no longer individual problems. Sometimes one person will be stronger; sometimes the other will be. HORIZON only works if both continue moving west.`
-
-Do not make this sentimental.
-
-Do not repeat their individual biographies.
-
----
-
-# HOMEPAGE SECTION 5 — THE ROUTE
-
-Heading:
-
-`THE ROUTE`
-
-Title:
-
-`PIZ CHAVALATSCH → CHANCY`
-
-Use the REAL GPX route.
-
-No fake Bézier route.
-
-Do not describe the entire expedition again.
-
-Use one concise paragraph only:
-
-`The route starts at Switzerland’s eastern edge and works west through changing terrain until Chancy. It is not designed to look elegant on a map: every bend belongs to the actual route.`
-
-Then show:
-
-START
-Piz Chavalatsch
-
-FINISH
-Chancy
-
-CTA:
-
-`EXPLORE THE ROUTE`
-
-This leads to:
-
-`project.html#route`
-
----
-
-# HOMEPAGE SECTION 6 — FOLLOW HORIZON
-
-This replaces:
-
-LIVE JOURNEY status legend
-FIELD NOTES preview
-FOLLOW HORIZON
-
-Do NOT show a list of every possible state:
-
-Not started
-Live
-Paused
-Resting
-Finished
-
-Visitors do not need to see an internal state machine.
-
-Show ONLY the current state.
-
-Examples:
-
-BEFORE START:
-
-`HORIZON STARTS SOON`
-
-`Follow the preparation now. Once the expedition begins, this website becomes the live map, progress tracker and field log.`
-
-CTA:
-
-`OPEN LIVE PAGE`
-
-DURING EXPEDITION:
-
-`HORIZON IS LIVE`
-
-`See our latest position, distance, progress and route in real time.`
-
-CTA:
-
-`FOLLOW LIVE`
-
-AFTER EXPEDITION:
-
-`THE CROSSING IS COMPLETE`
-
-`Explore the route, field notes and complete replay.`
-
-CTA:
-
-`WATCH THE REPLAY`
-
----
-
-# HOMEPAGE SECTION 7 — FINAL STATEMENT
-
-Keep only:
-
-`PIZ CHAVALATSCH → CHANCY`
-
-`EAST → WEST`
-
-`HORIZON`
-
-No additional paragraph.
-
-Do not add another FOLLOW button if the previous section already contains one.
-
----
-
-# HOMEPAGE CONTENT RULE
-
-Every idea should be explained ONCE.
-
-Use this rule:
-
-WHO?
-→ TEAM
-
-WHAT?
-→ HERO
-
-HOW BIG?
-→ SCALE
-
-WHY?
-→ IDEA
-
-WHERE?
-→ ROUTE
-
-WHERE ARE THEY NOW?
-→ LIVE
-
-If a paragraph answers a question already answered by another section, delete or rewrite it.
-
----
-
-# PART 3 — PROJECT PAGE CONTENT
-
-The current Project page is too generic and repeats homepage material.
-
-Rewrite it into a genuinely useful deeper page.
-
-Use exactly these sections:
-
-1. OVERVIEW
-2. TEAM
-3. HOW HORIZON CAME TO BE
-4. THE ROUTE
-5. THE CHALLENGE
-6. HOW THE EXPEDITION WORKS
-7. THE WEBSITE / LIVE TRACKING
-
----
-
-# PROJECT — OVERVIEW
-
-Heading:
-
-`THE PROJECT`
-
-Text:
-
-`HORIZON is a complete east-to-west crossing of Switzerland on foot, undertaken by Damiano Zanoni and Nicolas “NicMos” Mooser. The route begins at Piz Chavalatsch and ends at Chancy. The objective is simple to describe and considerably harder to execute: follow the planned route continuously until Switzerland ends.`
-
-This is the only place on the Project page that needs to define HORIZON directly.
-
-Do not define it again later.
-
----
-
-# PROJECT — HOW HORIZON CAME TO BE
-
-This section should contain real progression.
-
-Describe Damiano's previous endurance progression without turning it into a trophy list.
-
-Use the conceptual story:
-
-mountain biking background
-
-→ longer endurance projects
-
-→ Mesolcina–Poschiavo
-
-→ NORTHLINE south-to-north crossing
-
-→ lessons learned
-
-→ HORIZON east-to-west crossing
-
-Write it as progression, not bragging.
-
-Suggested structure:
-
-`HORIZON did not begin with a 500-kilometre route. It grew out of smaller projects that repeatedly became larger.`
-
-Then explain briefly how previous projects taught:
-
-* pacing
-* nutrition
-* navigation
-* sleep/recovery
-* live tracking
-* logistical planning
-* what goes wrong after many hours
-
-End with:
-
-`HORIZON is the point where those lessons are tested together.`
-
-Do not repeatedly say “pushing limits”.
-
----
-
-# PROJECT — TEAM
-
-Reuse the people information but do not duplicate the exact homepage paragraphs.
-
-Homepage biographies:
-short and character-focused.
-
-Project biographies:
-slightly deeper.
-
-For Damiano include:
-
-* mountain biking background
-* endurance progression
-* interest in technical planning
-* route/live-platform development
-* reason for creating HORIZON
-
-For NicMos include only information that is actually known.
-
-Do not invent sporting achievements.
-
-Keep the personality:
-
-spontaneous
-willing to try unreasonable ideas
-humour
-shared challenge
-
----
-
-# PROJECT — THE ROUTE
-
-Use actual GPX-derived data.
-
-Explain:
-
-* start
-* finish
-* direction
-* total route distance
-* elevation
-* terrain categories
-* why the route follows its chosen path
-
-Do not say generic things such as:
-
-`The route crosses lakes, valleys, forests and alpine passes`
-
-unless the actual GPX confirms those details.
-
-Add an interactive or detailed route visualization.
-
----
-
-# PROJECT — THE CHALLENGE
-
-Do NOT repeat the 500 km statistic in six cards.
-
-Explain WHY the challenge becomes difficult.
-
-Use five factors:
-
-DISTANCE
-
-The issue is not one long day but cumulative load.
-
-ELEVATION
-
-Climbing changes the cost of every kilometre.
-
-RECOVERY
-
-The next day starts with the fatigue of the previous one.
-
-WEATHER
-
-Conditions affect pace, equipment and decisions.
-
-TWO PEOPLE
-
-The expedition continues only if both people can continue.
-
-Each factor:
-2–3 sentences maximum.
-
-Remove generic factors that add little value.
-
----
-
-# PROJECT — HOW THE EXPEDITION WORKS
-
-This section should answer practical questions visitors may actually have.
-
-Explain clearly:
-
-* travelling entirely on foot along the expedition route
-* how rest periods work
-* how food/water/logistics are handled
-* what support exists
-* how navigation is performed
-* what happens if route/weather conditions require adaptation
-* what defines completion
-
-Do NOT write fictional rules.
-
-If a rule is not yet decided, mark it clearly in source as:
-
-`TODO: Define expedition rule.`
-
----
-
-# PROJECT — LIVE TRACKING
-
-Explain the technical side because it is actually interesting and differentiates HORIZON.
-
-Describe briefly:
-
-GPS / Garmin tracking
-
-→ live data retrieval
-
-→ Firebase
-
-→ website
-
-→ map / statistics / replay
-
-Do not expose credentials or sensitive implementation details.
-
-Explain that the site is part of the expedition, not merely advertising.
-
-This section can mention that the system was developed specifically to make the crossing visible in real time.
-
----
-
-# REMOVE PROJECT PAGE GENERIC CARDS
-
-Remove generic cards such as:
-
-Equipment
-
-Nutrition
-
-Preparation
-
-Support
-
-if they only contain generic advice like:
-
-`lightweight equipment is essential`
-
-or:
-
-`hydration is important`
-
-These statements do not tell visitors anything unique about HORIZON.
-
-Only keep these topics if they contain SPECIFIC HORIZON information.
-
-For example:
-
-BAD:
-
-`GPS, emergency gear and technical clothing are important.`
-
-GOOD:
-
-`Two power banks provide X Wh of reserve and the Garmin tracker sends position updates through...`
-
-If exact information is not available, leave it out rather than filling space.
-
----
-
-# PART 4 — CENTRAL CONFIGURATION
-
-Create ONE authoritative configuration module.
+Use a clean dependency flow.
 
 Recommended:
 
-`js/core/config.js`
-
-Example:
-
-```js
-export const PROJECT = {
-    name: 'HORIZON',
-    year: 2026,
-
-    route: {
-        startName: 'Piz Chavalatsch',
-        finishName: 'Chancy',
-        direction: 'east-west',
-        distanceKm: ...,
-        elevationGainM: ...,
-        gpxUrl: 'data/Horizon.gpx'
-    },
-
-    team: [
-        {
-            id: 'damiano',
-            name: 'Damiano Zanoni',
-            nickname: null
-        },
-        {
-            id: 'nicolas',
-            name: 'Nicolas Mooser',
-            nickname: 'NicMos'
-        }
-    ],
-
-    expedition: {
-        startDate: ...,
-        timezone: 'Europe/Zurich'
-    },
-
-    live: {
-        firebaseEndpoint: ...,
-        staleAfterMs: ...,
-        refreshIntervalMs: ...
-    }
-};
-```
-
-Exact structure may vary.
-
-The important principle:
-
-**DEFINE FACTS ONCE.**
-
----
-
-# NEVER REPEAT PROJECT CONSTANTS
-
-Search the complete repository for:
-
-500
-10000
-6000
-200
-Piz Chavalatsch
-Chancy
-HORIZON 2026
-Firebase URLs
-GPX paths
-refresh intervals
-stale thresholds
-start dates
-
-Determine whether each occurrence is:
-
-CONTENT
-
-or
-
-CONFIGURATION.
-
-If it is configuration, replace it with a reference to the central config.
-
----
-
-# IMPORTANT DISTANCE/ELEVATION CONSISTENCY
-
-The repository currently contains conflicting numbers.
-
-Some content refers to:
-
-10,000 m+
-
-while older runtime translations still contain:
-
-6,000 m+
-
-This must never happen.
-
-One source of truth.
-
-Every page must derive the displayed value from config.
-
----
-
-# PART 5 — JAVASCRIPT ARCHITECTURE
-
-The current `js/` directory contains useful modules:
-
-app.js
-charts.js
 config.js
+↓
 firebase.js
-i18n.js
-map.js
-runtime.js
-stats.js
-status.js
-ui.js
-weather.js
-
-This is a good direction.
-
-However:
-
-`runtime.js` is over 4000 lines.
-
-This is unacceptable for its current responsibilities.
-
-Refactor it.
-
----
-
-# TARGET JS STRUCTURE
-
-Use a logical architecture such as:
-
-js/
-
-core/
-config.js
-app.js
-state.js
-
-services/
-firebase.js
-weather.js
 gpx.js
-storage.js
-
-features/
-live/
-live-controller.js
-live-stats.js
-
-```
-map/
-    map.js
-    map-controls.js
-    route-layer.js
-
-replay/
-    replay.js
-
-journey/
-    journey.js
-    media.js
-
-dashboard/
-    dashboard.js
-    charts.js
-```
-
-ui/
-navigation.js
-language-switcher.js
-modal.js
-status.js
-formatting.js
-
-i18n/
-i18n.js
-en.js
-it.js
-de.js
-fr.js
-
-pages/
-home.js
+↓
+map.js
+stats.js
+↓
 live.js
-project.js
-journey.js
-replay.js
 
-The exact folder structure may differ slightly if another arrangement is cleaner.
+Global:
 
-But responsibilities must remain obvious.
-
----
-
-# FILE RESPONSIBILITY RULE
-
-A file should have ONE primary responsibility.
-
-Examples:
-
-`map.js`
-
-should not contain translations.
-
-`firebase.js`
-
-should not manipulate navigation.
-
-`i18n.js`
-
-should not contain Firebase logic.
-
-`home.js`
-
-should not contain replay functionality.
-
-`runtime.js`
-
-should eventually disappear or become a small orchestration file.
-
----
-
-# RUNTIME.JS
-
-Audit every function in `runtime.js`.
-
-Categorize each function:
-
-CONFIG
-
-I18N
-
-NAVIGATION
-
-MAP
-
-FIREBASE
-
-GALLERY
-
-REPLAY
-
-ADMIN
-
-MEDIA
-
-STATUS
-
-UTILITIES
-
-Move each function to its correct module.
-
-Do NOT mechanically split every 200 lines.
-
-Split by responsibility.
-
-When finished:
-
-either delete `runtime.js`
-
-or reduce it to a very small bootstrap/orchestration module.
-
-Target:
-
-preferably < 300 lines.
-
----
-
-# PART 6 — I18N ARCHITECTURE
-
-Current translations are too large and spread across different locations.
-
-Do NOT keep full multilingual catalogues inside runtime files.
-
-Move language content into separate files.
-
-Example:
-
-`js/i18n/en.js`
-
-`js/i18n/it.js`
-
-`js/i18n/de.js`
-
-`js/i18n/fr.js`
-
-Each exports only translation data.
-
-Then:
-
-`i18n.js`
-
-contains only:
-
-* language detection
-* language persistence
-* lookup
-* interpolation
-* DOM application
-* fallback handling
-
-No huge dictionaries.
-
-Target:
-
-`i18n.js` approximately 100–200 lines.
-
----
-
-# CONTENT VS TRANSLATION
-
-Do not store the same long project paragraphs:
-
-in HTML
-
-AND in runtime.js
-
-AND in i18n.js.
-
-Choose ONE strategy.
-
-Preferred:
-
-All translatable text exists in translation files.
-
-HTML contains:
-
-`data-i18n="home.hero.description"`
-
-and similar keys.
-
----
-
-# TRANSLATION KEYS
-
-Use semantic keys.
-
-GOOD:
-
-`home.hero.description`
-
-`home.team.damiano.bio`
-
-`project.route.title`
-
-`live.stats.distance`
-
-BAD:
-
-`text1`
-
-`paragraph4`
-
-`cardTexts[2]`
-
-`labels[6]`
-
-Do not depend on DOM order.
-
----
-
-# PART 7 — CSS ARCHITECTURE
-
-Current separate files such as:
-
-global.css
-home.css
-live.css
-dashboard.css
-
-are a good start.
-
-Continue this architecture.
-
-Create if necessary:
-
-components/
-navigation.css
-buttons.css
-cards.css
-status.css
-forms.css
-
-Do not duplicate the same button/navigation rules in every page stylesheet.
-
----
-
-# CSS VARIABLES
-
-Move all reusable values into central tokens.
-
-In `global.css`:
-
-colors
-spacing
-font sizes
-radii
-container width
-header height
-z-index layers
-breakpoints where practical
-shadows
-transitions
-
-Example:
-
-```css
-:root {
-    --color-bg: ...;
-    --color-surface: ...;
-    --color-text: ...;
-    --color-accent: ...;
-
-    --header-height: 68px;
-
-    --container-max: 1320px;
-
-    --space-1: 4px;
-    --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 16px;
-    --space-6: 24px;
-    --space-8: 32px;
-}
-```
-
----
-
-# DO NOT REPEAT MAGIC NUMBERS
-
-Search CSS for repeated values such as:
-
-68px
-72px
-1280px
-1320px
-#e8953f
-#07100f
-16px
-24px
-
-Where values represent shared design decisions, replace them with variables.
-
-Do not replace every numeric value blindly.
-
-Only centralize values with semantic meaning.
-
----
-
-# PART 8 — REMOVE DEAD / LEGACY FILES
-
-Audit root files.
-
-Current repository includes files such as:
-
-dashboard.html
-diary.html
-progress.html
-live.html.raw
-old configuration files
-legacy root JS/CSS files
-
-Determine whether each file is actually used.
-
-If a file is obsolete:
-
-REMOVE IT.
-
-Do not keep old files “just in case”.
-
-Use Git history if an old version is ever needed again.
-
-Particularly inspect:
-
-`live.html.raw`
-
-It should not exist in a clean production repository unless there is a clear documented reason.
-
----
-
-# LEGACY PAGES
-
-Determine whether:
-
-diary.html
-
-and
-
-gallery.html
-
-both represent the Journey feature.
-
-If one is obsolete:
-
-remove it.
-
-Determine whether:
-
-progress.html
-
-and
-
-dashboard.html
-
-still serve unique purposes.
-
-If they are development/admin tools:
-
-move them into an appropriate folder such as:
-
-`admin/`
-
-or:
-
-`tools/`
-
-if possible without breaking hosting.
-
-The repository root should contain primarily public entry pages.
-
----
-
-# TARGET ROOT STRUCTURE
-
-Ideally:
-
-index.html
-live.html
-project.html
-journey.html
-replay.html
-
-assets/
-data/
-css/
-js/
-admin/
-tools/
-
-plus required metadata/config files.
-
-Do not keep abandoned duplicate public pages in root.
-
----
-
-# PART 9 — SHARED HEADER / NAVIGATION LOGIC
-
-The header HTML is currently repeated across pages.
-
-At minimum:
-
-centralize its behavior.
-
-If practical on static GitHub Pages, create a shared navigation renderer or small component.
-
-Example:
-
-`navigation.js`
-
-with one canonical list of nav destinations.
-
-Do not manually maintain seven copies of navigation labels/URLs.
-
-The nav data should be defined once:
-
-HOME → index.html
-LIVE → live.html
-PROJECT → project.html
-JOURNEY → gallery.html or journey.html
-REPLAY → replay.html
-
-Then generate or validate navigation consistently.
-
----
-
-# ACTIVE PAGE
-
-Use `body[data-page]` or current pathname to determine:
-
-`aria-current="page"`
-
-Do not hard-code different nav active states manually across every HTML file if avoidable.
-
----
-
-# PART 10 — PAGE-SPECIFIC SCRIPT LOADING
-
-Do not load every feature script on every page.
-
-HOME needs:
-
-core
-navigation
-i18n
-status summary
-home
-
-LIVE needs:
-
-core
-navigation
-i18n
-firebase
-map
-stats
-live
-
-JOURNEY needs:
-
-core
-navigation
-i18n
-journey/media
-
-REPLAY needs:
-
-core
-navigation
-i18n
-replay/map
-
-PROJECT needs very little JavaScript.
-
-Avoid loading:
-
-maps
-charts
-Firebase live loops
-
-on pages that do not need them.
-
----
-
-# PART 11 — NO GIANT APP.INIT()
-
-Do not create one enormous application initializer that initializes everything.
-
-Use page-based initialization.
+i18n.js
+navigation.js
 
 Conceptually:
 
-```js
-const page = document.body.dataset.page;
+```text
+live.html
 
-initGlobal();
-
-switch (page) {
-    case 'home':
-        initHome();
-        break;
-
-    case 'live':
-        initLive();
-        break;
-
-    case 'project':
-        initProject();
-        break;
-}
+→ config
+→ i18n
+→ navigation
+→ firebase service
+→ GPX service
+→ map
+→ stats
+→ live page controller
 ```
 
-Each page initializer must initialize only what it owns.
+Do not initialize Live functionality through a generic old bootstrap.
 
 ---
 
-# PART 12 — UTILITIES
+# 10. CREATE A PAGE-SPECIFIC LIVE CONTROLLER
 
-Create small utilities for repeated formatting.
+Create:
+
+`js/pages/live.js`
+
+or equivalent.
+
+Its only responsibility is coordinating the Live page.
+
+Example responsibility:
+
+1. initialize Leaflet
+2. display map immediately
+3. load static route
+4. fetch last known live position
+5. update map marker
+6. update statistics
+7. start ONE live refresh loop
+
+Do not put:
+
+translations
+navigation
+gallery
+replay
+admin
+
+inside this file.
+
+---
+
+# 11. THE MAP MUST APPEAR IMMEDIATELY
+
+This is extremely important.
+
+Currently the map feels like it takes forever to appear.
+
+The visual map must NOT wait for:
+
+Firebase
+GPX parsing
+statistics
+weather
+live position
+replay data
+
+before displaying.
+
+Correct loading order:
+
+### STEP 1 — IMMEDIATE
+
+Create Leaflet map.
+
+Add base tile layer.
+
+User should see a usable map almost immediately.
+
+### STEP 2
+
+Load the HORIZON route.
+
+### STEP 3
+
+Load live position.
+
+### STEP 4
+
+Load secondary statistics/weather/etc.
+
+The base map must not be blocked by expedition data.
+
+---
+
+# 12. DO NOT BLOCK MAP INITIALIZATION ON FIREBASE
+
+Bad pattern:
+
+```js
+await fetchFirebase();
+await loadGpx();
+initializeMap();
+```
+
+Do NOT do this.
+
+Better:
+
+```js
+initializeMap();
+
+Promise.allSettled([
+    loadRoute(),
+    loadLivePosition(),
+    loadStats()
+]);
+```
+
+Use graceful independent loading.
+
+A failed Firebase request must not prevent the map from appearing.
+
+---
+
+# 13. DO NOT BLOCK MAP ON GPX
+
+Likewise:
+
+the map itself should exist before GPX parsing completes.
+
+Show base tiles immediately.
+
+Then add route when ready.
+
+---
+
+# 14. REPLACE LEAFLET-GPX IF IT IS THE BOTTLENECK
+
+Audit actual route size.
+
+If `Horizon.gpx` contains thousands or tens of thousands of GPX points, parsing the complete XML with `leaflet-gpx` every page load may be unnecessarily expensive.
+
+For the public Live map, create a preprocessed route file.
+
+Recommended:
+
+`data/horizon-route.geojson`
+
+or:
+
+`data/horizon-route.json`
+
+generated once from the GPX.
+
+The GPX remains the authoritative source.
+
+But browser runtime should not repeatedly parse a huge XML file if a lightweight representation is sufficient.
+
+---
+
+# 15. GPX REMAINS SOURCE OF TRUTH
+
+Do NOT manually simplify the HORIZON route.
+
+Create a preprocessing utility in:
+
+`tools/`
 
 For example:
 
-`formatDistance(km)`
+`tools/build-route.js`
 
-`formatElevation(m)`
+or Python equivalent.
 
-`formatDuration(ms)`
+It should:
 
-`formatDate(date, locale)`
+read:
+`Horizon.gpx`
 
-`formatRelativeTime(date)`
+produce:
+`horizon-route.geojson`
 
-`clamp(value, min, max)`
+Preserve the real geometry.
 
-Do not rewrite number/date formatting logic across multiple files.
+If simplification is necessary for performance, use a documented geometric simplification algorithm with a very low tolerance.
+
+Do not visually alter the route.
 
 ---
 
-# PART 13 — SHARED LIVE DATA MODEL
+# 16. CREATE TWO ROUTE REPRESENTATIONS IF USEFUL
 
-Firebase data should be converted into ONE normalized state object.
+Recommended:
+
+FULL route:
+for detailed map / replay
+
+LIGHT route:
+for homepage overview and initial live-map rendering
 
 For example:
 
+`horizon-route-full.geojson`
+
+`horizon-route-lite.geojson`
+
+The lite route should preserve all meaningful geographic bends.
+
+Do not reduce it to an artistic approximation.
+
+---
+
+# 17. MAP PERFORMANCE TARGET
+
+On a normal broadband connection:
+
+the empty/base Leaflet map should become visible essentially immediately after page layout.
+
+Route rendering should follow quickly.
+
+Live position may appear later.
+
+The visitor should NEVER stare at a blank map container waiting for Firebase.
+
+---
+
+# 18. ADD A REAL MAP LOADING STATE
+
+Inside the map container initially show:
+
+`LOADING MAP…`
+
+But remove it as soon as Leaflet and the base tile layer are initialized.
+
+Separate state for route:
+
+`Loading route…`
+
+if needed.
+
+Separate state for live signal:
+
+`Connecting to live position…`
+
+Do not use one giant loading state for everything.
+
+---
+
+# 19. REMOVE CHART.JS FROM LIVE.HTML IF UNUSED
+
+The current Live page loads:
+
+`https://cdn.jsdelivr.net/npm/chart.js`
+
+Audit whether live.html actually creates a chart.
+
+If not:
+
+REMOVE CHART.JS FROM LIVE.HTML.
+
+Do not load several hundred KB of JavaScript for no reason.
+
+Only load Chart.js on pages that genuinely use charts.
+
+---
+
+# 20. PIN LEAFLET VERSION
+
+The Live page currently uses unversioned:
+
+`https://unpkg.com/leaflet/dist/leaflet.css`
+
+and:
+
+`https://unpkg.com/leaflet/dist/leaflet.js`
+
+Pin an explicit known-working version.
+
+For example use a stable tested Leaflet version consistently for CSS and JS.
+
+Do not use `/leaflet/dist/...` without a version.
+
+---
+
+# 21. CONSIDER HOSTING LEAFLET LOCALLY
+
+Because HORIZON needs to remain reliable during a real expedition, consider storing the required Leaflet production assets inside the repository.
+
+This eliminates a third-party CDN as a critical dependency.
+
+If local hosting is chosen:
+
+keep only the minified production Leaflet JS/CSS and necessary images.
+
+Do not commit an entire node_modules directory.
+
+---
+
+# 22. REMOVE LEAFLET-GPX IF PREPROCESSING ROUTE
+
+If the route is converted to GeoJSON ahead of time:
+
+remove:
+
+`leaflet-gpx`
+
+from the Live page.
+
+Leaflet can render GeoJSON directly.
+
+This removes another dependency and XML parser.
+
+---
+
+# 23. TILE PROVIDER
+
+Audit the current tile provider.
+
+Choose one reliable tile layer.
+
+Do not create several tile layers immediately if only one is visible.
+
+Additional terrain/satellite layers should be initialized lazily only when the user selects them.
+
+Base map startup should require only ONE tile layer.
+
+---
+
+# 24. MAP TILE LOADING EXPERIENCE
+
+Add listeners for:
+
+`loading`
+
+`load`
+
+`tileerror`
+
+Do not leave a permanently blank map if tiles fail.
+
+If individual tiles fail:
+
+keep the route and UI available.
+
+Show a subtle message:
+
+`Map background temporarily unavailable.`
+
+---
+
+# 25. FIT ROUTE ONLY ONCE
+
+Do not repeatedly call:
+
+`fitBounds()`
+
+every time live data updates.
+
+Initial behavior:
+
+if live data exists:
+choose appropriate initial viewport.
+
+Otherwise:
+fit the HORIZON route.
+
+After the user manually moves/zooms the map:
+
+do not automatically steal control from them every update.
+
+---
+
+# 26. LIVE MARKER UPDATE
+
+Create the live marker once.
+
+On subsequent updates:
+
+use:
+
+`marker.setLatLng(...)`
+
+Do NOT:
+
+remove marker
+create marker
+re-add layers
+re-render entire route
+
+every refresh.
+
+---
+
+# 27. ROUTE LAYER UPDATE
+
+The planned route is static.
+
+Load it ONCE.
+
+Do not fetch or parse it every 8 seconds.
+
+---
+
+# 28. COMPLETED ROUTE
+
+If completed/remaining route visualization is needed:
+
+do not rebuild the entire GPX layer unnecessarily on every GPS update.
+
+Use efficient precomputed route indexing or split the polyline only when progress materially changes.
+
+---
+
+# 29. FIREBASE SERVICE
+
+Implement:
+
+`js/services/firebase.js`
+
+or use the existing `js/firebase.js`.
+
+It should own:
+
+Firebase endpoint
+fetch logic
+timeout
+errors
+normalization
+latest point retrieval
+
+The map must not know Firebase URLs.
+
+The map receives normalized coordinates.
+
+---
+
+# 30. NETWORK TIMEOUT
+
+Do not allow live-data requests to hang indefinitely.
+
+Use:
+
+`AbortController`
+
+with a sensible timeout.
+
+For example approximately:
+
+5–8 seconds
+
+depending on expected Firebase behavior.
+
+If live data times out:
+
+use last known valid value.
+
+Do not block the rest of the UI.
+
+---
+
+# 31. CACHE STATIC ROUTE
+
+The route is static.
+
+Allow normal browser caching.
+
+Do not append constantly changing query parameters to the route file.
+
+Use versioning only when the route genuinely changes.
+
+---
+
+# 32. CACHE LAST KNOWN LIVE POSITION
+
+Store the latest valid live point locally.
+
+For example:
+
+`localStorage`
+
+or session memory.
+
+On reload:
+
+show the last known position immediately with a label:
+
+`LAST KNOWN POSITION`
+
+Then replace it when fresh data arrives.
+
+This makes the Live page feel significantly faster during poor connections.
+
+Do not present cached data as fresh/live.
+
+---
+
+# 33. PRIORITIZE ABOVE-THE-FOLD ASSETS
+
+The Live page needs:
+
+navigation
+basic CSS
+Leaflet
+map container
+
+before secondary content.
+
+Do not block first map paint with:
+
+weather
+charts
+gallery
+translations not required immediately
+admin code
+
+---
+
+# 34. DO NOT LOAD WEATHER BEFORE MAP
+
+Weather is secondary.
+
+Load it after:
+
+map
+route
+live point
+
+or lazily when its section becomes relevant.
+
+---
+
+# 35. MAP MODULE RESPONSIBILITY
+
+`map.js` should implement ONLY map behavior.
+
+It may contain:
+
+createMap
+addBaseLayer
+addRoute
+setLivePosition
+setUserPosition
+fitInitialView
+toggleFullscreen
+destroyMap
+
+It should NOT contain:
+
+Firebase fetch
+translations
+navigation
+admin
+general DOM content
+weather
+
+---
+
+# 36. MAP CONTROLS MODULE
+
+If map controls grow larger, separate:
+
+`map-controls.js`
+
+Responsibilities:
+
+my location
+center live
+fullscreen
+tooltips / accessibility labels
+
+---
+
+# 37. GEOLOCATION MUST BE ON DEMAND
+
+Do not call browser geolocation on page load.
+
+Only call it after:
+
+MY LOCATION
+
+is pressed.
+
+This avoids unnecessary permissions and startup delay.
+
+---
+
+# 38. MAP FULLSCREEN
+
+When entering or leaving fullscreen:
+
+call:
+
+`map.invalidateSize()`
+
+after layout is stable.
+
+Do not recreate the map.
+
+---
+
+# 39. RESIZE
+
+Use a lightweight ResizeObserver if needed.
+
+Do not repeatedly call `invalidateSize()` in a high-frequency resize loop.
+
+Debounce if necessary.
+
+---
+
+# 40. CURRENT LIVE.HTML HAS UNUSED OR MISALIGNED ARCHITECTURE
+
+Audit these current files:
+
+`js/map.js`
+`js/firebase.js`
+`js/ui.js`
+`js/charts.js`
+`js/stats.js`
+`js/weather.js`
+
+Some are empty or not actually loaded.
+
+For every file choose exactly ONE:
+
+A. implement and use it
+
+or
+
+B. delete it.
+
+No empty architectural placeholder files.
+
+---
+
+# 41. REMOVE GENERIC script.js BOOTSTRAP IF NO LONGER NEEDED
+
+Current root `script.js` is only a small compatibility bootstrap.
+
+Once page-specific initialization works properly:
+
+determine whether it is still needed.
+
+Prefer:
+
+explicit page scripts
+
+instead of:
+
+poll every 25ms until some runtime global appears.
+
+Do not retain compatibility code forever without reason.
+
+---
+
+# 42. DO NOT POLL FOR INITIALIZATION
+
+Avoid patterns such as:
+
 ```js
-{
-    position: {
-        lat,
-        lon,
-        altitude
-    },
-
-    progress: {
-        distanceKm,
-        remainingKm,
-        percent,
-        elevationGainM
-    },
-
-    timing: {
-        elapsedMs,
-        lastUpdate,
-        eta
-    },
-
-    state: 'live'
-}
+setInterval(..., 25)
 ```
 
-UI components consume this normalized model.
+waiting for a global object to appear.
 
-Do not let every page independently parse raw Firebase records.
+Script ordering should be explicit.
 
----
-
-# PART 14 — DOCUMENT ARCHITECTURE
-
-Create a short:
-
-`ARCHITECTURE.md`
-
-Explain:
-
-* folder structure
-* entry pages
-* configuration source
-* live data flow
-* Firebase service
-* GPX handling
-* i18n system
-* page initialization
-* how to add a new translation
-* how to change route statistics
-* how to change expedition start date
-
-Keep it concise.
-
-This should allow someone to understand the project without opening a 4000-line file.
+If dependencies are loaded correctly, initialization should be deterministic.
 
 ---
 
-# PART 15 — FINAL CODE QUALITY RULES
+# 43. USE DEFER OR MODULES
 
-Prefer functions below approximately 50–80 lines.
+Prefer either:
 
-This is a guideline, not an absolute limit.
+`defer`
 
-If a function performs several independent tasks:
+with clear dependency ordering
 
-split it.
+or proper:
 
-Prefer files under approximately:
+`type="module"`
 
-300–500 lines
+imports.
 
-unless the file is primarily static translation/data.
+A good architecture would use ES modules if compatible with the static GitHub Pages deployment.
 
-Translation files may be longer.
+Example:
 
-A 4000-line runtime file is not acceptable.
+```html
+<script type="module" src="js/pages/live.js"></script>
+```
 
----
+Then:
 
-# PART 16 — DELETE DUPLICATION, DO NOT JUST MOVE IT
+```js
+import { config } from '../core/config.js';
+import { createMap } from '../features/map/map.js';
+```
 
-This is critical.
+This is cleaner than large numbers of `window.Horizon...` globals.
 
-Do not solve this task by:
-
-copying runtime.js functions into smaller files
-
-while leaving the originals.
-
-After migration:
-
-remove the old implementation.
-
-There must be exactly ONE active implementation.
+If converting to modules would risk functionality, do it incrementally.
 
 ---
 
-# PART 17 — VERIFY AFTER REFACTOR
+# 44. NAVBAR IMPLEMENTATION MUST BE VISIBLE IN SOURCE
 
-Test:
+This requirement is important because the previous task claimed to simplify navigation but the HTML remained unchanged.
 
-HOME
+After refactor, verify that public `index.html` and `live.html` no longer contain:
 
-LIVE
+`The challenge`
 
-PROJECT
+`Route`
 
-JOURNEY
+`About`
 
-REPLAY
+inside `.main-nav`.
 
-Languages:
+They must contain:
 
-EN
-IT
-DE
-FR
+Home
+Live
+Project
+Journey
+Replay
 
-Mobile + desktop navigation.
-
-Firebase.
-
-Live map.
-
-GPX.
-
-Replay.
-
-Gallery/media.
-
-Status logic.
-
-Countdown.
-
-Fullscreen.
-
-Geolocation.
-
-No console errors.
+This is a PASS/FAIL requirement.
 
 ---
 
-# PART 18 — FINAL REPORT
+# 45. VERIFY GITHUB PAGES AFTER PUSH
 
-At the end, report:
+After implementation:
 
-1. old navbar structure
-2. new navbar structure
-3. homepage sections removed
-4. homepage sections merged
-5. Project content rewritten
-6. duplicated constants removed
-7. central configuration created
-8. runtime.js original line count
-9. runtime.js final status
-10. i18n restructuring
-11. files deleted
-12. files created
-13. files moved
-14. duplicated functions removed
-15. total legacy code removed
-16. remaining technical debt
+check the actual deployed URLs:
 
-Do not claim a refactor is complete if old duplicate implementations remain.
-
----
-
-# FINAL PRINCIPLE
-
-HORIZON should be simple to understand both:
-
-as a visitor
+`https://damzan06.github.io/HorizonWeb/`
 
 and
 
-as a developer.
+`https://damzan06.github.io/HorizonWeb/live.html`
 
-VISITOR:
+Do not only inspect local files.
 
-What is this?
-Who is doing it?
-Why?
-Where are they?
-What happened?
+Verify that the public page contains the new navbar.
 
-DEVELOPER:
+---
 
-Where is configuration?
-Where is live data?
-Where is map logic?
-Where are translations?
-Where is page-specific logic?
+# 46. CACHE BUSTING
 
-If either answer requires searching through thousands of unrelated lines, the architecture is not finished.
+The repository currently uses old-looking asset version strings such as:
+
+`style.css?v=20260725d`
+
+and script versions from different dates.
+
+Standardize this.
+
+Do not manually invent unrelated cache versions per script indefinitely.
+
+Use one deploy version constant or update versions consistently when files change.
+
+Alternatively use GitHub Pages caching behavior appropriately without excessive query strings.
+
+---
+
+# 47. PERFORMANCE MEASUREMENT
+
+Use Chrome DevTools Network on `live.html`.
+
+Measure:
+
+HTML
+CSS
+Leaflet JS
+Leaflet CSS
+GPX / GeoJSON
+Firebase
+tiles
+other JS
+
+Report:
+
+number of requests
+transferred KB/MB
+DOMContentLoaded
+Load
+largest slow requests
+
+Do not simply say:
+
+"performance improved."
+
+Provide actual measurements.
+
+---
+
+# 48. MAP PERFORMANCE MEASUREMENT
+
+Measure separately:
+
+T0:
+navigation begins
+
+T1:
+map container painted
+
+T2:
+Leaflet base map initialized
+
+T3:
+first tile visible
+
+T4:
+route visible
+
+T5:
+live marker visible
+
+The key goal is:
+
+T2 and T3 should NOT depend on T4 or T5.
+
+---
+
+# 49. SIMULATE SLOW NETWORK
+
+Test Live page using Chrome DevTools:
+
+Fast 3G / Slow 4G
+
+Verify:
+
+navbar appears quickly
+stats skeleton appears
+map container appears
+base map does not wait for Firebase
+route loads independently
+site remains usable
+
+This is particularly important because followers may open HORIZON using mobile data.
+
+---
+
+# 50. TEST FIREBASE FAILURE
+
+Temporarily simulate Firebase failure.
+
+The page must still display:
+
+navbar
+base map
+planned HORIZON route
+static project information
+
+Only live point/statistics should degrade.
+
+Show:
+
+`LIVE DATA TEMPORARILY UNAVAILABLE`
+
+Do not show an endless spinner.
+
+---
+
+# 51. TEST GPX/ROUTE FAILURE
+
+Simulate route file failure.
+
+The page must still display:
+
+base map
+live position if available
+statistics
+
+Show:
+
+`PLANNED ROUTE COULD NOT BE LOADED`
+
+Do not break the whole page.
+
+---
+
+# 52. TEST TILE FAILURE
+
+Simulate tile server failure.
+
+The route and live marker should still remain technically available against a neutral map background where possible.
+
+Do not crash.
+
+---
+
+# 53. REMOVE UNUSED FILES AFTER REFACTOR
+
+Do not leave:
+
+empty map.js
+empty firebase.js
+empty ui.js
+
+or old compatibility files.
+
+A clean repository is part of this task.
+
+---
+
+# 54. TARGET PUBLIC JS STRUCTURE
+
+A good final structure would be approximately:
+
+```text
+js/
+  core/
+    config.js
+    state.js
+
+  services/
+    firebase.js
+    route.js
+    storage.js
+
+  map/
+    map.js
+    controls.js
+
+  ui/
+    navigation.js
+    i18n.js
+    formatting.js
+
+  pages/
+    home.js
+    live.js
+    project.js
+    journey.js
+    replay.js
+```
+
+Do not follow this mechanically if another clean structure fits better.
+
+But there must be clear ownership.
+
+---
+
+# 55. PERFORMANCE PRIORITY ORDER
+
+Fix performance in this order:
+
+1. map startup dependency chain
+2. unnecessary external scripts
+3. GPX parsing
+4. live-data fetch strategy
+5. tile loading
+6. duplicate initialization
+7. secondary UI
+
+Do NOT start by minifying 2 KB JavaScript files while a huge GPX/parser/network chain blocks the map.
+
+---
+
+# 56. MAP UX TARGET
+
+When a visitor opens Live:
+
+within the first moment they should see:
+
+HORIZON header
+current state
+stats placeholder
+map surface
+
+Then progressively:
+
+map tiles
+planned route
+last/current position
+stats
+
+The interface should progressively enhance.
+
+It must not appear frozen.
+
+---
+
+# 57. FINAL PASS/FAIL CHECKLIST
+
+The task is NOT complete unless:
+
+* navbar shows exactly HOME / LIVE / PROJECT / JOURNEY / REPLAY
+* public GitHub Pages shows the new navbar
+* map.js is implemented or removed
+* firebase.js is implemented or removed
+* ui.js is implemented or removed
+* Live no longer loads unused Chart.js
+* Leaflet has a pinned version
+* map appears before Firebase response
+* route loads only once
+* live marker updates without recreating map
+* GPX parsing is optimized/preprocessed if needed
+* Firebase failure does not block map
+* no empty architectural placeholder files remain
+* no 25ms initialization polling remains unless rigorously justified
+* public Live page is tested on throttled mobile network
+
+---
+
+# FINAL REPORT
+
+After implementation give me:
+
+1. OLD navbar
+2. NEW navbar
+3. files changed for navigation
+4. reason previous navbar change did not happen
+5. old map initialization sequence
+6. new map initialization sequence
+7. map.js final responsibility
+8. firebase.js final responsibility
+9. whether GPX is parsed at runtime
+10. route file size before/after
+11. Chart.js removed from Live: yes/no
+12. Leaflet version
+13. external dependencies remaining
+14. time to first map tile
+15. time to route visible
+16. time to live marker visible
+17. total Live network transfer
+18. empty files removed
+19. legacy compatibility code removed
+20. remaining bottlenecks
+
+Do NOT report completion without checking the deployed GitHub Pages website.

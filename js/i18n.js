@@ -2,7 +2,7 @@
     const catalog = {
         en: {
             app: {
-                nav: ['Home', 'Live', 'The challenge', 'Route', 'Journey', 'Replay', 'About'],
+                nav: ['Home', 'Live', 'Project', 'Journey', 'Replay'],
                 menuOpen: 'Open menu',
                 menuClose: 'Close menu',
                 currentPage: 'Current page',
@@ -16,7 +16,7 @@
         },
         it: {
             app: {
-                nav: ['Home', 'Live', 'La sfida', 'Percorso', 'Viaggio', 'Replay', 'About'],
+                nav: ['Home', 'Live', 'Progetto', 'Viaggio', 'Replay'],
                 menuOpen: 'Apri menu',
                 menuClose: 'Chiudi menu',
                 currentPage: 'Pagina corrente',
@@ -30,7 +30,7 @@
         },
         de: {
             app: {
-                nav: ['Start', 'Live', 'Die Herausforderung', 'Route', 'Reise', 'Replay', 'Über uns'],
+                nav: ['Start', 'Live', 'Projekt', 'Reise', 'Replay'],
                 menuOpen: 'Menü öffnen',
                 menuClose: 'Menü schließen',
                 currentPage: 'Aktive Seite',
@@ -44,7 +44,7 @@
         },
         fr: {
             app: {
-                nav: ['Accueil', 'Live', 'Le défi', 'Itinéraire', 'Voyage', 'Replay', 'À propos'],
+                nav: ['Accueil', 'Live', 'Projet', 'Voyage', 'Replay'],
                 menuOpen: 'Ouvrir le menu',
                 menuClose: 'Fermer le menu',
                 currentPage: 'Page active',
