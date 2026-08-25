@@ -1,8 +1,7 @@
 ﻿(function () {
     function start() {
-        const runtime = window.HorizonRuntime;
+        const runtime = window.HorizonRuntime || window.HorizonApp;
         if (!runtime || typeof runtime.init !== 'function') {
-            console.error('Horizon runtime is not available.');
             return;
         }
 
@@ -14,13 +13,19 @@
         runtime.init();
     }
 
+    if (window.HorizonApp && typeof window.HorizonApp.init === 'function') {
+        start();
+        return;
+    }
+
     if (window.HorizonRuntime && typeof window.HorizonRuntime.init === 'function') {
         start();
         return;
     }
 
     const intervalId = window.setInterval(() => {
-        if (window.HorizonRuntime && typeof window.HorizonRuntime.init === 'function') {
+        const runtime = window.HorizonRuntime || window.HorizonApp;
+        if (runtime && typeof runtime.init === 'function') {
             window.clearInterval(intervalId);
             start();
         }

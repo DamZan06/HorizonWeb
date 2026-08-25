@@ -34,13 +34,12 @@ function bindAdminLiveStatusForm() {
 }
 
 const runtimeConfig = Object.assign({}, window.HorizonConfig || {}, {
-    startDateIso: window.HorizonConfig?.startDateIso || window.HorizonConfig?.plannedStartDateIso || '2026-08-31T04:00:00+02:00',
-    plannedStartDateIso: window.HorizonConfig?.plannedStartDateIso || window.HorizonConfig?.startDateIso || '2026-08-31T04:00:00+02:00'
+    startDateIso: window.HorizonConfig?.startDateIso || '2026-08-31T04:00:00+02:00'
 });
 window.HorizonConfig = runtimeConfig;
 
 const firebaseURL = runtimeConfig.firebaseURL;
-const plannedStartDateIso = runtimeConfig.plannedStartDateIso || runtimeConfig.startDateIso;
+const startDateIso = runtimeConfig.startDateIso;
 const contentDatabasePath = runtimeConfig.contentDatabasePath;
 const trackerDataUrl = runtimeConfig.trackerDataUrl;
 const routeDataCandidates = runtimeConfig.routeDataCandidates || ['data/Horizon.gpx', 'data/horizon.gpx'];
@@ -52,7 +51,7 @@ const defaultLanguage = runtimeConfig.defaultLanguage || 'en';
 const languageStorageKey = runtimeConfig.languageStorageKey || 'horizon-language';
 
 function getExpeditionState() {
-    const startMs = new Date(plannedStartDateIso || '2026-08-31T04:00:00+02:00').getTime();
+    const startMs = new Date(startDateIso || '2026-08-31T04:00:00+02:00').getTime();
     const now = Date.now();
     const staleThresholdMs = Number(runtimeConfig.staleDataThresholdMs || 180000);
 
@@ -2216,7 +2215,7 @@ function initHomeCountdown() {
         countdownEl.classList.add('is-finished');
     };
 
-    const target = new Date(plannedStartDateIso).getTime();
+    const target = new Date(startDateIso).getTime();
 
     const render = () => {
         if (titleEl && translatedTitle) titleEl.textContent = translatedTitle;
@@ -2255,7 +2254,7 @@ function updateHomeCountdownVisibility(summary) {
     const countdown = document.getElementById('homeCountdown');
     if (!countdown) return;
     const started = Boolean(summary?.lastPoint) || Number(summary?.totalDistance || 0) > 0;
-    const countdownFinished = Date.now() >= new Date(plannedStartDateIso).getTime();
+    const countdownFinished = Date.now() >= new Date(startDateIso).getTime();
     const shouldHide = started || countdownFinished;
     countdown.hidden = shouldHide;
     countdown.classList.toggle('is-finished', shouldHide);

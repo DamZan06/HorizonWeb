@@ -1,631 +1,1630 @@
-Perform a focused BUG FIX + PERFORMANCE CLEANUP of the current HORIZON website.
+You are now performing a **STRUCTURAL REFACTOR + CONTENT EDITORIAL PASS** on the HORIZON website.
 
-DO NOT redesign the website.
+This is NOT another visual redesign.
 
-The current visual design and homepage structure are good.
+The visual identity is already good.
 
-The goal is now to eliminate technical debt, duplicated JavaScript, incorrect state logic and remaining legacy NORTHLINE code.
+The main problems now are:
 
-## ABSOLUTE PRIORITY — FIX DUPLICATED INITIALIZATION
+1. navigation contains redundant destinations;
+2. the homepage repeats the same ideas too many times;
+3. the Project page duplicates content from the homepage;
+4. values such as distance, elevation, names, dates and endpoints are still repeated in multiple files;
+5. some JavaScript files are far too large;
+6. old runtime logic duplicates newer modular files;
+7. i18n logic and content are spread across multiple locations;
+8. file responsibilities are not always clear.
 
-The website currently loads:
+Your objective is:
 
-* js/config.js
-* js/i18n.js
-* js/status.js
-* js/app.js
-* script.js
+**LESS CONTENT, BETTER CONTENT.**
 
-The old `script.js` still contains thousands of lines of legacy logic that overlap with the newer modular scripts.
+**LESS CODE DUPLICATION, CLEARER ARCHITECTURE.**
 
-There is currently a serious initialization problem.
-
-`app.js` creates an 8-second interval for home data refresh.
-
-But the legacy `script.js` also contains an interval that calls:
-
-`app.init()`
-
-every 8 seconds.
-
-Because `app.init()` itself creates another interval, new timers can accumulate while the page remains open.
-
-FIX THIS IMMEDIATELY.
-
-`app.init()` must execute exactly ONCE per page load.
-
-Never repeatedly initialize:
-
-* navigation event listeners
-* language controls
-* timers
-* Firebase listeners
-* DOM observers
-
-Create persistent refresh intervals only once.
-
-Use explicit guards if useful, for example:
-
-`app.initialized`
-
-or equivalent.
-
-There should ideally be only ONE home live-data refresh scheduler.
+Do not destroy working functionality.
 
 ---
 
-## REMOVE DUPLICATED OLD CODE
+# PART 1 — NAVIGATION
 
-Audit `script.js`.
+The current navigation contains:
 
-It is currently approximately 4400 lines and contains large amounts of old functionality also implemented in:
+HOME
+LIVE
+THE CHALLENGE
+ROUTE
+JOURNEY
+REPLAY
+ABOUT
 
-* config.js
-* i18n.js
-* status.js
-* app.js
+This is unnecessarily complex.
 
-Do not keep two implementations of the same systems.
+`The challenge`, `Route` and `About` all belong conceptually to the same Project content.
 
-Migrate necessary functionality into the modular files and remove duplicated implementations from `script.js`.
+Replace the main navigation with:
 
-Do this incrementally and carefully.
+HOME
 
-Do NOT break:
+LIVE
 
-* Firebase live tracking
-* GPX
-* map
-* gallery
-* replay
-* admin
-* live statistics
+PROJECT
 
-The final architecture should have one source of truth for every feature.
+JOURNEY
 
----
+REPLAY
 
-## FIX EXPEDITION START DATE
+That is the preferred primary navigation.
 
-The configuration currently contains:
-
-`plannedStartDateIso: '2026-08-01T04:00:00+02:00'`
-
-This date is outdated/incorrect for the current HORIZON expedition.
-
-Do NOT duplicate the start date in HTML, script.js and i18n.
-
-Store the real start date exactly once in:
-
-`js/config.js`
-
-for example:
-
-`startDateIso`
-
-Then generate all visible start-date strings dynamically using:
-
-`Intl.DateTimeFormat`
-
-according to the selected language.
-
-Remove hardcoded strings such as:
-
-`1 Agosto · ore 04:00`
-
-`1 August · 04:00`
-
-`1. August · 04:00 Uhr`
-
-from individual language definitions wherever possible.
+The HORIZON logo must always return to HOME.
 
 ---
 
-## FIX CONTRADICTORY EXPEDITION STATES
+# PROJECT PAGE INTERNAL NAVIGATION
 
-The homepage currently risks simultaneously showing states such as:
+Inside `project.html`, provide a lightweight in-page navigation if useful:
 
-NOT STARTED
+OVERVIEW
+TEAM
+WHY HORIZON
+ROUTE
+CHALLENGE
+HOW IT WORKS
 
-and
+These are NOT global navbar items.
 
-LIVE NOW
+They are sections of the Project page.
 
-This is incorrect.
-
-Create one central function:
-
-`getExpeditionState()`
-
-Possible values:
-
-`not-started`
-`live`
-`delayed`
-`resting`
-`offline`
-`completed`
-
-Every part of the website must derive its state from this same source.
-
-That includes:
-
-* countdown
-* hero panel
-* LIVE NOW badge
-* home status
-* live page
-* CTA
-* replay availability
-* journey availability
-
-There must never be contradictory states.
+Use anchor navigation if appropriate.
 
 ---
 
-## STATE RULES
+# MOBILE NAVIGATION
+
+Mobile should use the same simplified structure:
+
+HOME
+LIVE
+PROJECT
+JOURNEY
+REPLAY
+LANGUAGE
+
+Do not show redundant links.
+
+Keep the mobile menu simple enough that all main destinations fit comfortably.
+
+---
+
+# PART 2 — HOMEPAGE CONTENT STRATEGY
+
+The homepage currently explains HORIZON too many times.
+
+Several sections repeat:
+
+* crossing Switzerland
+* east to west
+* 500 km
+* two people
+* endurance
+* uncertainty
+* moving forward
+* distance
+* elevation
+
+Reduce this repetition aggressively.
+
+The homepage should have exactly these narrative sections:
+
+1. HERO
+2. THE SCALE
+3. THE IDEA
+4. THE TEAM
+5. THE ROUTE
+6. FOLLOW HORIZON
+7. FINAL STATEMENT
+
+Remove or merge redundant sections.
+
+---
+
+# REMOVE THESE CURRENT HOMEPAGE SECTIONS AS SEPARATE SECTIONS
+
+Do NOT keep all of these separately:
+
+* ONE COUNTRY. ONE DIRECTION.
+* WHY HORIZON?
+* WHAT IS HORIZON?
+* THE SCALE
+* THE CHALLENGE
+* THE CHALLENGE IS NOT JUST THE DISTANCE
+* THE PHILOSOPHY
+* LIVE JOURNEY status legend
+* FIELD NOTES preview
+* FOLLOW HORIZON
+* final CTA
+
+They produce too much repetition.
+
+Merge them according to the structure below.
+
+---
+
+# HOMEPAGE SECTION 1 — HERO
+
+Purpose:
+
+Immediately communicate what HORIZON is.
+
+Use:
+
+Eyebrow:
+
+`HORIZON 2026`
+
+Title:
+
+`HORIZON`
+
+Main line:
+
+`SWITZERLAND. EAST TO WEST. ON FOOT.`
+
+Supporting paragraph:
+
+Write something approximately like:
+
+`Two people will cross Switzerland from Piz Chavalatsch to Chancy, following one continuous route from the eastern edge of the country to the western edge.`
+
+Do NOT mention:
+
+500 km
+10,000 m+
+200 hours
+
+inside this paragraph.
+
+Those numbers belong immediately below.
+
+CTA 1:
+
+`FOLLOW LIVE`
+
+CTA 2:
+
+`DISCOVER THE PROJECT`
+
+The second button goes to:
+
+`project.html`
+
+---
+
+# HOMEPAGE SECTION 2 — THE SCALE
+
+This section is only numbers.
+
+Do not add another paragraph explaining the route.
+
+Show:
+
+~500 KM
+DISTANCE
+
+10,000+ M
+ELEVATION GAIN
+
+2
+PEOPLE
+
+EAST → WEST
+DIRECTION
+
+Use values from central project configuration.
+
+Never hard-code these values directly into HTML.
+
+Do not show the same statistic again elsewhere on the homepage unless live data requires it.
+
+---
+
+# HOMEPAGE SECTION 3 — THE IDEA
+
+Merge the current:
+
+ONE COUNTRY. ONE DIRECTION.
+
+WHY HORIZON?
+
+WHAT IS HORIZON?
+
+PHILOSOPHY
+
+into ONE editorial section.
+
+Heading:
+
+`WHY HORIZON?`
+
+Use approximately 2 short paragraphs.
+
+Use this narrative:
+
+PARAGRAPH 1:
+
+HORIZON is the next step after increasingly demanding endurance projects.
+
+It is not about choosing an arbitrary large number.
+
+The idea is to take something extremely simple — start at one side of Switzerland and reach the other — and see what happens when that simple idea is extended across hundreds of kilometres.
+
+Suggested content:
+
+`HORIZON grew out of a series of challenges that became progressively longer and more demanding. At some point the idea became simpler rather than more complicated: start at one edge of Switzerland and keep moving until there is no country left in front of us.`
+
+PARAGRAPH 2:
+
+Explain the meaning of the name.
+
+Do NOT use generic motivational language.
+
+Suggested content:
+
+`The horizon works because it is never the next destination. It stays ahead while the landscape, fatigue and conditions constantly change. The goal is not to think about Chancy for 500 kilometres. It is to solve the next section, then the next one, until the horizon finally becomes the finish.`
+
+This is enough.
+
+Delete the current repetitive paragraphs such as:
+
+`One kilometre becomes the next. One step becomes another...`
+
+unless incorporated naturally.
+
+Do not repeat EAST TO WEST again inside this section.
+
+---
+
+# HOMEPAGE SECTION 4 — THE TEAM
+
+Keep the two-person section.
+
+Heading:
+
+`THE TEAM`
+
+Subheading:
+
+`Two different reasons to say yes to the same unreasonable idea.`
+
+Participant 1:
+
+DAMIANO ZANONI
+
+Role:
+
+`ENDURANCE · MOUNTAINS · ALWAYS FURTHER`
+
+Use this description:
+
+`For Damiano, HORIZON is the continuation of a progression that has kept becoming longer and more ambitious. Years of mountain biking were followed by increasingly demanding endurance projects across Switzerland, each one revealing something that could be improved, pushed further or attempted differently next time. HORIZON brings those experiences together in one continuous crossing.`
+
+Do NOT repeat:
+
+500 kilometres
+Piz Chavalatsch
+Chancy
+
+inside his biography.
+
+Those facts are already established.
+
+Participant 2:
+
+NICOLAS MOOSER — “NICMOS”
+
+Role:
+
+`ADVENTURE · CHAOS · QUESTIONABLE IDEAS`
+
+Use this description:
+
+`NicMos has a useful tendency to agree to ideas before spending too much time asking whether they are reasonable. He brings a different energy to HORIZON: spontaneity, humour and the willingness to continue when the plan inevitably stops behaving like the plan. If something sounds slightly absurd, there is a good chance he is interested.`
+
+Then add ONE shared paragraph:
+
+Heading:
+
+`WHY TOGETHER?`
+
+Text:
+
+`Crossing Switzerland alone would be one kind of challenge. Doing it together creates another one. Pace, fatigue, navigation and decisions are no longer individual problems. Sometimes one person will be stronger; sometimes the other will be. HORIZON only works if both continue moving west.`
+
+Do not make this sentimental.
+
+Do not repeat their individual biographies.
+
+---
+
+# HOMEPAGE SECTION 5 — THE ROUTE
+
+Heading:
+
+`THE ROUTE`
+
+Title:
+
+`PIZ CHAVALATSCH → CHANCY`
+
+Use the REAL GPX route.
+
+No fake Bézier route.
+
+Do not describe the entire expedition again.
+
+Use one concise paragraph only:
+
+`The route starts at Switzerland’s eastern edge and works west through changing terrain until Chancy. It is not designed to look elegant on a map: every bend belongs to the actual route.`
+
+Then show:
+
+START
+Piz Chavalatsch
+
+FINISH
+Chancy
+
+CTA:
+
+`EXPLORE THE ROUTE`
+
+This leads to:
+
+`project.html#route`
+
+---
+
+# HOMEPAGE SECTION 6 — FOLLOW HORIZON
+
+This replaces:
+
+LIVE JOURNEY status legend
+FIELD NOTES preview
+FOLLOW HORIZON
+
+Do NOT show a list of every possible state:
+
+Not started
+Live
+Paused
+Resting
+Finished
+
+Visitors do not need to see an internal state machine.
+
+Show ONLY the current state.
+
+Examples:
 
 BEFORE START:
 
-Show countdown.
+`HORIZON STARTS SOON`
 
-Show:
+`Follow the preparation now. Once the expedition begins, this website becomes the live map, progress tracker and field log.`
 
-`NOT STARTED`
+CTA:
 
-Do NOT show:
+`OPEN LIVE PAGE`
 
-`LIVE NOW`
+DURING EXPEDITION:
 
-Do not display meaningless live statistics filled with `--`.
+`HORIZON IS LIVE`
 
-DURING EXPEDITION WITH FRESH DATA:
+`See our latest position, distance, progress and route in real time.`
 
-Hide countdown.
+CTA:
 
-Show:
+`FOLLOW LIVE`
 
-`LIVE`
+AFTER EXPEDITION:
 
-Show current statistics.
+`THE CROSSING IS COMPLETE`
 
-DURING EXPEDITION WITH STALE DATA:
+`Explore the route, field notes and complete replay.`
 
-Show:
+CTA:
 
-`SIGNAL DELAYED`
-
-Keep last valid position.
-
-DURING REST:
-
-Show:
-
-`RESTING`
-
-AFTER COMPLETION:
-
-Show:
-
-`EXPEDITION COMPLETED`
-
-Hide countdown permanently.
-
-Offer Journey and Replay.
+`WATCH THE REPLAY`
 
 ---
 
-## FIX FIREBASE CONFIGURATION
+# HOMEPAGE SECTION 7 — FINAL STATEMENT
 
-Audit the Firebase URL.
+Keep only:
 
-The new config currently contains a path similar to:
+`PIZ CHAVALATSCH → CHANCY`
 
-`/litrack/points.json`
+`EAST → WEST`
 
-while legacy code uses:
+`HORIZON`
 
-`/livetrack/points.json`
+No additional paragraph.
 
-Determine which database path is actually correct.
-
-Use ONLY the correct one.
-
-Store the Firebase endpoint in:
-
-`js/config.js`
-
-and consume it everywhere.
-
-Do not duplicate the Firebase URL in `script.js`.
+Do not add another FOLLOW button if the previous section already contains one.
 
 ---
 
-## ONE CONFIGURATION SOURCE
+# HOMEPAGE CONTENT RULE
 
-Centralize project configuration.
+Every idea should be explained ONCE.
 
-`js/config.js` should contain authoritative values such as:
+Use this rule:
 
-* project name
-* expedition year
-* start date
-* start location
-* finish location
-* expected total distance
-* expected elevation
-* GPX path
-* Firebase endpoint
-* timezone
-* stale-data threshold
+WHO?
+→ TEAM
 
-No other file should independently hard-code these project constants unless absolutely necessary.
+WHAT?
+→ HERO
 
----
+HOW BIG?
+→ SCALE
 
-## FIX CANONICAL AND SOCIAL URLS
+WHY?
+→ IDEA
 
-The actual website is hosted at:
+WHERE?
+→ ROUTE
 
-`https://damzan06.github.io/HorizonWeb/`
+WHERE ARE THEY NOW?
+→ LIVE
 
-The source currently contains incorrect URLs using:
-
-`https://damzan06.github.io/Horizon/`
-
-Audit ALL HTML files.
-
-Correct:
-
-* canonical
-* og:url
-* og:image
-* og:image:secure_url
-* twitter:image
-* structured data
-* sitemap
-* internal absolute URLs
-
-Homepage:
-
-`https://damzan06.github.io/HorizonWeb/`
-
-Live:
-
-`https://damzan06.github.io/HorizonWeb/live.html`
-
-etc.
+If a paragraph answers a question already answered by another section, delete or rewrite it.
 
 ---
 
-## FIX HOMEPAGE ROUTE
+# PART 3 — PROJECT PAGE CONTENT
 
-The homepage currently displays a manually invented SVG route using Bézier curves.
+The current Project page is too generic and repeats homepage material.
 
-This must not represent HORIZON.
+Rewrite it into a genuinely useful deeper page.
 
-Generate the homepage route overview from the actual:
+Use exactly these sections:
 
-`data/Horizon.gpx`
-
-The displayed Switzerland/route overview must preserve real geography.
-
-Standard orientation:
-
-NORTH = UP
-EAST = RIGHT
-WEST = LEFT
-
-Therefore:
-
-PIZ CHAVALATSCH / START = RIGHT
-
-CHANCY / FINISH = LEFT
-
-HORIZON travels:
-
-RIGHT → LEFT
-
-Do not draw a prettier simplified left-to-right route.
-
-For performance, you may preprocess the GPX into a lightweight SVG or JSON route overview at build/development time.
-
-It does NOT need to load the full interactive Leaflet map on the homepage.
-
-Prefer a lightweight static SVG generated from the real GPX.
+1. OVERVIEW
+2. TEAM
+3. HOW HORIZON CAME TO BE
+4. THE ROUTE
+5. THE CHALLENGE
+6. HOW THE EXPEDITION WORKS
+7. THE WEBSITE / LIVE TRACKING
 
 ---
 
-## REMOVE LEGACY NORTHLINE CONTENT
+# PROJECT — OVERVIEW
 
-Search the entire repository case-insensitively for:
+Heading:
 
-`northline`
+`THE PROJECT`
 
-Audit every occurrence.
+Text:
 
-Remove or rename old:
+`HORIZON is a complete east-to-west crossing of Switzerland on foot, undertaken by Damiano Zanoni and Nicolas “NicMos” Mooser. The route begins at Piz Chavalatsch and ends at Chancy. The objective is simple to describe and considerably harder to execute: follow the planned route continuously until Switzerland ends.`
 
-* NorthLine UI text
-* page titles
-* descriptions
-* gallery names
-* project names
-* replay labels
-* dashboard labels
-* translation strings
-* comments
-* global aliases
+This is the only place on the Project page that needs to define HORIZON directly.
 
-Compatibility aliases may temporarily remain ONLY if another working component still depends on them.
-
-Document why each retained legacy alias is needed.
-
-The public user-facing site must contain zero accidental NORTHLINE references.
+Do not define it again later.
 
 ---
 
-## COMPLETE I18N
+# PROJECT — HOW HORIZON CAME TO BE
 
-The language selector supports:
+This section should contain real progression.
+
+Describe Damiano's previous endurance progression without turning it into a trophy list.
+
+Use the conceptual story:
+
+mountain biking background
+
+→ longer endurance projects
+
+→ Mesolcina–Poschiavo
+
+→ NORTHLINE south-to-north crossing
+
+→ lessons learned
+
+→ HORIZON east-to-west crossing
+
+Write it as progression, not bragging.
+
+Suggested structure:
+
+`HORIZON did not begin with a 500-kilometre route. It grew out of smaller projects that repeatedly became larger.`
+
+Then explain briefly how previous projects taught:
+
+* pacing
+* nutrition
+* navigation
+* sleep/recovery
+* live tracking
+* logistical planning
+* what goes wrong after many hours
+
+End with:
+
+`HORIZON is the point where those lessons are tested together.`
+
+Do not repeatedly say “pushing limits”.
+
+---
+
+# PROJECT — TEAM
+
+Reuse the people information but do not duplicate the exact homepage paragraphs.
+
+Homepage biographies:
+short and character-focused.
+
+Project biographies:
+slightly deeper.
+
+For Damiano include:
+
+* mountain biking background
+* endurance progression
+* interest in technical planning
+* route/live-platform development
+* reason for creating HORIZON
+
+For NicMos include only information that is actually known.
+
+Do not invent sporting achievements.
+
+Keep the personality:
+
+spontaneous
+willing to try unreasonable ideas
+humour
+shared challenge
+
+---
+
+# PROJECT — THE ROUTE
+
+Use actual GPX-derived data.
+
+Explain:
+
+* start
+* finish
+* direction
+* total route distance
+* elevation
+* terrain categories
+* why the route follows its chosen path
+
+Do not say generic things such as:
+
+`The route crosses lakes, valleys, forests and alpine passes`
+
+unless the actual GPX confirms those details.
+
+Add an interactive or detailed route visualization.
+
+---
+
+# PROJECT — THE CHALLENGE
+
+Do NOT repeat the 500 km statistic in six cards.
+
+Explain WHY the challenge becomes difficult.
+
+Use five factors:
+
+DISTANCE
+
+The issue is not one long day but cumulative load.
+
+ELEVATION
+
+Climbing changes the cost of every kilometre.
+
+RECOVERY
+
+The next day starts with the fatigue of the previous one.
+
+WEATHER
+
+Conditions affect pace, equipment and decisions.
+
+TWO PEOPLE
+
+The expedition continues only if both people can continue.
+
+Each factor:
+2–3 sentences maximum.
+
+Remove generic factors that add little value.
+
+---
+
+# PROJECT — HOW THE EXPEDITION WORKS
+
+This section should answer practical questions visitors may actually have.
+
+Explain clearly:
+
+* travelling entirely on foot along the expedition route
+* how rest periods work
+* how food/water/logistics are handled
+* what support exists
+* how navigation is performed
+* what happens if route/weather conditions require adaptation
+* what defines completion
+
+Do NOT write fictional rules.
+
+If a rule is not yet decided, mark it clearly in source as:
+
+`TODO: Define expedition rule.`
+
+---
+
+# PROJECT — LIVE TRACKING
+
+Explain the technical side because it is actually interesting and differentiates HORIZON.
+
+Describe briefly:
+
+GPS / Garmin tracking
+
+→ live data retrieval
+
+→ Firebase
+
+→ website
+
+→ map / statistics / replay
+
+Do not expose credentials or sensitive implementation details.
+
+Explain that the site is part of the expedition, not merely advertising.
+
+This section can mention that the system was developed specifically to make the crossing visible in real time.
+
+---
+
+# REMOVE PROJECT PAGE GENERIC CARDS
+
+Remove generic cards such as:
+
+Equipment
+
+Nutrition
+
+Preparation
+
+Support
+
+if they only contain generic advice like:
+
+`lightweight equipment is essential`
+
+or:
+
+`hydration is important`
+
+These statements do not tell visitors anything unique about HORIZON.
+
+Only keep these topics if they contain SPECIFIC HORIZON information.
+
+For example:
+
+BAD:
+
+`GPS, emergency gear and technical clothing are important.`
+
+GOOD:
+
+`Two power banks provide X Wh of reserve and the Garmin tracker sends position updates through...`
+
+If exact information is not available, leave it out rather than filling space.
+
+---
+
+# PART 4 — CENTRAL CONFIGURATION
+
+Create ONE authoritative configuration module.
+
+Recommended:
+
+`js/core/config.js`
+
+Example:
+
+```js
+export const PROJECT = {
+    name: 'HORIZON',
+    year: 2026,
+
+    route: {
+        startName: 'Piz Chavalatsch',
+        finishName: 'Chancy',
+        direction: 'east-west',
+        distanceKm: ...,
+        elevationGainM: ...,
+        gpxUrl: 'data/Horizon.gpx'
+    },
+
+    team: [
+        {
+            id: 'damiano',
+            name: 'Damiano Zanoni',
+            nickname: null
+        },
+        {
+            id: 'nicolas',
+            name: 'Nicolas Mooser',
+            nickname: 'NicMos'
+        }
+    ],
+
+    expedition: {
+        startDate: ...,
+        timezone: 'Europe/Zurich'
+    },
+
+    live: {
+        firebaseEndpoint: ...,
+        staleAfterMs: ...,
+        refreshIntervalMs: ...
+    }
+};
+```
+
+Exact structure may vary.
+
+The important principle:
+
+**DEFINE FACTS ONCE.**
+
+---
+
+# NEVER REPEAT PROJECT CONSTANTS
+
+Search the complete repository for:
+
+500
+10000
+6000
+200
+Piz Chavalatsch
+Chancy
+HORIZON 2026
+Firebase URLs
+GPX paths
+refresh intervals
+stale thresholds
+start dates
+
+Determine whether each occurrence is:
+
+CONTENT
+
+or
+
+CONFIGURATION.
+
+If it is configuration, replace it with a reference to the central config.
+
+---
+
+# IMPORTANT DISTANCE/ELEVATION CONSISTENCY
+
+The repository currently contains conflicting numbers.
+
+Some content refers to:
+
+10,000 m+
+
+while older runtime translations still contain:
+
+6,000 m+
+
+This must never happen.
+
+One source of truth.
+
+Every page must derive the displayed value from config.
+
+---
+
+# PART 5 — JAVASCRIPT ARCHITECTURE
+
+The current `js/` directory contains useful modules:
+
+app.js
+charts.js
+config.js
+firebase.js
+i18n.js
+map.js
+runtime.js
+stats.js
+status.js
+ui.js
+weather.js
+
+This is a good direction.
+
+However:
+
+`runtime.js` is over 4000 lines.
+
+This is unacceptable for its current responsibilities.
+
+Refactor it.
+
+---
+
+# TARGET JS STRUCTURE
+
+Use a logical architecture such as:
+
+js/
+
+core/
+config.js
+app.js
+state.js
+
+services/
+firebase.js
+weather.js
+gpx.js
+storage.js
+
+features/
+live/
+live-controller.js
+live-stats.js
+
+```
+map/
+    map.js
+    map-controls.js
+    route-layer.js
+
+replay/
+    replay.js
+
+journey/
+    journey.js
+    media.js
+
+dashboard/
+    dashboard.js
+    charts.js
+```
+
+ui/
+navigation.js
+language-switcher.js
+modal.js
+status.js
+formatting.js
+
+i18n/
+i18n.js
+en.js
+it.js
+de.js
+fr.js
+
+pages/
+home.js
+live.js
+project.js
+journey.js
+replay.js
+
+The exact folder structure may differ slightly if another arrangement is cleaner.
+
+But responsibilities must remain obvious.
+
+---
+
+# FILE RESPONSIBILITY RULE
+
+A file should have ONE primary responsibility.
+
+Examples:
+
+`map.js`
+
+should not contain translations.
+
+`firebase.js`
+
+should not manipulate navigation.
+
+`i18n.js`
+
+should not contain Firebase logic.
+
+`home.js`
+
+should not contain replay functionality.
+
+`runtime.js`
+
+should eventually disappear or become a small orchestration file.
+
+---
+
+# RUNTIME.JS
+
+Audit every function in `runtime.js`.
+
+Categorize each function:
+
+CONFIG
+
+I18N
+
+NAVIGATION
+
+MAP
+
+FIREBASE
+
+GALLERY
+
+REPLAY
+
+ADMIN
+
+MEDIA
+
+STATUS
+
+UTILITIES
+
+Move each function to its correct module.
+
+Do NOT mechanically split every 200 lines.
+
+Split by responsibility.
+
+When finished:
+
+either delete `runtime.js`
+
+or reduce it to a very small bootstrap/orchestration module.
+
+Target:
+
+preferably < 300 lines.
+
+---
+
+# PART 6 — I18N ARCHITECTURE
+
+Current translations are too large and spread across different locations.
+
+Do NOT keep full multilingual catalogues inside runtime files.
+
+Move language content into separate files.
+
+Example:
+
+`js/i18n/en.js`
+
+`js/i18n/it.js`
+
+`js/i18n/de.js`
+
+`js/i18n/fr.js`
+
+Each exports only translation data.
+
+Then:
+
+`i18n.js`
+
+contains only:
+
+* language detection
+* language persistence
+* lookup
+* interpolation
+* DOM application
+* fallback handling
+
+No huge dictionaries.
+
+Target:
+
+`i18n.js` approximately 100–200 lines.
+
+---
+
+# CONTENT VS TRANSLATION
+
+Do not store the same long project paragraphs:
+
+in HTML
+
+AND in runtime.js
+
+AND in i18n.js.
+
+Choose ONE strategy.
+
+Preferred:
+
+All translatable text exists in translation files.
+
+HTML contains:
+
+`data-i18n="home.hero.description"`
+
+and similar keys.
+
+---
+
+# TRANSLATION KEYS
+
+Use semantic keys.
+
+GOOD:
+
+`home.hero.description`
+
+`home.team.damiano.bio`
+
+`project.route.title`
+
+`live.stats.distance`
+
+BAD:
+
+`text1`
+
+`paragraph4`
+
+`cardTexts[2]`
+
+`labels[6]`
+
+Do not depend on DOM order.
+
+---
+
+# PART 7 — CSS ARCHITECTURE
+
+Current separate files such as:
+
+global.css
+home.css
+live.css
+dashboard.css
+
+are a good start.
+
+Continue this architecture.
+
+Create if necessary:
+
+components/
+navigation.css
+buttons.css
+cards.css
+status.css
+forms.css
+
+Do not duplicate the same button/navigation rules in every page stylesheet.
+
+---
+
+# CSS VARIABLES
+
+Move all reusable values into central tokens.
+
+In `global.css`:
+
+colors
+spacing
+font sizes
+radii
+container width
+header height
+z-index layers
+breakpoints where practical
+shadows
+transitions
+
+Example:
+
+```css
+:root {
+    --color-bg: ...;
+    --color-surface: ...;
+    --color-text: ...;
+    --color-accent: ...;
+
+    --header-height: 68px;
+
+    --container-max: 1320px;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --space-8: 32px;
+}
+```
+
+---
+
+# DO NOT REPEAT MAGIC NUMBERS
+
+Search CSS for repeated values such as:
+
+68px
+72px
+1280px
+1320px
+#e8953f
+#07100f
+16px
+24px
+
+Where values represent shared design decisions, replace them with variables.
+
+Do not replace every numeric value blindly.
+
+Only centralize values with semantic meaning.
+
+---
+
+# PART 8 — REMOVE DEAD / LEGACY FILES
+
+Audit root files.
+
+Current repository includes files such as:
+
+dashboard.html
+diary.html
+progress.html
+live.html.raw
+old configuration files
+legacy root JS/CSS files
+
+Determine whether each file is actually used.
+
+If a file is obsolete:
+
+REMOVE IT.
+
+Do not keep old files “just in case”.
+
+Use Git history if an old version is ever needed again.
+
+Particularly inspect:
+
+`live.html.raw`
+
+It should not exist in a clean production repository unless there is a clear documented reason.
+
+---
+
+# LEGACY PAGES
+
+Determine whether:
+
+diary.html
+
+and
+
+gallery.html
+
+both represent the Journey feature.
+
+If one is obsolete:
+
+remove it.
+
+Determine whether:
+
+progress.html
+
+and
+
+dashboard.html
+
+still serve unique purposes.
+
+If they are development/admin tools:
+
+move them into an appropriate folder such as:
+
+`admin/`
+
+or:
+
+`tools/`
+
+if possible without breaking hosting.
+
+The repository root should contain primarily public entry pages.
+
+---
+
+# TARGET ROOT STRUCTURE
+
+Ideally:
+
+index.html
+live.html
+project.html
+journey.html
+replay.html
+
+assets/
+data/
+css/
+js/
+admin/
+tools/
+
+plus required metadata/config files.
+
+Do not keep abandoned duplicate public pages in root.
+
+---
+
+# PART 9 — SHARED HEADER / NAVIGATION LOGIC
+
+The header HTML is currently repeated across pages.
+
+At minimum:
+
+centralize its behavior.
+
+If practical on static GitHub Pages, create a shared navigation renderer or small component.
+
+Example:
+
+`navigation.js`
+
+with one canonical list of nav destinations.
+
+Do not manually maintain seven copies of navigation labels/URLs.
+
+The nav data should be defined once:
+
+HOME → index.html
+LIVE → live.html
+PROJECT → project.html
+JOURNEY → gallery.html or journey.html
+REPLAY → replay.html
+
+Then generate or validate navigation consistently.
+
+---
+
+# ACTIVE PAGE
+
+Use `body[data-page]` or current pathname to determine:
+
+`aria-current="page"`
+
+Do not hard-code different nav active states manually across every HTML file if avoidable.
+
+---
+
+# PART 10 — PAGE-SPECIFIC SCRIPT LOADING
+
+Do not load every feature script on every page.
+
+HOME needs:
+
+core
+navigation
+i18n
+status summary
+home
+
+LIVE needs:
+
+core
+navigation
+i18n
+firebase
+map
+stats
+live
+
+JOURNEY needs:
+
+core
+navigation
+i18n
+journey/media
+
+REPLAY needs:
+
+core
+navigation
+i18n
+replay/map
+
+PROJECT needs very little JavaScript.
+
+Avoid loading:
+
+maps
+charts
+Firebase live loops
+
+on pages that do not need them.
+
+---
+
+# PART 11 — NO GIANT APP.INIT()
+
+Do not create one enormous application initializer that initializes everything.
+
+Use page-based initialization.
+
+Conceptually:
+
+```js
+const page = document.body.dataset.page;
+
+initGlobal();
+
+switch (page) {
+    case 'home':
+        initHome();
+        break;
+
+    case 'live':
+        initLive();
+        break;
+
+    case 'project':
+        initProject();
+        break;
+}
+```
+
+Each page initializer must initialize only what it owns.
+
+---
+
+# PART 12 — UTILITIES
+
+Create small utilities for repeated formatting.
+
+For example:
+
+`formatDistance(km)`
+
+`formatElevation(m)`
+
+`formatDuration(ms)`
+
+`formatDate(date, locale)`
+
+`formatRelativeTime(date)`
+
+`clamp(value, min, max)`
+
+Do not rewrite number/date formatting logic across multiple files.
+
+---
+
+# PART 13 — SHARED LIVE DATA MODEL
+
+Firebase data should be converted into ONE normalized state object.
+
+For example:
+
+```js
+{
+    position: {
+        lat,
+        lon,
+        altitude
+    },
+
+    progress: {
+        distanceKm,
+        remainingKm,
+        percent,
+        elevationGainM
+    },
+
+    timing: {
+        elapsedMs,
+        lastUpdate,
+        eta
+    },
+
+    state: 'live'
+}
+```
+
+UI components consume this normalized model.
+
+Do not let every page independently parse raw Firebase records.
+
+---
+
+# PART 14 — DOCUMENT ARCHITECTURE
+
+Create a short:
+
+`ARCHITECTURE.md`
+
+Explain:
+
+* folder structure
+* entry pages
+* configuration source
+* live data flow
+* Firebase service
+* GPX handling
+* i18n system
+* page initialization
+* how to add a new translation
+* how to change route statistics
+* how to change expedition start date
+
+Keep it concise.
+
+This should allow someone to understand the project without opening a 4000-line file.
+
+---
+
+# PART 15 — FINAL CODE QUALITY RULES
+
+Prefer functions below approximately 50–80 lines.
+
+This is a guideline, not an absolute limit.
+
+If a function performs several independent tasks:
+
+split it.
+
+Prefer files under approximately:
+
+300–500 lines
+
+unless the file is primarily static translation/data.
+
+Translation files may be longer.
+
+A 4000-line runtime file is not acceptable.
+
+---
+
+# PART 16 — DELETE DUPLICATION, DO NOT JUST MOVE IT
+
+This is critical.
+
+Do not solve this task by:
+
+copying runtime.js functions into smaller files
+
+while leaving the originals.
+
+After migration:
+
+remove the old implementation.
+
+There must be exactly ONE active implementation.
+
+---
+
+# PART 17 — VERIFY AFTER REFACTOR
+
+Test:
+
+HOME
+
+LIVE
+
+PROJECT
+
+JOURNEY
+
+REPLAY
+
+Languages:
 
 EN
 IT
 DE
 FR
 
-Complete the translation system.
+Mobile + desktop navigation.
 
-Do not keep major homepage paragraphs hardcoded only in English.
+Firebase.
 
-Use explicit translation keys.
+Live map.
 
-Do not use array indexes for navigation or UI mapping.
+GPX.
 
-Prefer:
+Replay.
 
-`data-i18n="home.hero.description"`
+Gallery/media.
 
-etc.
+Status logic.
 
-Translate all meaningful interface copy.
+Countdown.
 
-Do NOT translate proper names:
+Fullscreen.
 
-HORIZON
-Piz Chavalatsch
-Chancy
+Geolocation.
 
-Translate surrounding labels.
-
-Ensure:
-
-`document.documentElement.lang`
-
-changes correctly.
+No console errors.
 
 ---
 
-## FIX TWO-PERSON LANGUAGE
+# PART 18 — FINAL REPORT
 
-HORIZON is completed by TWO participants.
+At the end, report:
 
-Search translations and text for old singular language such as:
+1. old navbar structure
+2. new navbar structure
+3. homepage sections removed
+4. homepage sections merged
+5. Project content rewritten
+6. duplicated constants removed
+7. central configuration created
+8. runtime.js original line count
+9. runtime.js final status
+10. i18n restructuring
+11. files deleted
+12. files created
+13. files moved
+14. duplicated functions removed
+15. total legacy code removed
+16. remaining technical debt
 
-`my position`
-`where I am`
-`my journey`
-`runner`
-`athlete`
+Do not claim a refactor is complete if old duplicate implementations remain.
 
-when referring to the expedition team.
+---
 
-Use appropriate plural/team language where required.
+# FINAL PRINCIPLE
 
-Do not automatically replace text referring specifically to one GPS tracker if technically it represents a single tracking device.
+HORIZON should be simple to understand both:
 
-Distinguish between:
-
-the TEAM
+as a visitor
 
 and
 
-the TRACKER.
+as a developer.
 
----
+VISITOR:
 
-## PERFORMANCE CLEANUP
+What is this?
+Who is doing it?
+Why?
+Where are they?
+What happened?
 
-Do not optimize blindly.
+DEVELOPER:
 
-Start with JavaScript execution.
+Where is configuration?
+Where is live data?
+Where is map logic?
+Where are translations?
+Where is page-specific logic?
 
-1. Remove repeated `app.init()`.
-2. Remove duplicated intervals.
-3. Remove duplicate event listeners.
-4. Remove obsolete duplicated functions.
-5. Avoid multiple Firebase fetches for the same data.
-6. Avoid re-reading/parsing GPX unnecessarily.
-7. Load page-specific functionality only on pages that use it.
-8. Remove unused dependencies.
-9. Defer non-critical scripts where safe.
-10. Keep live updates efficient.
-
-Do not refresh every component every 8 seconds if its data has not changed.
-
----
-
-## TIMER RULE
-
-Every recurring timer should have a clear owner.
-
-Audit every:
-
-`setInterval`
-`setTimeout`
-
-Document its purpose.
-
-There must not be multiple independent intervals doing the same refresh.
-
-Where possible, use one scheduler for live data and update dependent UI from the returned data.
-
----
-
-## EVENT LISTENER RULE
-
-Initialization must be idempotent.
-
-No repeated calls should attach another:
-
-click
-keydown
-change
-resize
-
-listener to the same UI component.
-
----
-
-## HOMEPAGE PRE-START PANEL
-
-When HORIZON has not started:
-
-do not show a large statistics panel containing many:
-
-`--`
-
-Instead show useful static information:
-
-STATUS
-NOT STARTED
-
-START
-[real start date]
-
-ROUTE
-PIZ CHAVALATSCH → CHANCY
-
-DISTANCE
-~500 KM
-
-Then expose detailed live metrics only after tracking starts.
-
----
-
-## FIX LIVE NOW CTA
-
-`LIVE NOW`
-
-must NEVER be hardcoded.
-
-Display it only when:
-
-`getExpeditionState() === 'live'`
-
-Otherwise:
-
-before start:
-`FOLLOW THE PROJECT`
-
-during rest:
-`LATEST POSITION`
-
-after completion:
-`EXPLORE THE JOURNEY`
-
-or equivalent translated state-aware wording.
-
----
-
-## REMOVE REMAINING OLD BLUE CSS
-
-Some old styles still contain values such as:
-
-`rgba(73,168,255,...)`
-
-`#9dd6ff`
-
-and blue gradients.
-
-Audit these.
-
-Keep muted Alpine blue only where semantically appropriate.
-
-Brand UI should predominantly use the existing HORIZON amber system.
-
-Also fix the language selector focus state, which still uses the old blue focus glow.
-
-Use:
-
-`var(--accent)`
-
-instead.
-
----
-
-## TEST RUNTIME PERFORMANCE
-
-After refactoring:
-
-Open the homepage.
-
-Observe it for at least several refresh cycles.
-
-Verify that:
-
-* number of active intervals stays constant
-* Firebase request rate stays constant
-* event listeners do not multiply
-* memory usage does not continuously grow because of duplicated initialization
-* CPU activity returns to idle between data refreshes
-
-Use Chrome DevTools Performance and Network panels.
-
----
-
-## LIGHTHOUSE
-
-Run Lighthouse on:
-
-index.html
-live.html
-
-Desktop and mobile.
-
-Aim for:
-
-Performance ≥ 90
-Accessibility ≥ 95
-Best Practices ≥ 95
-SEO ≥ 95
-
-Do not fake these scores or remove useful functionality merely to increase them.
-
-Report actual results.
-
----
-
-## FINAL CHECK
-
-After implementation, explicitly report:
-
-1. how many duplicated timers were removed
-2. whether app.init now executes only once
-3. correct Firebase path
-4. correct expedition start date source
-5. whether state contradictions were eliminated
-6. legacy NORTHLINE references remaining and why
-7. canonical URL correction
-8. GPX homepage route implementation
-9. JavaScript files removed/refactored
-10. Lighthouse mobile + desktop scores
-
-Do NOT redesign the page.
-
-The objective is now:
-
-STABILITY
-PERFORMANCE
-CORRECTNESS
-MAINTAINABILITY.
+If either answer requires searching through thousands of unrelated lines, the architecture is not finished.
