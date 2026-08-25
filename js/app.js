@@ -17,6 +17,11 @@
         const overlay = document.querySelector('.mobile-nav-overlay');
         if (!toggle || !nav) return;
 
+        if (toggle.dataset.bound === 'true') {
+            return;
+        }
+        toggle.dataset.bound = 'true';
+
         const setMenuState = (isOpen) => {
             const isHidden = !isOpen;
             document.body.classList.toggle('mobile-nav-open', isOpen);
@@ -48,7 +53,23 @@
         });
     }
 
+    app.startHomeRefreshScheduler = function () {
+        if (app.homeRefreshTimerId) {
+            return;
+        }
+        app.homeRefreshTimerId = window.setInterval(async () => {
+            if (document.body && document.body.dataset.page === 'home' && typeof app?.init === 'function') {
+                await app.init();
+            }
+        }, 8000);
+    };
+
     app.init = function () {
+        if (app._initialized) {
+            return;
+        }
+        app._initialized = true;
+
         const statusController = window.HorizonStatus;
         if (typeof statusController?.bindAdminLiveStatusForm === 'function') {
             statusController.bindAdminLiveStatusForm();
@@ -56,14 +77,7 @@
 
         setupLanguageControls();
         setupMobileNavigation();
-
-        if (document.body && document.body.dataset.page === 'home') {
-            setInterval(async () => {
-                if (typeof window.refreshHomeData === 'function') {
-                    await window.refreshHomeData();
-                }
-            }, 8000);
-        }
+        app.startHomeRefreshScheduler();
     };
 
     window.HorizonApp = app;

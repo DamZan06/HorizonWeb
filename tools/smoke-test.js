@@ -16,18 +16,18 @@ function expect(name, condition) {
 
 function run() {
   const script = read('script.js');
-  const admin = read('admin.html');
+  const app = read('js/app.js');
+  const config = read('js/config.js');
   const home = read('index.html');
   const live = read('live.html');
 
-  expect('script contains status normalization', script.includes('function normalizeHomeStatus(status)'));
-  expect('script maps STATIONARY/stop to paused', script.includes("value.includes('station')") && script.includes("return 'paused'"));
-  expect('script contains live status admin binding', script.includes('function bindAdminLiveStatusForm()'));
-  expect('script refreshes home every 8 seconds', script.includes('setInterval(async () =>') && script.includes('}, 8000);'));
+  expect('bootstrap loads the runtime entrypoint', script.includes('window.HorizonRuntime') && script.includes('runtime.init()'));
+  expect('app init stays guarded', app.includes('if (app._initialized)') && app.includes('app.startHomeRefreshScheduler'));
+  expect('config holds the expedition start date in one place', config.includes('startDateIso') && config.includes('2026-08-31T04:00:00+02:00'));
+  expect('single-owner home refresh is guarded', app.includes('homeRefreshTimerId') && app.includes('if (app.homeRefreshTimerId)'));
 
-  expect('admin page has live status form', admin.includes('id="adminLiveStatusForm"'));
-  expect('home page references versioned script', /script\.js\?v=\d+[a-z]/.test(home));
-  expect('live page references versioned script', /script\.js\?v=\d+[a-z]/.test(live));
+  expect('homepage canonical URL points to HorizonWeb', home.includes('https://damzan06.github.io/HorizonWeb/'));
+  expect('live canonical URL points to HorizonWeb', live.includes('https://damzan06.github.io/HorizonWeb/live.html'));
 
   console.log('All smoke checks passed.');
 }
