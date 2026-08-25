@@ -1,96 +1,292 @@
-You are performing the **SECOND PASS** on the existing HORIZON website.
+Perform a focused BUG FIX + PERFORMANCE CLEANUP of the current HORIZON website.
 
-A major redesign has already been completed.
+DO NOT redesign the website.
 
-DO NOT redesign the website from scratch.
+The current visual design and homepage structure are good.
 
-The current direction is good and must be preserved.
+The goal is now to eliminate technical debt, duplicated JavaScript, incorrect state logic and remaining legacy NORTHLINE code.
 
-Your task is now to:
+## ABSOLUTE PRIORITY — FIX DUPLICATED INITIALIZATION
 
-* audit what was actually implemented
-* identify incomplete parts
-* fix inconsistencies
-* fix deployment problems
-* complete accessibility
-* complete internationalization
-* improve the homepage storytelling
-* polish responsive behavior
-* remove legacy NORTHLINE / old-blue design remnants
-* ensure the deployed GitHub Pages website matches the repository
-* make HORIZON feel production-ready
+The website currently loads:
 
----
+* js/config.js
+* js/i18n.js
+* js/status.js
+* js/app.js
+* script.js
 
-# 1. FIRST — VERIFY THE DEPLOYED WEBSITE
+The old `script.js` still contains thousands of lines of legacy logic that overlap with the newer modular scripts.
 
-The repository and the public GitHub Pages website currently appear not to be fully synchronized.
+There is currently a serious initialization problem.
 
-The repository contains an updated `live.html`, but the public URL may still display an older version containing elements such as:
+`app.js` creates an 8-second interval for home data refresh.
 
-* "Statistiche Live"
-* "Stato attuale"
-* old emoji map controls
-* older mixed-language content
+But the legacy `script.js` also contains an interval that calls:
 
-PUBLIC URL:
+`app.init()`
 
-`https://damzan06.github.io/HorizonWeb/live.html`
+every 8 seconds.
 
-Repository:
+Because `app.init()` itself creates another interval, new timers can accumulate while the page remains open.
 
-`HorizonWeb`
+FIX THIS IMMEDIATELY.
 
-Before making visual changes:
+`app.init()` must execute exactly ONCE per page load.
 
-1. compare the currently deployed HTML with the current branch used by GitHub Pages;
-2. identify which branch/folder GitHub Pages is publishing;
-3. verify whether Pages deploys from:
+Never repeatedly initialize:
 
-   * main/root
-   * docs/
-   * another branch
-   * GitHub Actions;
-4. check whether an old deployment workflow is still active;
-5. verify service workers or aggressive caching are not serving stale HTML;
-6. verify relative file paths;
-7. verify GitHub Pages build/deployment status.
+* navigation event listeners
+* language controls
+* timers
+* Firebase listeners
+* DOM observers
 
-The final public website MUST correspond to the latest intended source files.
+Create persistent refresh intervals only once.
 
-Do not consider the work complete if only the repository is correct but the public website is stale.
+Use explicit guards if useful, for example:
+
+`app.initialized`
+
+or equivalent.
+
+There should ideally be only ONE home live-data refresh scheduler.
 
 ---
 
-# 2. FIX ALL HORIZON URLS
+## REMOVE DUPLICATED OLD CODE
 
-There is an important remaining metadata problem.
+Audit `script.js`.
 
-The actual public project path is:
+It is currently approximately 4400 lines and contains large amounts of old functionality also implemented in:
+
+* config.js
+* i18n.js
+* status.js
+* app.js
+
+Do not keep two implementations of the same systems.
+
+Migrate necessary functionality into the modular files and remove duplicated implementations from `script.js`.
+
+Do this incrementally and carefully.
+
+Do NOT break:
+
+* Firebase live tracking
+* GPX
+* map
+* gallery
+* replay
+* admin
+* live statistics
+
+The final architecture should have one source of truth for every feature.
+
+---
+
+## FIX EXPEDITION START DATE
+
+The configuration currently contains:
+
+`plannedStartDateIso: '2026-08-01T04:00:00+02:00'`
+
+This date is outdated/incorrect for the current HORIZON expedition.
+
+Do NOT duplicate the start date in HTML, script.js and i18n.
+
+Store the real start date exactly once in:
+
+`js/config.js`
+
+for example:
+
+`startDateIso`
+
+Then generate all visible start-date strings dynamically using:
+
+`Intl.DateTimeFormat`
+
+according to the selected language.
+
+Remove hardcoded strings such as:
+
+`1 Agosto · ore 04:00`
+
+`1 August · 04:00`
+
+`1. August · 04:00 Uhr`
+
+from individual language definitions wherever possible.
+
+---
+
+## FIX CONTRADICTORY EXPEDITION STATES
+
+The homepage currently risks simultaneously showing states such as:
+
+NOT STARTED
+
+and
+
+LIVE NOW
+
+This is incorrect.
+
+Create one central function:
+
+`getExpeditionState()`
+
+Possible values:
+
+`not-started`
+`live`
+`delayed`
+`resting`
+`offline`
+`completed`
+
+Every part of the website must derive its state from this same source.
+
+That includes:
+
+* countdown
+* hero panel
+* LIVE NOW badge
+* home status
+* live page
+* CTA
+* replay availability
+* journey availability
+
+There must never be contradictory states.
+
+---
+
+## STATE RULES
+
+BEFORE START:
+
+Show countdown.
+
+Show:
+
+`NOT STARTED`
+
+Do NOT show:
+
+`LIVE NOW`
+
+Do not display meaningless live statistics filled with `--`.
+
+DURING EXPEDITION WITH FRESH DATA:
+
+Hide countdown.
+
+Show:
+
+`LIVE`
+
+Show current statistics.
+
+DURING EXPEDITION WITH STALE DATA:
+
+Show:
+
+`SIGNAL DELAYED`
+
+Keep last valid position.
+
+DURING REST:
+
+Show:
+
+`RESTING`
+
+AFTER COMPLETION:
+
+Show:
+
+`EXPEDITION COMPLETED`
+
+Hide countdown permanently.
+
+Offer Journey and Replay.
+
+---
+
+## FIX FIREBASE CONFIGURATION
+
+Audit the Firebase URL.
+
+The new config currently contains a path similar to:
+
+`/litrack/points.json`
+
+while legacy code uses:
+
+`/livetrack/points.json`
+
+Determine which database path is actually correct.
+
+Use ONLY the correct one.
+
+Store the Firebase endpoint in:
+
+`js/config.js`
+
+and consume it everywhere.
+
+Do not duplicate the Firebase URL in `script.js`.
+
+---
+
+## ONE CONFIGURATION SOURCE
+
+Centralize project configuration.
+
+`js/config.js` should contain authoritative values such as:
+
+* project name
+* expedition year
+* start date
+* start location
+* finish location
+* expected total distance
+* expected elevation
+* GPX path
+* Firebase endpoint
+* timezone
+* stale-data threshold
+
+No other file should independently hard-code these project constants unless absolutely necessary.
+
+---
+
+## FIX CANONICAL AND SOCIAL URLS
+
+The actual website is hosted at:
 
 `https://damzan06.github.io/HorizonWeb/`
 
-NOT:
+The source currently contains incorrect URLs using:
 
 `https://damzan06.github.io/Horizon/`
 
-Audit every HTML file.
+Audit ALL HTML files.
 
-Fix:
+Correct:
 
-* canonical URLs
+* canonical
 * og:url
 * og:image
 * og:image:secure_url
 * twitter:image
-* structured data URLs
-* sitemap URLs
+* structured data
+* sitemap
 * internal absolute URLs
-* share URLs
 
-Examples:
-
-Homepage canonical:
+Homepage:
 
 `https://damzan06.github.io/HorizonWeb/`
 
@@ -98,1595 +294,338 @@ Live:
 
 `https://damzan06.github.io/HorizonWeb/live.html`
 
-Project:
+etc.
 
-`https://damzan06.github.io/HorizonWeb/project.html`
+---
 
-Gallery:
+## FIX HOMEPAGE ROUTE
 
-`https://damzan06.github.io/HorizonWeb/gallery.html`
+The homepage currently displays a manually invented SVG route using Bézier curves.
 
-Replay:
+This must not represent HORIZON.
 
-`https://damzan06.github.io/HorizonWeb/replay.html`
+Generate the homepage route overview from the actual:
 
-Use the real project name and path consistently.
+`data/Horizon.gpx`
 
-Search the entire repository for:
+The displayed Switzerland/route overview must preserve real geography.
 
-`/Horizon/`
+Standard orientation:
 
-and replace incorrect instances with:
+NORTH = UP
+EAST = RIGHT
+WEST = LEFT
 
-`/HorizonWeb/`
+Therefore:
 
-when referring to this website.
+PIZ CHAVALATSCH / START = RIGHT
 
-Also search for:
+CHANCY / FINISH = LEFT
+
+HORIZON travels:
+
+RIGHT → LEFT
+
+Do not draw a prettier simplified left-to-right route.
+
+For performance, you may preprocess the GPX into a lightweight SVG or JSON route overview at build/development time.
+
+It does NOT need to load the full interactive Leaflet map on the homepage.
+
+Prefer a lightweight static SVG generated from the real GPX.
+
+---
+
+## REMOVE LEGACY NORTHLINE CONTENT
+
+Search the entire repository case-insensitively for:
 
 `northline`
-`NorthLine`
-`NORTHLINE`
-
-and remove legacy references unless intentionally retained for compatibility code that is still required.
-
----
-
-# 3. REMOVE THE REMAINING NORTHLINE TECHNICAL LEGACY
-
-The i18n system currently still exposes something such as:
-
-`window.NorthLineI18n`
-
-This is legacy naming.
-
-Refactor it to use only HORIZON naming if nothing depends on the old alias.
-
-Search globally for:
-
-* NorthLine
-* northline
-* NORTHLINE
-* old project names
-* old asset references
-* old Firebase naming where not required
-* old comments
-* old variable names
-
-Do NOT remove compatibility aliases blindly.
-
-First check whether another script still uses them.
-
-If not needed, remove them.
-
-The codebase should feel like a real HORIZON project internally, not a reskinned NORTHLINE site.
-
----
-
-# 4. COMPLETE THE LANGUAGE SYSTEM
-
-The language selector currently exists and supports:
-
-English
-Italian
-German
-French
-
-This is good.
-
-However, the current translation catalog mainly covers navigation and a few global labels.
-
-Complete it.
-
-EVERY meaningful visible UI string should use the translation system.
-
-This includes the homepage.
-
-Translate:
-
-HOME
-
-HORIZON 2026
-
-countdown labels
-
-Days
-Hours
-Minutes
-Seconds
-
-countdown messages
-
-CROSSING SWITZERLAND. ONE STEP AT A TIME.
-
-hero description
-
-FOLLOW THE JOURNEY
-
-DISCOVER HORIZON
-
-Not started
-
-Waiting for departure
-
-distance
-
-remaining
-
-progress
-
-time
-
-elevation
-
-estimated steps
-
-estimated arrival
-
-DISTANCE
-
-ELEVATION
-
-CHALLENGE
-
-ONE COUNTRY. ONE DIRECTION.
-
-WHY HORIZON?
-
-THE CHALLENGE
-
-THE ROUTE
-
-FIELD NOTES
-
-FOLLOW HORIZON
-
-LIVE JOURNEY
-
-LIVE STATISTICS
-
-Current status
-
-Distance
-
-Remaining
-
-Completed
-
-Speed
-
-Altitude
-
-Last update
-
-Route progress
-
-Time
-
-Elevation gain
-
-Steps
-
-map control labels
-
-loading messages
-
-errors
-
-offline messages
-
-replay UI
-
-gallery UI
-
-project page
-
-footer
-
-accessibility labels where appropriate.
-
----
-
-# 5. DO NOT TRANSLATE BY DOM INDEX
-
-The current navigation translation logic relies on link order / array indexes.
-
-Refactor this into explicit translation keys.
-
-Instead of conceptually:
-
-`nav[0]`
-`nav[1]`
-`nav[2]`
-
-use:
-
-`nav.home`
-`nav.live`
-`nav.challenge`
-`nav.route`
-`nav.journey`
-`nav.replay`
-`nav.about`
-
-Use markup such as:
-
-`data-i18n="nav.home"`
-
-or an equivalent robust architecture.
-
-Do this for all translatable UI strings.
-
-This prevents translations from breaking when navigation order changes.
-
----
-
-# 6. TRANSLATION FALLBACK
-
-Create a safe fallback system.
-
-Default language:
-
-English.
-
-If a translation key does not exist in the selected language:
-
-use the English version.
-
-Do not display:
-
-undefined
-blank strings
-translation keys
-
-to visitors.
-
----
-
-# 7. INITIAL LANGUAGE DETECTION
-
-If the user has not previously selected a language:
-
-detect:
-
-`navigator.language`
-
-Support:
-
-English
-Italian
-German
-French
-
-Examples:
-
-`it-CH` → Italian
-`de-CH` → German
-`fr-CH` → French
-
-Then persist the selected language in:
-
-`localStorage`
-
-Manual language selection must always override browser detection.
-
----
-
-# 8. UPDATE DOCUMENT LANGUAGE
-
-Whenever language changes:
-
-update:
-
-`<html lang="">`
-
-Also update dynamic:
-
-* aria-labels
-* title attributes
-* status text
-* map control descriptions
-* accessibility text
-
-Do not only translate visible text.
-
----
-
-# 9. REMOVE OLD ELECTRIC BLUE DESIGN REMNANTS
-
-The new HORIZON color system already exists:
-
-background near:
-`#07100f`
-
-surface:
-`#0e1918`
-
-text:
-`#f1ede3`
-
-primary accent:
-`#e8953f`
-
-secondary:
-`#d9b36c`
-
-This direction is correct.
-
-However, the stylesheet still contains many remnants of the previous bright-blue identity.
-
-Search for colors such as:
-
-`#49a8ff`
-
-`#9dd6ff`
-
-`#70d4ff`
-
-`rgba(73, 168, 255, ...)`
-
-and similar bright digital blues.
 
 Audit every occurrence.
 
-Replace them where they are purely decorative with HORIZON variables.
+Remove or rename old:
+
+* NorthLine UI text
+* page titles
+* descriptions
+* gallery names
+* project names
+* replay labels
+* dashboard labels
+* translation strings
+* comments
+* global aliases
+
+Compatibility aliases may temporarily remain ONLY if another working component still depends on them.
+
+Document why each retained legacy alias is needed.
+
+The public user-facing site must contain zero accidental NORTHLINE references.
+
+---
+
+## COMPLETE I18N
+
+The language selector supports:
+
+EN
+IT
+DE
+FR
+
+Complete the translation system.
+
+Do not keep major homepage paragraphs hardcoded only in English.
+
+Use explicit translation keys.
+
+Do not use array indexes for navigation or UI mapping.
+
+Prefer:
+
+`data-i18n="home.hero.description"`
+
+etc.
+
+Translate all meaningful interface copy.
+
+Do NOT translate proper names:
+
+HORIZON
+Piz Chavalatsch
+Chancy
+
+Translate surrounding labels.
+
+Ensure:
+
+`document.documentElement.lang`
+
+changes correctly.
+
+---
+
+## FIX TWO-PERSON LANGUAGE
+
+HORIZON is completed by TWO participants.
+
+Search translations and text for old singular language such as:
+
+`my position`
+`where I am`
+`my journey`
+`runner`
+`athlete`
+
+when referring to the expedition team.
+
+Use appropriate plural/team language where required.
+
+Do not automatically replace text referring specifically to one GPS tracker if technically it represents a single tracking device.
+
+Distinguish between:
+
+the TEAM
+
+and
+
+the TRACKER.
+
+---
+
+## PERFORMANCE CLEANUP
+
+Do not optimize blindly.
+
+Start with JavaScript execution.
+
+1. Remove repeated `app.init()`.
+2. Remove duplicated intervals.
+3. Remove duplicate event listeners.
+4. Remove obsolete duplicated functions.
+5. Avoid multiple Firebase fetches for the same data.
+6. Avoid re-reading/parsing GPX unnecessarily.
+7. Load page-specific functionality only on pages that use it.
+8. Remove unused dependencies.
+9. Defer non-critical scripts where safe.
+10. Keep live updates efficient.
+
+Do not refresh every component every 8 seconds if its data has not changed.
+
+---
+
+## TIMER RULE
+
+Every recurring timer should have a clear owner.
+
+Audit every:
+
+`setInterval`
+`setTimeout`
+
+Document its purpose.
+
+There must not be multiple independent intervals doing the same refresh.
+
+Where possible, use one scheduler for live data and update dependent UI from the returned data.
+
+---
+
+## EVENT LISTENER RULE
+
+Initialization must be idempotent.
+
+No repeated calls should attach another:
+
+click
+keydown
+change
+resize
+
+listener to the same UI component.
+
+---
+
+## HOMEPAGE PRE-START PANEL
+
+When HORIZON has not started:
+
+do not show a large statistics panel containing many:
+
+`--`
+
+Instead show useful static information:
+
+STATUS
+NOT STARTED
+
+START
+[real start date]
+
+ROUTE
+PIZ CHAVALATSCH → CHANCY
+
+DISTANCE
+~500 KM
+
+Then expose detailed live metrics only after tracking starts.
+
+---
+
+## FIX LIVE NOW CTA
+
+`LIVE NOW`
+
+must NEVER be hardcoded.
+
+Display it only when:
+
+`getExpeditionState() === 'live'`
+
+Otherwise:
+
+before start:
+`FOLLOW THE PROJECT`
+
+during rest:
+`LATEST POSITION`
+
+after completion:
+`EXPLORE THE JOURNEY`
+
+or equivalent translated state-aware wording.
+
+---
+
+## REMOVE REMAINING OLD BLUE CSS
+
+Some old styles still contain values such as:
+
+`rgba(73,168,255,...)`
+
+`#9dd6ff`
+
+and blue gradients.
+
+Audit these.
+
+Keep muted Alpine blue only where semantically appropriate.
+
+Brand UI should predominantly use the existing HORIZON amber system.
+
+Also fix the language selector focus state, which still uses the old blue focus glow.
 
 Use:
 
 `var(--accent)`
 
-`var(--accent-soft)`
-
-`var(--accent-cold)`
-
-as appropriate.
+instead.
 
 ---
 
-# 10. BLUE MAY REMAIN ONLY WHEN SEMANTIC
+## TEST RUNTIME PERFORMANCE
 
-Do NOT eliminate all cool colors blindly.
+After refactoring:
 
-Muted Alpine blue may still be used for:
+Open the homepage.
 
-* cartography
-* geographic reference
-* secondary route data
-* water
-* neutral information
-
-But it should NOT dominate:
-
-buttons
-focus states
-glows
-headings
-cards
-quotes
-active states
-
-Primary brand emphasis should feel warm amber/gold.
-
----
-
-# 11. FIX THE LANGUAGE SELECTOR VISUAL DESIGN
-
-The desktop language selector currently appears visually disconnected from the HORIZON palette.
-
-Make it match the header.
-
-Use:
-
-dark translucent surface
-subtle border
-ivory text
-amber focus
-compact size
-
-Avoid light gray native-looking UI that appears pasted onto the dark website.
-
-Keep native select usability.
-
----
-
-# 12. HOMEPAGE — CURRENT DIRECTION IS GOOD
-
-Do NOT replace the current homepage.
-
-Preserve its main architecture:
-
-* countdown
-* hero
-* live status
-* challenge statistics
-* project introduction
-* why HORIZON
-* challenge
-* route
-* journey
-* final CTA
-
-Improve it.
-
-The website now has a real homepage.
-
-The objective is refinement, not reconstruction.
-
----
-
-# 13. ADD A REAL TEAM SECTION
-
-The homepage currently explains that HORIZON is a two-person expedition.
-
-Now introduce the actual people.
-
-Create a section between the project introduction / WHY HORIZON and the challenge section.
-
-Suggested heading:
-
-`THE TEAM`
-
-Eyebrow:
-
-`TWO PEOPLE. ONE ROUTE.`
-
-The section must visually give both participants equal importance.
-
-Structure:
-
----
-
-THE TEAM
-
-Two people will cross Switzerland together.
-
-[ PERSON 1 ]      [ PERSON 2 ]
-
-Photo             Photo
-
-Name              Name
-
-Short bio         Short bio
-
-Motivation        Motivation
-
----
-
-Do NOT present one participant as:
-
-leader / main athlete
-
-and the other as:
-
-support / companion
-
-if both walk the complete route.
-
-They are equal participants.
-
----
-
-# 14. TEAM CONTENT PLACEHOLDERS
-
-Do NOT invent personal facts.
-
-Use explicit content placeholders.
-
-Participant 1:
-
-`[NAME]`
-
-Bio guidance:
-
-Write approximately 70–120 words explaining:
-
-* who this person is
-* relevant sport/outdoor/endurance background
-* connection with HORIZON
-* personal reason for attempting the crossing
-
-Participant 2:
-
-same structure and same visual weight.
-
-Add comments in HTML such as:
-
-`<!-- CONTENT: Replace with participant biography. 70–120 words. -->`
-
----
-
-# 15. ADD "WHY TOGETHER?"
-
-Include a short shared paragraph.
-
-Suggested heading:
-
-`WHY TOGETHER?`
-
-Do not write sentimental cliché text.
-
-The final owner-written text should explain themes such as:
-
-* shared responsibility
-* adapting pace to each other
-* making decisions together
-* helping each other through difficult periods
-* sharing the complete crossing
-* reaching Chancy as a team
-
-Use a clear placeholder if authentic copy is not available.
-
----
-
-# 16. HOMEPAGE HERO — MAKE "TWO PEOPLE" IMMEDIATELY CLEAR
-
-Current hero description communicates the route but does not emphasize strongly enough that two people are doing it together.
-
-Adjust the supporting sentence.
-
-Conceptually:
-
-`Two people. 500 kilometres. One continuous crossing of Switzerland from east to west.`
-
-Do not necessarily use this exact wording.
-
-Maintain the clean HORIZON tone.
-
-Do not overload the hero.
-
----
-
-# 17. HOMEPAGE HERO IMAGE
-
-The homepage currently references a generic remote Unsplash mountain image.
-
-Replace generic third-party imagery with actual HORIZON visual assets whenever suitable project assets exist.
-
-Priority:
-
-1. real photograph connected to HORIZON
-2. HORIZON poster/background artwork
-3. real Swiss Alpine route environment
-4. only then use external stock imagery
-
-Avoid making the homepage look like a generic Alpine travel site.
-
-HORIZON should visually belong to this expedition.
-
----
-
-# 18. REMOVE RUNTIME DEPENDENCE ON RANDOM EXTERNAL HERO IMAGES
-
-If external Unsplash images remain:
-
-do not use dynamic query URLs that could change unexpectedly.
-
-Prefer downloading an appropriate image into:
-
-`assets/`
-
-and referencing it locally.
-
-Benefits:
-
-* faster loading
-* predictable appearance
-* offline resilience
-* privacy
-* no external image failure
-* consistent visual branding
-
-Optimize the image as WebP/AVIF where practical.
-
----
-
-# 19. HOMEPAGE HERO HEIGHT
-
-Review the hero composition on real mobile screens.
-
-Ensure the important information appears quickly.
-
-On mobile, the user should see within the first viewport or very shortly after:
-
-HORIZON
-
-what it is
-
-direction
-
-primary CTA
-
-Avoid allowing the live-statistics panel to push the project explanation extremely far down.
-
----
-
-# 20. COUNTDOWN — VERIFY THE REAL DATE
-
-The homepage currently contains:
-
-`1 Agosto · ore 04:00`
-
-Audit this date.
-
-It must not be an old NORTHLINE date or temporary placeholder.
-
-Create the start date from one centralized configuration value.
-
-For example:
-
-`HORIZON_START_DATE`
-
-Do not hard-code the date independently into multiple files.
-
-Use the configured expedition start time for:
-
-countdown
-status logic
-homepage
-metadata where appropriate
-replay state
-
----
-
-# 21. COUNTDOWN STATES
-
-Implement clean countdown states.
-
-BEFORE EXPEDITION:
-
-`STARTS IN`
-
-Days / Hours / Minutes
-
-DURING EXPEDITION:
-
-hide countdown completely.
-
-Replace it with:
-
-`HORIZON IS LIVE`
-
-AFTER FINISH:
-
-do not show a negative countdown.
-
-Show:
-
-`EXPEDITION COMPLETED`
-
-with links to:
-
-Journey
-Replay
-
----
-
-# 22. DO NOT UPDATE SECONDS IF THEY ADD NO VALUE
-
-On the homepage, consider whether updating seconds is actually useful.
-
-A high-frequency seconds counter creates visual noise and unnecessary JS updates.
-
-If departure is still days away:
-
-show:
-
-Days
-Hours
-Minutes
-
-Only introduce seconds shortly before start, or omit them entirely.
-
----
-
-# 23. HOME LIVE PANEL — SIMPLIFY BEFORE START
-
-Before the expedition has started, do not show a large dashboard filled with:
-
-`--`
-
-The current home hero panel contains many empty future metrics.
-
-Instead, before the start:
-
-show:
-
-NOT STARTED
-
-Starting:
-[date/time]
-
-Route:
-Piz Chavalatsch → Chancy
-
-Distance:
-~500 km
-
-CTA:
-VIEW THE ROUTE
-
-Then, once live data exists, transform this panel into real live statistics.
-
-A visitor should never see a wall of meaningless `--`.
-
----
-
-# 24. HOME LIVE PANEL — DURING EXPEDITION
-
-During HORIZON, the homepage live panel should show only the most useful information:
-
-CURRENT STATUS
-
-DISTANCE
-PROGRESS
-REMAINING
-LAST UPDATE
-
-Optionally:
-
-ETA
-
-Do not replicate the entire live dashboard.
-
-The full statistics belong in:
-
-`live.html`
-
----
-
-# 25. LIVE PAGE — KEEP THE MAP AS THE MAIN ELEMENT
-
-The current redesigned Live page architecture is much better.
-
-Preserve it.
-
-But reduce the desktop statistics column from the current fixed 360px if necessary.
-
-Aim around:
-
-320–340px
-
-while letting the map use the majority of the viewport.
-
-At large desktop widths, the map should feel dominant.
-
----
-
-# 26. LIVE PAGE — MOBILE ORDER
-
-Verify actual DOM and CSS order on mobile.
-
-Target order:
-
-LIVE JOURNEY
-
-FOLLOW HORIZON
-
-status
-
-primary statistics
-
-progress bar
-
-MAP
-
-secondary statistics
-
-The map must appear early.
-
-Do not make users scroll past ten statistics before reaching the live position.
-
----
-
-# 27. PRIMARY MOBILE STATISTICS
-
-On mobile create a compact primary statistics strip.
-
-Use:
-
-DISTANCE
-
-COMPLETE
-
-REMAINING
-
-Prefer 3 columns when comfortable.
-
-At very narrow widths such as 320px:
-
-allow an intelligent 2-column arrangement rather than shrinking typography excessively.
-
----
-
-# 28. REPLACE EMOJI MAP CONTROLS
-
-The repository still contains character/emoji-based controls such as:
-
-person
-pin
-fullscreen symbol
-
-Replace these with real SVG icons.
-
-Use inline SVG or an icon asset set.
-
-Do not use emoji.
-
-Controls:
-
-MY LOCATION
-
-LIVE POSITION
-
-FULLSCREEN
-
-Each needs:
-
-`aria-label`
-`title`
-visible focus
-44×44 minimum target
-
----
-
-# 29. MAP CONTROL VISUAL STYLE
-
-Use consistent circular or slightly rounded controls.
-
-Suggested:
-
-48×48 desktop
-
-44–48px mobile
-
-dark translucent background
-
-ivory SVG
-
-amber hover/focus/active
-
-subtle border
-
-Do not create bright blue glowing map buttons.
-
----
-
-# 30. REMOVE UNUSED CHART.JS FROM LIVE IF UNUSED
-
-The Live page currently loads Chart.js.
-
-Audit whether the page actually uses Chart.js.
-
-If no chart is created on `live.html`, remove:
-
-`chart.js`
-
-from that page.
-
-Load libraries only where they are needed.
-
-Do the same throughout the website.
-
----
-
-# 31. PIN EXTERNAL DEPENDENCY VERSIONS
-
-Do not use URLs like:
-
-`https://unpkg.com/leaflet/dist/leaflet.js`
-
-without a version.
-
-Pin an explicit known-working version.
-
-Do the same for:
-
-Leaflet CSS
-Leaflet JS
-other CDN libraries
-
-This prevents future updates from unexpectedly breaking HORIZON during the expedition.
-
----
-
-# 32. LIVE STATUS MUST COME FROM REAL DATA
-
-The HTML currently contains initial text conceptually similar to:
-
-`LIVE · Updated 1 min ago`
-
-Do not show fake live information before real data exists.
-
-Initial state should be neutral:
-
-`Checking live signal…`
-
-Then JavaScript determines:
-
-NOT STARTED
-LIVE
-DELAYED
-OFFLINE
-RESTING
-FINISHED
-
-Never claim the expedition is live using hardcoded text.
-
----
-
-# 33. REMOVE FAKE ACCESSIBILITY DATA
-
-The text alternative near the live map must use actual dynamic values.
-
-Do not hard-code sentences such as:
-
-"Current position: live signal active. Distance completed: available."
-
-Populate it from the same real data source used by the map and stats.
-
-Example:
-
-Current position:
-46.x, 8.x
-
-Distance:
-143.6 km
-
-Remaining:
-356.4 km
-
-Altitude:
-1,420 m
-
-Updated:
-4 minutes ago
-
-Only update screen-reader content when the values materially change.
-
----
-
-# 34. ACCESSIBILITY — DO NOT SPAM ARIA-LIVE
-
-The GPS position may update frequently.
-
-Do not put every rapidly changing value inside aggressive:
-
-`aria-live`
-
-Use:
-
-`aria-live="polite"`
-
-only for meaningful status changes.
-
-Do not announce:
-
-every coordinate
-every metre
-every second
-
-to screen readers.
-
----
-
-# 35. MOBILE NAV DRAWER HEIGHT
-
-The current drawer uses:
-
-`height: 100vh`
-
-Prefer:
-
-`100dvh`
-
-with fallback.
-
-This handles mobile browser toolbars better.
-
-Also account for:
-
-safe-area-inset-top
-safe-area-inset-bottom
-
----
-
-# 36. MOBILE MENU BACKGROUND
-
-The current mobile navigation still uses older navy values such as:
-
-`rgba(7,17,28,...)`
-
-Align this with the current HORIZON dark green-charcoal system.
-
-Use design variables instead of isolated legacy values.
-
----
-
-# 37. REMOVE OLD COLOR MAGIC NUMBERS
-
-Refactor repeated literal colors throughout CSS.
-
-Examples:
-
-old blue RGBA values
-random `#edf3fb`
-random dark navy surfaces
-isolated pale-blue text
-
-Create semantic variables.
-
-For example:
-
-`--color-text`
-`--color-text-muted`
-`--color-accent`
-`--color-accent-soft`
-`--color-map`
-`--color-success`
-`--color-warning`
-`--color-danger`
-
-Use them consistently.
-
----
-
-# 38. REDUCE CARD OVERUSE ON HOMEPAGE
-
-The homepage is significantly better, but many sections still use:
-
-border
-rounded card
-background
-padding
-
-for almost every content group.
-
-Reduce the sense of:
-
-"dashboard made of boxes."
-
-Allow some editorial sections to exist directly on the page background.
-
-Example:
-
-WHY HORIZON
-
-can be a wide editorial text section without another giant rounded rectangle.
-
-Use cards for:
-
-* statistics
-* live status
-* structured data
-
-Use open layouts for:
-
-* storytelling
-* philosophy
-* team introduction
-* photography
-
----
-
-# 39. CREATE MORE VISUAL RHYTHM
-
-The homepage should alternate naturally between:
-
-text
-
-large image
-
-statistics
-
-route
-
-people
-
-open space
-
-CTA
-
-rather than:
-
-card
-card
-card
-card
-card
-
-Introduce meaningful section spacing.
-
-Desktop:
-
-approximately 80–120px between major storytelling chapters.
-
-Mobile:
-
-approximately 48–72px.
-
----
-
-# 40. TEAM PHOTOS
-
-When participant photos are added:
-
-use the same:
-
-aspect ratio
-size
-crop logic
-typographic hierarchy
-
-for both.
-
-Suggested:
-
-portrait 4:5
-
-or environmental 3:2.
-
-Do not make one photo larger.
-
----
-
-# 41. OPTIONAL TEAM DETAIL
-
-Under each person, provide a concise factual information line.
-
-For example:
-
-`ENDURANCE · CYCLING · MOUNTAINS`
-
-or equivalent.
-
-Only if authentic.
-
-Do not invent categories.
-
----
-
-# 42. ROUTE SECTION — USE REAL GPX
-
-Verify the homepage route visualization is generated from or directly based on:
-
-the actual HORIZON GPX route.
-
-Do not use an artistic generic SVG approximation.
-
-The route has geographic meaning.
-
-Preserve:
-
-north-up orientation
-actual Switzerland proportions
-east-to-west direction
-Piz Chavalatsch start
-Chancy finish
-
----
-
-# 43. START / FINISH VISUAL DIRECTION
-
-Because HORIZON goes:
-
-EAST → WEST
-
-and standard maps have east on the right:
-
-PIZ CHAVALATSCH should appear on the RIGHT.
-
-CHANCY should appear on the LEFT.
-
-Do not reverse this visually for aesthetic reasons.
-
----
-
-# 44. ROUTE LABEL CLARITY
-
-Show clearly:
-
-PIZ CHAVALATSCH
-START · EAST
-
-CHANCY
-FINISH · WEST
-
-Do not overcrowd the route overview with unnecessary place names.
-
----
-
-# 45. NAVIGATION DUPLICATION
-
-Current navigation contains:
-
-THE CHALLENGE
-
-ROUTE
-
-ABOUT
-
-with some destinations sharing the same `project.html`.
-
-Audit whether these truly deserve separate nav items.
-
-Preferred architecture:
-
-HOME
-LIVE
-THE CHALLENGE
-ROUTE
-JOURNEY
-REPLAY
-
-Then optionally:
-
-ABOUT
-
-Only retain ABOUT if it leads to genuinely distinct information.
-
-If ROUTE points to a section inside THE CHALLENGE page, this is acceptable if the anchor behavior is clear.
-
----
-
-# 46. PROJECT PAGE
-
-Make `project.html` the deeper editorial page.
-
-Homepage:
-
-short and emotional.
-
-Project page:
-
-detailed.
-
-The project page should contain:
-
-WHAT HORIZON IS
-
-THE TEAM
-
-WHY HORIZON
-
-ROUTE
-
-CHALLENGE
-
-LOGISTICS
-
-RULES / METHOD
-
-PREVIOUS EXPERIENCE if relevant
-
-TECHNOLOGY / LIVE TRACKING if useful
-
-Do not duplicate identical paragraphs verbatim from the homepage.
-
----
-
-# 47. GALLERY / JOURNEY
-
-The Journey page should increasingly become important during the expedition.
-
-Design it around chronological storytelling.
-
-Each entry may contain:
-
-date
-time
-location
-photo
-short field note
-distance at that moment
-
-Do not make it a generic image gallery.
-
-The feeling should be:
-
-expedition logbook.
-
----
-
-# 48. JOURNEY EMPTY STATE
-
-Before HORIZON begins, do not merely show:
-
-"Field notes will appear here."
-
-Create a deliberate pre-expedition state.
-
-For example:
-
-`THE JOURNEY HAS NOT STARTED YET.`
-
-`Field notes, images and moments from the route will appear here once HORIZON begins.`
-
-CTA:
-
-`SEE THE ROUTE`
-
----
-
-# 49. REPLAY EMPTY STATE
-
-Before the expedition exists, explain that replay becomes available once tracking data exists.
-
-Do not show a broken-looking empty chart/map.
-
-After completion:
-
-Replay becomes one of the strongest features.
-
----
-
-# 50. SEO SOCIAL IMAGE
+Observe it for at least several refresh cycles.
 
 Verify that:
 
-`assets/preview.png`
+* number of active intervals stays constant
+* Firebase request rate stays constant
+* event listeners do not multiply
+* memory usage does not continuously grow because of duplicated initialization
+* CPU activity returns to idle between data refreshes
 
-actually exists at the correct HORIZONWeb path.
-
-The preview should represent HORIZON, not NORTHLINE.
-
-Recommended social preview:
-
-1200 × 630
-
-or a suitable OpenGraph-compatible ratio.
-
-Include visually:
-
-HORIZON
-PIZ CHAVALATSCH → CHANCY
-EAST → WEST
-
-Avoid tiny unreadable text.
+Use Chrome DevTools Performance and Network panels.
 
 ---
 
-# 51. DATE AND CURRENT YEAR
+## LIGHTHOUSE
 
-Do not hard-code stale dates unnecessarily.
+Run Lighthouse on:
 
-Use centralized configuration for:
+index.html
+live.html
 
-expedition year
-departure
-expected start
-project state
+Desktop and mobile.
 
-Update footer year dynamically or intentionally.
+Aim for:
 
----
+Performance ≥ 90
+Accessibility ≥ 95
+Best Practices ≥ 95
+SEO ≥ 95
 
-# 52. STATUS ENGINE
+Do not fake these scores or remove useful functionality merely to increase them.
 
-Create one shared expedition-state function.
-
-For example:
-
-`getExpeditionState()`
-
-Possible result:
-
-`not-started`
-`live`
-`resting`
-`delayed`
-`offline`
-`completed`
-
-Home and Live must use the SAME state engine.
-
-Do not create separate contradictory status logic.
+Report actual results.
 
 ---
 
-# 53. ONE SOURCE OF TRUTH
-
-Centralize important project configuration.
-
-Create or improve something like:
-
-`js/config.js`
-
-containing:
-
-PROJECT_NAME
-START_NAME
-FINISH_NAME
-START_DATE
-TOTAL_DISTANCE
-EXPECTED_ELEVATION
-ROUTE_FILE
-TIMEZONE
-LIVE_STALE_THRESHOLD
-
-Then use these values throughout the project.
-
-Avoid repeated magic values such as:
-
-500
-10000
-200
-Piz Chavalatsch
-Chancy
-
-across multiple HTML/JS files.
-
----
-
-# 54. DO NOT BREAK CURRENT FUNCTIONALITY
-
-Preserve:
-
-Firebase
-live tracking
-route data
-Leaflet
-GPX
-replay
-gallery
-admin
-status logic
-GitHub Pages compatibility
-
-Do not rewrite working systems simply to make code cleaner.
-
----
-
-# 55. FINAL MOBILE AUDIT
-
-Test:
-
-320 × 568
-360 × 800
-390 × 844
-430 × 932
-
-Verify:
-
-no horizontal scroll
-no clipped HORIZON title
-no overflowing statistics
-no menu overflow
-map controls remain visible
-CTA buttons fit
-language selector fits
-route labels fit
-two-person team section remains balanced
-
----
-
-# 56. FINAL DESKTOP AUDIT
-
-Test:
-
-1024
-1280
-1440
-1920
-
-Check:
-
-map does not become too narrow
-
-text lines do not become excessively wide
-
-header does not feel empty
-
-language selector aligns correctly
-
-home has enough visual rhythm
-
-team section looks intentional
-
----
-
-# 57. PERFORMANCE PASS
-
-Run Lighthouse.
-
-Target approximately:
-
-Performance: 90+
-Accessibility: 95+
-Best Practices: 95+
-SEO: 95+
-
-Pay particular attention to:
-
-external Unsplash images
-unnecessary Chart.js
-unversioned CDN scripts
-unused CSS
-layout shifts
-image dimensions
-font loading
-map loading
-
----
-
-# 58. FINAL DESIGN PRINCIPLE
-
-Do not add more features simply because space exists.
-
-HORIZON should feel restrained.
-
-The visual hierarchy should be:
-
-1. expedition
-2. people
-3. route
-4. live progress
-5. statistics
-6. supporting interface
-
-Not:
-
-UI cards
-widgets
-effects
-decorations.
-
----
-
-# 59. FINAL CONTENT PRINCIPLE
-
-The homepage should communicate:
-
-**Two people.**
-
-**One country.**
-
-**East to west.**
-
-**On foot.**
-
-**About 500 kilometres.**
-
-Then give visitors a reason to care.
-
-The Live page should answer:
-
-**Where are they now?**
-
-The Project page should answer:
-
-**Why and how are they doing it?**
-
-The Journey page should answer:
-
-**What happened along the way?**
-
-The Replay page should answer:
-
-**How did the entire crossing unfold?**
-
----
-
-# 60. FINAL TASK
-
-Do not return only recommendations.
-
-Implement the fixes directly.
-
-After implementation provide a concise report containing:
-
-1. deployment issue found and resolution
-2. files modified
-3. metadata URLs corrected
-4. old NORTHLINE references removed
-5. i18n coverage completed
-6. legacy blue styling removed
-7. team section added
-8. live page improvements
-9. mobile improvements
-10. accessibility improvements
-11. performance improvements
-12. remaining manual content placeholders
-
-Do not redesign working components unnecessarily.
-
-This is the final polish pass for HORIZON.
+## FINAL CHECK
+
+After implementation, explicitly report:
+
+1. how many duplicated timers were removed
+2. whether app.init now executes only once
+3. correct Firebase path
+4. correct expedition start date source
+5. whether state contradictions were eliminated
+6. legacy NORTHLINE references remaining and why
+7. canonical URL correction
+8. GPX homepage route implementation
+9. JavaScript files removed/refactored
+10. Lighthouse mobile + desktop scores
+
+Do NOT redesign the page.
+
+The objective is now:
+
+STABILITY
+PERFORMANCE
+CORRECTNESS
+MAINTAINABILITY.

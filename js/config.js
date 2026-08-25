@@ -1,6 +1,6 @@
 (function () {
     const config = {
-        firebaseURL: 'https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/litrack/points.json',
+        firebaseURL: 'https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json',
         plannedStartDateIso: '2026-08-01T04:00:00+02:00',
         contentDatabasePath: 'content',
         trackerDataUrl: 'data/Horizon.gpx',

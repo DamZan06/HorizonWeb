@@ -40,8 +40,8 @@ setInterval(async () => {
     }
 }, 8000);
 
-﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json";
-const plannedStartDateIso = '2026-08-01T04:00:00+02:00';
+﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/lietrack/points.json";
+const plannedStartDateIso = '2026-08-31T04:00:00+02:00';
 const contentDatabasePath = 'content';
 const trackerDataUrl = 'data/Horizon.gpx';
 const routeDataCandidates = ['data/Horizon.gpx', 'data/horizon.gpx'];
