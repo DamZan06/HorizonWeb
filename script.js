@@ -1,3 +1,41 @@
+function normalizeHomeStatus(status) {
+    const value = String(status ?? '').trim().toLowerCase();
+    if (!value) return 'not-started';
+    if (value.includes('station') || value.includes('stop') || value.includes('paused') || value.includes('fermo') || value.includes('in pausa')) return 'paused';
+    if (value.includes('moving') || value.includes('active') || value.includes('in movimento') || value.includes('attivo')) return 'moving';
+    if (value.includes('ended') || value.includes('fine giornata') || value.includes('day ended')) return 'ended';
+    if (value.includes('complete') || value.includes('completed') || value.includes('sfida completata')) return 'completed';
+    if (value.includes('not started') || value.includes('non partito') || value.includes('not-started')) return 'not-started';
+    return 'not-started';
+}
+
+function bindAdminLiveStatusForm() {
+    const form = document.getElementById('adminLiveStatusForm');
+    if (!form || form.dataset.bound === 'true') return;
+    form.dataset.bound = 'true';
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const forcedStatus = String(formData.get('forcedStatus') || '').trim();
+        const cacheKey = 'northline-live-status-force';
+        if (!forcedStatus) {
+            localStorage.removeItem(cacheKey);
+        } else {
+            localStorage.setItem(cacheKey, forcedStatus);
+        }
+        const notice = document.getElementById('adminLiveStatusNotice');
+        if (notice) {
+            notice.textContent = forcedStatus ? 'Stato live impostato.' : 'Stato automatico riattivato.';
+        }
+    });
+}
+
+setInterval(async () => {
+    if (typeof window.NorthLineApp?.init === 'function') {
+        await window.NorthLineApp.init();
+    }
+}, 8000);
+
 ﻿const firebaseURL = "https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json";
 const plannedStartDateIso = '2026-08-01T04:00:00+02:00';
 const contentDatabasePath = 'content';
@@ -14,32 +52,39 @@ const i18nCatalog = {
             languageLabel: 'Lingua',
             languageAria: 'Seleziona lingua',
             navAria: 'Navigazione principale',
-            nav: ['Home', 'Live', 'Dashboard', 'Galleria', 'Replay', 'Progressi', 'Il progetto'],
+            nav: ['Live', 'The challenge', 'Route', 'Journey', 'Replay', 'About'],
             brands: {
-                home: 'Adventure Tracker',
-                live: 'Live Tracker',
-                dashboard: 'Dashboard',
-                gallery: 'Galleria',
+                home: 'HORIZON',
+                live: 'Live Journey',
+                dashboard: 'Telemetry',
+                gallery: 'Field Notes',
                 replay: 'Replay',
-                progress: 'Progressi',
-                project: 'Il progetto',
+                progress: 'Progress',
+                project: 'About',
                 admin: 'Admin'
             },
             menuOpen: 'Apri menu',
             menuClose: 'Chiudi menu',
-            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' }
+            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' },
+            route: {
+                start: 'Partenza',
+                finish: 'Arrivo',
+                runnerPosition: 'Posizione atleta',
+                directions: 'Indicazioni',
+                nightLabel: 'Notte'
+            }
         },
         pages: {
             home: {
-                title: 'NorthLine | Traversata della Svizzera in tempo reale',
+                title: 'HORIZON | Traversata della Svizzera in tempo reale',
                 countdownEyebrow: 'Partenza prevista',
                 countdownTitle: '1 Agosto · ore 04:00',
                 countdownMessage: 'Calcolo del tempo rimanente in corso...',
                 labels: ['Giorni', 'Ore', 'Minuti', 'Secondi'],
-                heroEyebrow: 'NorthLine · Attraversando la Svizzera a piedi',
-                heroTitle: '333 chilometri. Un solo obiettivo.',
-                heroDescription: 'NorthLine è una traversata della Svizzera percorsa interamente a piedi, condivisa in tempo reale attraverso una piattaforma sviluppata appositamente per questa avventura. Qui potrai seguire ogni passo, osservare la posizione live, analizzare le statistiche e vivere il viaggio come se fossi sul sentiero insieme a noi.',
-                heroButtons: ['Segui il Live', 'Scopri il progetto'],
+                heroEyebrow: 'HORIZON 2026',
+                heroTitle: 'HORIZON',
+                heroDescription: 'From Piz Chavalatsch in the east to Chancy in the west. A 500-kilometre journey across Switzerland, driven entirely by human endurance.',
+                heroButtons: ['FOLLOW THE JOURNEY', 'DISCOVER HORIZON'],
                 statsLabels: ['km percorsi', 'km rimanenti', 'completato', 'tempo trascorso', 'dislivello', 'passi stimati', 'arrivo stimato'],
                 sectionTitle: 'Non osservare solamente il viaggio. Vivilo.',
                 sectionDescription: 'NorthLine ti permette di seguire l\'intera traversata della Svizzera attraverso mappe live, statistiche aggiornate, racconti quotidiani e contenuti esclusivi. Ogni giornata porterà nuove sfide, nuovi paesaggi e una nuova storia da raccontare.',
@@ -51,13 +96,13 @@ const i18nCatalog = {
                     'Rivivi l\'intera traversata sulla mappa e osserva ogni tappa del viaggio grazie a una timeline interattiva sincronizzata con il percorso reale.'
                 ],
                 statusTitle: 'Stato attuale',
-                footer: 'NorthLine © 2026 · Una traversata della Svizzera raccontata in tempo reale attraverso mappe, dati e storie. Ogni passo, una nuova avventura.'
+                footer: 'HORIZON © 2026 · A crossing of Switzerland told with live data, route tracking, and field notes. Every step, one direction.'
             },
             live: {
-                title: 'NorthLine – Mappa Live',
-                eyebrow: 'Live Map',
-                heading: 'La NorthLine in diretta sulla mappa.',
-                description: 'Segui la posizione attuale, il percorso completato e le statistiche dell\'atleta con una mappa a schermo intero.',
+                title: 'HORIZON – Live Journey',
+                eyebrow: 'LIVE JOURNEY',
+                heading: 'FOLLOW HORIZON',
+                description: 'Follow the journey across Switzerland in real time.',
                 statsEyebrow: 'Statistiche Live',
                 statsTitle: 'Stato attuale',
                 statsLabels: ['Distanza', 'Rimanenti', 'Completato', 'Velocita', 'Altitudine', 'Ultimo aggiornamento', 'Progresso del percorso', 'Tempo', 'Dislivello', 'Passi', 'Distanza dalla partenza'],
@@ -161,32 +206,39 @@ const i18nCatalog = {
             languageLabel: 'Language',
             languageAria: 'Select language',
             navAria: 'Main navigation',
-            nav: ['Home', 'Live', 'Dashboard', 'Gallery', 'Replay', 'Progress', 'Project'],
+            nav: ['Live', 'The challenge', 'Route', 'Journey', 'Replay', 'About'],
             brands: {
-                home: 'Adventure Tracker',
-                live: 'Live Tracker',
-                dashboard: 'Dashboard',
-                gallery: 'Gallery',
+                home: 'HORIZON',
+                live: 'Live Journey',
+                dashboard: 'Telemetry',
+                gallery: 'Field Notes',
                 replay: 'Replay',
                 progress: 'Progress',
-                project: 'Project',
+                project: 'About',
                 admin: 'Admin'
             },
             menuOpen: 'Open menu',
             menuClose: 'Close menu',
-            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' }
+            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' },
+            route: {
+                start: 'Start',
+                finish: 'Finish',
+                runnerPosition: 'Runner position',
+                directions: 'Directions',
+                nightLabel: 'Night'
+            }
         },
         pages: {
             home: {
-                title: 'NorthLine | Switzerland crossing in real time',
+                title: 'HORIZON | Switzerland crossing in real time',
                 countdownEyebrow: 'Planned departure',
                 countdownTitle: '1 August · 04:00',
                 countdownMessage: 'Calculating remaining time...',
                 labels: ['Days', 'Hours', 'Minutes', 'Seconds'],
-                heroEyebrow: 'NorthLine · Crossing Switzerland on foot',
-                heroTitle: '333 kilometers. One goal.',
-                heroDescription: 'NorthLine is a full crossing of Switzerland completed entirely on foot, shared live through a platform built specifically for this adventure. Here you can follow every step, watch the live position, analyze the stats, and experience the journey as if you were on the trail with us.',
-                heroButtons: ['Follow Live', 'Discover the project'],
+                heroEyebrow: 'HORIZON 2026',
+                heroTitle: 'HORIZON',
+                heroDescription: 'From Piz Chavalatsch in the east to Chancy in the west. A 500-kilometre journey across Switzerland, driven entirely by human endurance.',
+                heroButtons: ['FOLLOW THE JOURNEY', 'DISCOVER HORIZON'],
                 statsLabels: ['km covered', 'km remaining', 'completed', 'time elapsed', 'elevation gain', 'estimated steps', 'estimated arrival'],
                 sectionTitle: 'Do not just watch the journey. Live it.',
                 sectionDescription: 'NorthLine lets you follow the full crossing of Switzerland through live maps, updated stats, daily stories, and exclusive content. Each day brings new challenges, new landscapes, and a new story to tell.',
@@ -198,13 +250,13 @@ const i18nCatalog = {
                     'Relive the full crossing on the map and watch every stage through an interactive timeline synced with the real route.'
                 ],
                 statusTitle: 'Current status',
-                footer: 'NorthLine © 2026 · A Switzerland crossing told in real time through maps, data, and stories. Every step, a new adventure.'
+                footer: 'HORIZON © 2026 · A crossing of Switzerland told with live data, route tracking, and field notes. Every step, one direction.'
             },
             live: {
-                title: 'NorthLine – Live Map',
-                eyebrow: 'Live Map',
-                heading: 'NorthLine live on the map.',
-                description: 'Follow the current position, completed route, and athlete statistics with a fullscreen map.',
+                title: 'HORIZON – Live Journey',
+                eyebrow: 'LIVE JOURNEY',
+                heading: 'FOLLOW HORIZON',
+                description: 'Follow the journey across Switzerland in real time.',
                 statsEyebrow: 'Live Statistics',
                 statsTitle: 'Current status',
                 statsLabels: ['Distance', 'Remaining', 'Completed', 'Speed', 'Altitude', 'Last update', 'Route progress', 'Time', 'Elevation', 'Steps', 'Distance from start'],
@@ -320,32 +372,39 @@ const i18nCatalog = {
             languageLabel: 'Sprache',
             languageAria: 'Sprache wählen',
             navAria: 'Hauptnavigation',
-            nav: ['Start', 'Live', 'Dashboard', 'Galerie', 'Replay', 'Fortschritt', 'Projekt'],
+            nav: ['Live', 'The challenge', 'Route', 'Journey', 'Replay', 'About'],
             brands: {
-                home: 'Adventure Tracker',
-                live: 'Live Tracker',
-                dashboard: 'Dashboard',
-                gallery: 'Galerie',
+                home: 'HORIZON',
+                live: 'Live Journey',
+                dashboard: 'Telemetry',
+                gallery: 'Field Notes',
                 replay: 'Replay',
-                progress: 'Fortschritt',
-                project: 'Projekt',
+                progress: 'Progress',
+                project: 'About',
                 admin: 'Admin'
             },
             menuOpen: 'Menü öffnen',
             menuClose: 'Menü schliessen',
-            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' }
+            languageNames: { it: 'Italiano', en: 'English', de: 'Deutsch' },
+            route: {
+                start: 'Start',
+                finish: 'Ziel',
+                runnerPosition: 'Position Sportler',
+                directions: 'Wegbeschreibung',
+                nightLabel: 'Nacht'
+            }
         },
         pages: {
             home: {
-                title: 'NorthLine | Schweiz-Durchquerung in Echtzeit',
+                title: 'HORIZON | Schweiz-Durchquerung in Echtzeit',
                 countdownEyebrow: 'Geplanter Start',
                 countdownTitle: '1. August · 04:00 Uhr',
                 countdownMessage: 'Verbleibende Zeit wird berechnet...',
                 labels: ['Tage', 'Stunden', 'Minuten', 'Sekunden'],
-                heroEyebrow: 'NorthLine · Die Schweiz zu Fuss durchqueren',
-                heroTitle: '333 Kilometer. Ein Ziel.',
-                heroDescription: 'NorthLine ist eine komplette Schweiz-Durchquerung zu Fuss, live geteilt über eine Plattform, die speziell für dieses Abenteuer entwickelt wurde. Hier kannst du jeden Schritt verfolgen, die Live-Position sehen, Daten analysieren und die Reise erleben, als wärst du mit uns auf dem Weg.',
-                heroButtons: ['Live verfolgen', 'Projekt entdecken'],
+                heroEyebrow: 'HORIZON 2026',
+                heroTitle: 'HORIZON',
+                heroDescription: 'From Piz Chavalatsch in the east to Chancy in the west. A 500-kilometre journey across Switzerland, driven entirely by human endurance.',
+                heroButtons: ['FOLLOW THE JOURNEY', 'DISCOVER HORIZON'],
                 statsLabels: ['km gelaufen', 'km verbleibend', 'abgeschlossen', 'verstrichene Zeit', 'Höhenmeter', 'geschätzte Schritte', 'geschätzte Ankunft'],
                 sectionTitle: 'Die Reise nicht nur ansehen. Erleben.',
                 sectionDescription: 'NorthLine lässt dich die gesamte Schweiz-Durchquerung über Live-Karten, aktuelle Statistiken, tägliche Berichte und exklusive Inhalte verfolgen. Jeder Tag bringt neue Herausforderungen, neue Landschaften und eine neue Geschichte.',
@@ -357,7 +416,7 @@ const i18nCatalog = {
                     'Erlebe die gesamte Durchquerung auf der Karte neu und beobachte jede Etappe mit einer interaktiven Timeline, synchron zur realen Strecke.'
                 ],
                 statusTitle: 'Aktueller Status',
-                footer: 'NorthLine © 2026 · Eine Schweiz-Durchquerung in Echtzeit mit Karten, Daten und Geschichten. Jeder Schritt, ein neues Abenteuer.'
+                footer: 'HORIZON © 2026 · Eine Querung der Schweiz, erzählt mit Live-Daten, Route und Feldnotizen. Jeder Schritt, eine Richtung.'
             },
             live: {
                 title: 'NorthLine – Live-Karte',
@@ -591,7 +650,7 @@ function applyStaticTranslations() {
         }
         if (home.heroEyebrow) setText('.hero-copy .eyebrow', home.heroEyebrow);
         if (home.heroTitle) setText('.hero-copy h1', home.heroTitle);
-        if (home.heroDescription) setText('.hero-copy p:not(.eyebrow)', home.heroDescription);
+        if (home.heroDescription) setText('.hero-copy .hero-description', home.heroDescription);
         if (Array.isArray(home.heroButtons)) {
             const buttons = document.querySelectorAll('.hero-actions .button');
             buttons.forEach((button, index) => {
@@ -2188,7 +2247,7 @@ function buildRouteLabel(prefix, index) {
 
 function formatWaypointLabel(name, index) {
     const raw = String(name || '').trim();
-    if (!raw) return buildRouteLabel('Night', index);
+    if (!raw) return buildRouteLabel(typeof t === 'function' ? t('route.nightLabel') : 'Night', index);
     return raw.replace(/_/g, ' ');
 }
 
@@ -2492,7 +2551,9 @@ function buildStartFinishMarkerIcon(type) {
     if (isStart) return null;
     return L.divIcon({
         className: `route-marker route-marker--${type}`,
-        html: `<div class="route-marker__wrap"><span class="route-marker__pin"><span>${isStart ? 'S' : 'F'}</span></span><span class="route-marker__label">${isStart ? 'Partenza' : 'Arrivo'}</span></div>`,
+        html: `<div class="route-marker__wrap"><span class="route-marker__pin"><span>${isStart ? 'S' : 'F'}</span></span><span class="route-marker__label">${isStart ? t('route.start') : t('route.finish')}</span></div>`,
+        // ensure translation function safe fallback if not initialized at this point
+
         iconSize: [90, 56],
         iconAnchor: [45, 52],
         popupAnchor: [0, -44]
@@ -2519,7 +2580,7 @@ async function ensureGpxDataLoaded() {
         await gpxLoadPromise;
         return;
     }
-    gpxLoadPromise = fetch('data/NorthLine.gpx')
+    gpxLoadPromise = fetch('data/horizon.gpx')
         .then(response => {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response.text();
@@ -2558,7 +2619,9 @@ function buildGoogleDirectionsToRunnerUrl(lat, lng) {
 
 function buildRunnerPopupContent(lat, lng) {
     const directionsUrl = buildGoogleDirectionsToRunnerUrl(lat, lng);
-    return `<div class="runner-popup"><p>Posizione atleta</p><a class="runner-directions-btn" href="${directionsUrl}" target="_blank" rel="noopener noreferrer">Indicazioni</a></div>`;
+    const runnerLabel = typeof t === 'function' ? t('route.runnerPosition') : 'Runner position';
+    const directionsLabel = typeof t === 'function' ? t('route.directions') : 'Directions';
+    return `<div class="runner-popup"><p>${escapeHtml(runnerLabel)}</p><a class="runner-directions-btn" href="${directionsUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(directionsLabel)}</a></div>`;
 }
 function addMapControl() {
     if (typeof L === 'undefined' || !mapInstance) return;
@@ -2633,7 +2696,7 @@ function initMap(options = {}) {
     activeLayer = tileProviders.osm.addTo(mapInstance);
     L.control.zoom({ position: 'topright' }).addTo(mapInstance);
     addMapControl();
-    const gpxUrl = 'data/NorthLine.gpx';
+    const gpxUrl = 'data/horizon.gpx';
     try {
         new L.GPX(gpxUrl, {
             async: true,
@@ -3912,7 +3975,7 @@ async function initReplayPage() {
     let index = 0;
     const marker = L.circleMarker(coords[0], { radius: 12, color: '#ffb347', fillColor: '#ffd382', fillOpacity: 1 }).addTo(mapInstance);
     const startFlagMarker = L.marker(coords[0], { icon: buildReplayStartFlagIcon() }).addTo(mapInstance);
-    startFlagMarker.bindPopup(currentLanguage === 'en' ? 'Start' : currentLanguage === 'de' ? 'Start' : 'Partenza');
+    startFlagMarker.bindPopup(typeof t === 'function' ? t('route.start') : (currentLanguage === 'en' ? 'Start' : currentLanguage === 'de' ? 'Start' : 'Partenza'));
     let photoPreviewMarker = null;
     let activePhotoId = null;
     let activeReplayPhotoEntry = null;

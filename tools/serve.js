@@ -48,5 +48,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`NorthLine local server running on http://localhost:${port}`);
+  console.log(`HorizonWeb local server running on http://localhost:${port}`);
 });

@@ -3,12 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>NorthLine | Traversata della Svizzera in tempo reale</title>
-    <meta name="description" content="Segui NorthLine, la traversata della Svizzera percorsa interamente a piedi. Posizione live, statistiche, diario di bordo, galleria fotografica e replay dell'intero percorso in tempo reale.">
+    <title>HORIZON | Traversata della Svizzera in tempo reale</title>
+    <meta name="description" content="Segui HORIZON, la traversata della Svizzera percorsa interamente a piedi. Posizione live, statistiche, diario di bordo, galleria fotografica e replay dell'intero percorso in tempo reale.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://damzan06.github.io/northline/">
-    <meta property="og:title" content="NorthLine - Live Tracker">
-    <meta property="og:description" content="Mappa live, statistiche e diario dell'avventura NorthLine.">
+    <meta property="og:title" content="HORIZON - Live Tracker">
+    <meta property="og:description" content="Mappa live, statistiche e diario dell'avventura HORIZON.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://damzan06.github.io/northline/">
     <meta property="og:image" content="https://damzan06.github.io/northline/assets/preview.png?v=20260715s">
@@ -17,8 +17,8 @@
     <meta property="og:image:width" content="1254">
     <meta property="og:image:height" content="1254">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="NorthLine - Live Tracker">
-    <meta name="twitter:description" content="Mappa live, statistiche e diario dell'avventura NorthLine.">
+    <meta name="twitter:title" content="HORIZON - Live Tracker">
+    <meta name="twitter:description" content="Mappa live, statistiche e diario dell'avventura HORIZON.">
     <meta name="twitter:image" content="https://damzan06.github.io/northline/assets/preview.png?v=20260715s">
     <link rel="stylesheet" href="style.css?v=20260725d">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
@@ -29,26 +29,25 @@
 <body data-page="home">
     <header class="topbar">
         <div class="brand">
-            <img src="assets/favicon-v2.png?v=20260715r" alt="Logo NorthLine" class="brand-icon">
+            <img src="assets/favicon-v2.png?v=20260715r" alt="Logo HORIZON" class="brand-icon">
             <div>
-                <span class="brand-title">NorthLine</span>
-                <span class="brand-subtitle">Adventure Tracker</span>
+                <span class="brand-title">HORIZON</span>
+                <span class="brand-subtitle">HORIZON</span>
             </div>
         </div>
         <nav class="main-nav" aria-label="Navigazione principale">
-            <a href="index.html">Home</a>
             <a href="live.html">Live</a>
-            <a href="dashboard.html">Dashboard</a>
-            <a href="gallery.html">Galleria</a>
+            <a href="project.html">The challenge</a>
+            <a href="live.html">Route</a>
+            <a href="gallery.html">Journey</a>
             <a href="replay.html">Replay</a>
-            <a href="progress.html">Progressi</a>
-            <a href="project.html">Il progetto</a>
+            <a href="project.html">About</a>
         </nav>
     </header>
     <main class="page page-home">
         <section id="homeCountdown" class="countdown-card countdown-top" aria-live="polite" aria-labelledby="countdownTitle">
-            <p class="countdown-eyebrow">Partenza prevista</p>
-            <h2 id="countdownTitle">1 Agosto - ore 04:00</h2>
+            <p class="countdown-eyebrow">HORIZON 2026</p>
+            <h2 id="countdownTitle">1 Agosto · ore 04:00</h2>
             <div class="countdown-grid">
                 <article><span>Giorni</span><strong id="countdownDays">--</strong></article>
                 <article><span>Ore</span><strong id="countdownHours">--</strong></article>
@@ -57,126 +56,189 @@
             </div>
             <p id="countdownMessage" class="countdown-message">Calcolo del tempo rimanente in corso...</p>
         </section>
-        <section class="hero">
+
+        <section class="horizon-hero">
             <div class="hero-copy">
-                <p class="eyebrow">NorthLine - Attraversando la Svizzera a piedi</p>
-
-                <h1>333 chilometri. Un solo obiettivo.</h1>
-
-                <p>
-                    NorthLine è una traversata della Svizzera percorsa interamente a piedi, condivisa in tempo reale attraverso una piattaforma sviluppata appositamente per questa avventura. Qui potrai seguire ogni passo, osservare la posizione live, analizzare le statistiche e vivere il viaggio come se fossi sul sentiero insieme a noi.
+                <p class="eyebrow">HORIZON 2026</p>
+                <h1>HORIZON</h1>
+                <p class="hero-subtitle">CROSSING SWITZERLAND. ONE STEP AT A TIME.</p>
+                <p class="hero-description">
+                    From Piz Chavalatsch in the east to Chancy in the west. A 500-kilometre journey across Switzerland, driven entirely by human endurance.
                 </p>
-
+                <div class="direction-block">
+                    <div class="direction-main">PIZ CHAVALATSCH → CHANCY</div>
+                    <div class="direction-label">EAST → WEST</div>
+                </div>
                 <div class="hero-actions">
-                    <a href="live.html" class="button primary">Segui il Live</a>
-                    <a href="project.html" class="button ghost">Scopri il progetto</a>
+                    <a href="live.html" class="button primary">FOLLOW THE JOURNEY</a>
+                    <a href="project.html" class="button ghost">DISCOVER HORIZON</a>
                 </div>
             </div>
+
             <aside class="hero-panel">
                 <div class="hero-status">
                     <span id="homeStatusDot" class="status-dot status-not-started"></span>
                     <div>
-                        <strong id="homeStatusLabel">Non partito</strong>
-                        <p id="homeStatusText">In attesa della partenza: nessun dato live disponibile.</p>
+                        <strong id="homeStatusLabel">Not started</strong>
+                        <p id="homeStatusText">Waiting for departure: no live data available yet.</p>
                     </div>
                 </div>
                 <div class="hero-stats-grid">
                     <article>
-                        <span>km percorsi</span>
+                        <span>distance</span>
                         <strong id="homeDistance">0</strong>
                     </article>
                     <article>
-                        <span>km rimanenti</span>
+                        <span>remaining</span>
                         <strong id="homeRemaining">--</strong>
                     </article>
                     <article>
-                        <span>completato</span>
+                        <span>progress</span>
                         <strong id="homeCompletion">--%</strong>
                     </article>
                     <article>
-                        <span>tempo trascorso</span>
+                        <span>time</span>
                         <strong id="homeTime">--</strong>
                     </article>
                     <article>
-                        <span>dislivello</span>
+                        <span>elevation</span>
                         <strong id="homeGain">--</strong>
                     </article>
                     <article>
-                        <span>passi stimati</span>
+                        <span>estimated steps</span>
                         <strong id="homeSteps">--</strong>
                     </article>
                     <article class="hero-stat-wide">
-                        <span>arrivo stimato</span>
+                        <span>estimated arrival</span>
                         <strong id="homeEta">--</strong>
                     </article>
                 </div>
             </aside>
         </section>
-        <section class="section section-intro">
 
-            <div class="section-title">
-                <h2>Non osservare solamente il viaggio. Vivilo.</h2>
-
-                <p>
-                    NorthLine ti permette di seguire l'intera traversata della Svizzera attraverso mappe live, statistiche aggiornate, racconti quotidiani e contenuti esclusivi. Ogni giornata porter� nuove sfide, nuovi paesaggi e una nuova storia da raccontare.
-                </p>
-            </div>
-
-            <div class="feature-grid">
-
-                <article>
-                    <h3>Mappa Live</h3>
-
-                    <p>
-                        Segui in tempo reale la mia posizione lungo il percorso. Ogni aggiornamento mostra dove mi trovo, quanti chilometri sono stati percorsi e quanto manca al traguardo.
-                    </p>
-                </article>
-
-                <article>
-                    <h3>Statistiche Live</h3>
-
-                    <p>
-                        Velocit�, distanza, altitudine, dislivello, tempo di percorrenza e molti altri dati vengono aggiornati automaticamente durante tutta l'avventura.
-                    </p>
-                </article>
-
-                <article>
-                    <h3>Diario di bordo</h3>
-
-                    <p>
-                        Ogni giornata verr� raccontata attraverso fotografie, impressioni, difficolt�, emozioni e curiosit� incontrate lungo il cammino.
-                    </p>
-                </article>
-
-                <article>
-                    <h3>Replay del percorso</h3>
-
-                    <p>
-                        Rivivi l'intera traversata sulla mappa e osserva ogni tappa del viaggio grazie a una timeline interattiva sincronizzata con il percorso reale.
-                    </p>
-                </article>
-
-            </div>
-
+        <section class="stat-strip" aria-label="Challenge overview">
+            <article>
+                <strong>500 KM</strong>
+                <span>DISTANCE</span>
+            </article>
+            <article>
+                <strong>10,000 M+</strong>
+                <span>ELEVATION</span>
+            </article>
+            <article>
+                <strong>200 H+</strong>
+                <span>CHALLENGE</span>
+            </article>
         </section>
+
+        <section class="story-block intro-block">
+            <p class="eyebrow">ONE COUNTRY. ONE DIRECTION.</p>
+            <h2>HORIZON is a long-distance crossing of Switzerland from east to west.</h2>
+            <p>The journey begins at Piz Chavalatsch, at the eastern edge of the country, and ends at Chancy in the west. Between the two lies approximately 500 kilometres of roads, trails, valleys, mountains, darkness, fatigue and uncertainty.</p>
+            <p>There is only one direction: west.</p>
+        </section>
+
+        <section class="story-block split-block">
+            <div>
+                <p class="eyebrow">WHY HORIZON?</p>
+                <h2>The horizon is always ahead.</h2>
+                <p>You never reach it by looking at it. You reach it by moving toward it.</p>
+                <p>HORIZON represents the idea of continuing forward even when the finish is still far away.</p>
+                <p>One kilometre becomes the next. One step becomes another. Until the horizon becomes the finish line.</p>
+            </div>
+            <div class="quote-card">
+                <span>KEEP MOVING WEST.</span>
+            </div>
+        </section>
+
+        <section class="challenge-block">
+            <div class="section-heading">
+                <p class="eyebrow">THE CHALLENGE</p>
+                <h2>500 kilometres. More than 10,000 metres of climbing. More than 200 hours of movement.</h2>
+            </div>
+            <div class="challenge-grid">
+                <article>
+                    <strong>500 KM</strong>
+                    <span>ACROSS SWITZERLAND</span>
+                </article>
+                <article>
+                    <strong>10,000 M+</strong>
+                    <span>POSITIVE ELEVATION</span>
+                </article>
+                <article>
+                    <strong>200 H+</strong>
+                    <span>ENDURANCE</span>
+                </article>
+            </div>
+            <p class="challenge-note">The numbers are simple. The reality is not.</p>
+        </section>
+
+        <section class="route-block">
+            <div class="route-copy">
+                <p class="eyebrow">THE ROUTE</p>
+                <h2>EAST TO WEST.</h2>
+                <p>From Piz Chavalatsch to Chancy, HORIZON follows a westward line across Switzerland.</p>
+            </div>
+            <div class="route-map-card" aria-label="Horizon route map">
+                <div class="route-meta">
+                    <span>PIZ CHAVALATSCH</span>
+                    <span>START — EAST</span>
+                </div>
+                <svg viewBox="0 0 560 260" role="img" aria-label="Switzerland route" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <linearGradient id="routeGlow" x1="0" x2="1">
+                            <stop offset="0%" stop-color="#9dd6ff" />
+                            <stop offset="100%" stop-color="#68d5c1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M80 170 C160 120, 210 94, 280 78 S430 52, 500 82 L500 160 C450 150, 410 170, 350 190 S200 214, 80 180 Z" fill="rgba(173, 196, 220, 0.12)"/>
+                    <path d="M90 160 C180 180, 220 110, 300 92 S420 54, 500 100" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                    <path d="M94 156 C185 182, 224 110, 302 94 S428 58, 500 102" fill="none" stroke="url(#routeGlow)" stroke-width="5" stroke-linecap="round"/>
+                    <circle cx="100" cy="156" r="6" fill="#9dd6ff"/>
+                    <circle cx="500" cy="102" r="6" fill="#68d5c1"/>
+                </svg>
+                <div class="route-meta route-meta-end">
+                    <span>CHANCY</span>
+                    <span>FINISH — WEST</span>
+                </div>
+            </div>
+        </section>
+
         <section class="section section-status">
             <div class="section-title">
-                <h2>Stato attuale</h2>
+                <h2>Live journey</h2>
             </div>
             <div class="status-grid">
-                <article id="homeState-not-started" class="status-pill"><span>?</span> Non partito</article>
-                <article id="homeState-moving" class="status-pill"><span>??</span> In movimento</article>
-                <article id="homeState-paused" class="status-pill"><span>??</span> In pausa</article>
-                <article id="homeState-ended" class="status-pill"><span>??</span> Fine giornata</article>
-                <article id="homeState-completed" class="status-pill"><span>?</span> Sfida completata</article>
+                <article id="homeState-not-started" class="status-pill"><span>●</span> Not started</article>
+                <article id="homeState-moving" class="status-pill"><span>●</span> Live</article>
+                <article id="homeState-paused" class="status-pill"><span>●</span> Paused</article>
+                <article id="homeState-ended" class="status-pill"><span>●</span> Resting</article>
+                <article id="homeState-completed" class="status-pill"><span>✓</span> Finished</article>
             </div>
+        </section>
+
+        <section class="field-notes">
+            <p class="eyebrow">FIELD NOTES</p>
+            <h2>The journey</h2>
+            <p>FIELD NOTES WILL APPEAR HERE DURING THE JOURNEY.</p>
+        </section>
+
+        <section class="final-cta">
+            <p class="eyebrow">UNTIL THE HORIZON.</p>
+            <h2>PIZ CHAVALATSCH → CHANCY</h2>
+            <div class="final-cta-direction">EAST → WEST</div>
+            <a href="live.html" class="button primary">FOLLOW THE JOURNEY</a>
         </section>
     </main>
     <footer class="site-footer">
         <p>
-            NorthLine � 2026 � Una traversata della Svizzera raccontata in tempo reale attraverso mappe, dati e storie. Ogni passo, una nuova avventura.
+            HORIZON © 2026 · A crossing of Switzerland told with live data, route tracking, and field notes. Every step, one direction.
         </p>
     </footer>
+    <script src="js/config.js?v=20260824a"></script>
+    <script src="js/i18n.js?v=20260824a"></script>
+    <script src="js/status.js?v=20260824a"></script>
+    <script src="js/app.js?v=20260824a"></script>
     <script src="script.js?v=20260729b"></script>
 </body>
 </html>
