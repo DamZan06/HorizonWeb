@@ -3,23 +3,23 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>HORIZON - Live Map</title>
-    <meta name="description" content="Mappa live di HORIZON: posizione, percorso, checkpoint e statistiche in tempo reale.">
+    <title>HORIZON — Live Expedition</title>
+    <meta name="description" content="Follow HORIZON live across Switzerland. Real-time route progress, current position, altitude and expedition statistics.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="canonical" href="https://damzan06.github.io/northline/live.html">
-    <meta property="og:title" content="HORIZON - Live Map">
-    <meta property="og:description" content="Segui la posizione live e i dati aggiornati dell'avventura HORIZON.">
+    <link rel="canonical" href="https://damzan06.github.io/Horizon/live.html">
+    <meta property="og:title" content="HORIZON — Live Expedition">
+    <meta property="og:description" content="Follow the HORIZON expedition live across Switzerland in real time.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://damzan06.github.io/northline/live.html">
-    <meta property="og:image" content="https://damzan06.github.io/northline/assets/preview.png?v=20260715s">
-    <meta property="og:image:secure_url" content="https://damzan06.github.io/northline/assets/preview.png?v=20260715s">
+    <meta property="og:url" content="https://damzan06.github.io/Horizon/live.html">
+    <meta property="og:image" content="https://damzan06.github.io/Horizon/assets/preview.png?v=20260715s">
+    <meta property="og:image:secure_url" content="https://damzan06.github.io/Horizon/assets/preview.png?v=20260715s">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1254">
     <meta property="og:image:height" content="1254">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="HORIZON - Live Map">
-    <meta name="twitter:description" content="Segui la posizione live e i dati aggiornati dell'avventura HORIZON.">
-    <meta name="twitter:image" content="https://damzan06.github.io/northline/assets/preview.png?v=20260715s">
+    <meta name="twitter:title" content="HORIZON — Live Expedition">
+    <meta name="twitter:description" content="Follow the HORIZON expedition live across Switzerland in real time.">
+    <meta name="twitter:image" content="https://damzan06.github.io/Horizon/assets/preview.png?v=20260715s">
     <link rel="stylesheet" href="style.css?v=20260725d">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260715r">
@@ -28,24 +28,26 @@
 </head>
 
 <body data-page="live">
+    <a class="skip-link" href="#main">Salta al contenuto principale</a>
     <header class="topbar">
-        <div class="brand">
-            <img src="assets/favicon-v2.png?v=20260715r" alt="Logo HORIZON" class="brand-icon">
+        <a href="index.html" class="brand" aria-label="HORIZON home">
+            <img src="assets/favicon-v2.png?v=20260715r" alt="HORIZON logo" class="brand-icon">
             <div>
                 <span class="brand-title">HORIZON</span>
                 <span class="brand-subtitle">Live Journey</span>
             </div>
-        </div>
-        <nav class="main-nav" aria-label="Navigazione principale">
-            <a href="live.html">Live</a>
+        </a>
+        <nav class="main-nav" aria-label="Main navigation">
+            <a href="index.html">Home</a>
+            <a href="live.html" aria-current="page">Live</a>
             <a href="project.html">The challenge</a>
-            <a href="live.html">Route</a>
+            <a href="project.html#route">Route</a>
             <a href="gallery.html">Journey</a>
             <a href="replay.html">Replay</a>
             <a href="project.html">About</a>
         </nav>
     </header>
-    <main class="page page-live">
+    <main id="main" class="page page-live">
         <section class="page-header">
             <div>
                 <p class="eyebrow">LIVE JOURNEY</p>
