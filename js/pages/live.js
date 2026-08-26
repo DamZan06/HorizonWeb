@@ -42,7 +42,7 @@
             return;
         }
 
-        const routePromise = mapApi.loadRoute ? mapApi.loadRoute('data/horizon-route.geojson').catch((error) => {
+        const routePromise = mapApi.loadRoute ? mapApi.loadRoute('data/route/horizon-route.geojson').catch((error) => {
             console.warn('Route load failed:', error);
             setMapStatus('PLANNED ROUTE COULD NOT BE LOADED');
         }) : Promise.resolve();

@@ -42,7 +42,7 @@ const firebaseURL = runtimeConfig.firebaseURL;
 const startDateIso = runtimeConfig.startDateIso;
 const contentDatabasePath = runtimeConfig.contentDatabasePath;
 const trackerDataUrl = runtimeConfig.trackerDataUrl;
-const routeDataCandidates = runtimeConfig.routeDataCandidates || ['data/Horizon.gpx', 'data/horizon.gpx'];
+const routeDataCandidates = runtimeConfig.routeDataCandidates || ['data/route/Horizon.gpx', 'data/route/horizon.gpx'];
 const defaultCenter = runtimeConfig.defaultCenter || [46.6, 10.4];
 const defaultZoom = runtimeConfig.defaultZoom || 12;
 const adminSessionKey = runtimeConfig.adminSessionKey || 'horizon-admin-authenticated';
@@ -1328,7 +1328,7 @@ function buildNightGallerySeedEntries() {
             location: 'Via al Laghetto, 6832 Chiasso',
             tag: 'night',
             description: 'Prima notte del percorso',
-            image: 'data/Night_1.jpg',
+            image: 'assets/gallery/Night_1.jpg',
             geo: { lat: 45.8259066594, lng: 9.0140666007 }
         },
         {
@@ -1340,7 +1340,7 @@ function buildNightGallerySeedEntries() {
             location: 'A Tasín 2, 6702 Claro',
             tag: 'night',
             description: 'Seconda notte del percorso',
-            image: 'data/Night_2.jpg',
+            image: 'assets/gallery/Night_2.jpg',
             geo: { lat: 46.2565465111, lng: 9.0111590127 }
         },
         {
@@ -1352,7 +1352,7 @@ function buildNightGallerySeedEntries() {
             location: 'Gotthard-Strassentunnel 41, 6493 Hospental',
             tag: 'night',
             description: 'Terza notte del percorso',
-            image: 'data/Night_3.jpg',
+            image: 'assets/gallery/Night_3.jpg',
             geo: { lat: 46.5913747331, lng: 8.5618263165 }
         },
         {
@@ -1364,7 +1364,7 @@ function buildNightGallerySeedEntries() {
             location: 'Rottannenstrasse, Arth',
             tag: 'night',
             description: 'Quarta notte del percorso',
-            image: 'data/Night_4.jpg',
+            image: 'assets/gallery/Night_4.jpg',
             geo: { lat: 47.0562228192, lng: 8.5364110764 }
         },
         {
@@ -1376,7 +1376,7 @@ function buildNightGallerySeedEntries() {
             location: 'GGPQ+RG, 8180 Bülach',
             tag: 'night',
             description: 'Quinta notte del percorso',
-            image: 'data/Night_5.jpg',
+            image: 'assets/gallery/Night_5.jpg',
             geo: { lat: 47.5263890229, lng: 8.5443702332 }
         }
     ];
@@ -2865,7 +2865,7 @@ async function ensureGpxDataLoaded() {
         await gpxLoadPromise;
         return;
     }
-    const gpxUrlCandidates = ['data/Horizon.gpx', 'data/horizon.gpx'];
+    const gpxUrlCandidates = ['data/route/Horizon.gpx', 'data/route/horizon.gpx'];
     gpxLoadPromise = (async () => {
         let lastError = null;
         for (const gpxUrl of gpxUrlCandidates) {
@@ -2992,7 +2992,7 @@ function initMap(options = {}) {
     activeLayer = tileProviders.osm.addTo(mapInstance);
     L.control.zoom({ position: 'topright' }).addTo(mapInstance);
     addMapControl();
-    const gpxUrl = 'data/horizon.gpx';
+    const gpxUrl = 'data/route/horizon.gpx';
     try {
         new L.GPX(gpxUrl, {
             async: true,

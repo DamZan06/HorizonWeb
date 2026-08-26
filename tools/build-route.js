@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const gpxPath = path.join(root, 'data', 'Horizon.gpx');
-const outputPath = path.join(root, 'data', 'horizon-route.geojson');
+const gpxPath = path.join(root, 'data', 'route', 'Horizon.gpx');
+const outputPath = path.join(root, 'data', 'route', 'horizon-route.geojson');
 
 function parseGpxToLineString(gpxText) {
   const matches = [...gpxText.matchAll(/<trkpt[^>]*lat="([^"]+)"[^>]*lon="([^"]+)"[^>]*>/g)];
@@ -34,7 +34,7 @@ function main() {
   const coordinates = parseGpxToLineString(gpxText);
 
   if (!coordinates.length) {
-    throw new Error('No GPX track points found in data/Horizon.gpx');
+    throw new Error('No GPX track points found in data/route/Horizon.gpx');
   }
 
   const geojson = buildGeoJsonFromPoints(coordinates);
