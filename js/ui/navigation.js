@@ -2,8 +2,9 @@
     const NAV_ITEMS = [
         { key: 'home', label: 'Home', href: 'index.html' },
         { key: 'live', label: 'Live', href: 'live.html' },
-        { key: 'project', label: 'Project', href: 'project.html' },
-        { key: 'journey', label: 'Journey', href: 'gallery.html' },
+        { key: 'dashboard', label: 'Dashboard', href: 'dashboard.html' },
+        { key: 'progress', label: 'Objectives', href: 'progress.html' },
+        { key: 'gallery', label: 'Photos', href: 'gallery.html' },
         { key: 'replay', label: 'Replay', href: 'replay.html' }
     ];
 
@@ -18,10 +19,10 @@
             'index.html': 'home',
             'live.html': 'live',
             'project.html': 'project',
-            'gallery.html': 'journey',
-            'journey.html': 'journey',
+            'gallery.html': 'gallery',
+            'journey.html': 'gallery',
             'replay.html': 'replay',
-            'dashboard.html': 'live',
+            'dashboard.html': 'dashboard',
             'progress.html': 'live'
         };
 
