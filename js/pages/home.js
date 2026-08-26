@@ -92,6 +92,7 @@
         updateCountdown();
         updateHomeState();
         window.HorizonExpedition?.loadSummary?.().then(updateHomeState).catch(() => {});
+        window.setInterval(()=>window.HorizonExpedition?.loadSummary?.({force:true}).then(updateHomeState).catch(()=>{}),20000);
         homeState.timerId = window.setInterval(updateCountdown, 1000);
     }
 

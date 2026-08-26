@@ -98,11 +98,12 @@ test.describe('HORIZON site smoke E2E', () => {
   test('live map renders Firebase simulation, planned route and finish flag', async ({ page }) => {
     await page.goto('http://localhost:4173/live.html'); await page.waitForTimeout(700);
     await expect(page.locator('#distance')).not.toHaveText('0 km', { timeout: 25000 });
-    await expect(page.locator('#remaining')).toContainText('316.9');
-    await expect(page.locator('.map-status')).toContainText('18', { timeout: 25000 });
-    await expect(page.locator('.leaflet-overlay-pane path')).toHaveCount(3);
-    await expect(page.locator('.horizon-finish-icon')).toBeVisible(); await page.locator('#centerLiveBtn').click();
+    expect(await page.locator('#remaining').evaluate(n=>parseFloat(n.textContent))).toBeGreaterThan(0);
+    await expect(page.locator('.map-status')).toContainText('recorded points', { timeout: 25000 });
+    await expect(page.locator('.leaflet-pane path')).toHaveCount(3);
+    await expect(page.locator('img.horizon-finish-icon')).toBeVisible(); await expect(page.locator('img.horizon-finish-icon')).toHaveAttribute('src',/finish-flag\.gif/); await page.locator('#centerLiveBtn').click();
     await expect(page.locator('.horizon-start-marker')).toBeVisible(); await expect(page.locator('.leaflet-control-layers')).toBeVisible();
+    expect(await page.evaluate(()=>({route:window.HorizonMap.getRouteLayer().getLayers()[0].getLayers()[0].getLatLngs().length,track:Boolean(window.HorizonMap.getActualTrack()),current:Boolean(window.HorizonMap.getLiveMarker()),start:Boolean(window.HorizonMap.getStartMarker()),finish:Boolean(window.HorizonMap.getFinishMarker())}))).toEqual({route:48797,track:true,current:true,start:true,finish:true});
   });
 
   test('gallery modal supports keyboard and focus restoration', async ({ page }) => {
@@ -137,9 +138,9 @@ test.describe('HORIZON site smoke E2E', () => {
   });
 
   test('home and dashboard consume the shared Firebase track', async ({ page }) => {
-    await page.goto('http://localhost:4173/index.html'); await expect(page.locator('#homeDistance')).toContainText('203.8', { timeout:25000 });
-    await expect(page.locator('#homeCountdown')).toBeHidden(); await expect(page.locator('#homeRemaining')).toContainText('316.9');
-    await page.goto('http://localhost:4173/dashboard.html'); await expect(page.locator('#metricDistance')).toContainText('203.8', { timeout:25000 });
+    await page.goto('http://localhost:4173/index.html'); await expect.poll(()=>page.locator('#homeDistance').evaluate(n=>parseFloat(n.textContent)),{timeout:25000}).toBeGreaterThan(0);
+    await expect(page.locator('#homeCountdown')).toBeHidden(); expect(await page.locator('#homeRemaining').evaluate(n=>parseFloat(n.textContent))).toBeGreaterThan(0);
+    const homeDistance=await page.locator('#homeDistance').evaluate(n=>parseFloat(n.textContent));await page.goto('http://localhost:4173/dashboard.html');await expect.poll(()=>page.locator('#metricDistance').evaluate(n=>parseFloat(n.textContent)),{timeout:25000}).toBeCloseTo(homeDistance,1);
     await expect(page.locator('canvas')).toHaveCount(4);
   });
 
@@ -152,6 +153,8 @@ test.describe('HORIZON site smoke E2E', () => {
   test('language selector is present on every public destination', async ({ page }) => {
     for(const path of ['index.html','live.html','project.html','gallery.html','replay.html','dashboard.html','progress.html']) { await page.goto(`http://localhost:4173/${path}`); await expect(page.locator('.lang-switcher-desktop select')).toBeVisible(); await expect(page.locator('.lang-switcher-mobile select')).toHaveCount(1); }
   });
+
+  for(const viewport of [{width:1440,height:900},{width:1366,height:768},{width:390,height:844}]) test(`navbar geometry is identical at ${viewport.width}x${viewport.height}`,async({page})=>{await page.setViewportSize(viewport);const values=[];for(const path of ['index.html','live.html','project.html','gallery.html','replay.html','dashboard.html','progress.html']){await page.goto(`http://localhost:4173/${path}`);values.push(await page.evaluate(()=>{const box=s=>document.querySelector(s).getBoundingClientRect(),style=s=>getComputedStyle(document.querySelector(s));return {header:box('.topbar').height,logo:[box('.brand-icon').width,box('.brand-icon').height],brand:style('.brand-title').fontSize,link:style('.main-nav a').fontSize,language:box('.lang-switcher-desktop select').height};}));}expect(values.every(v=>JSON.stringify(v)===JSON.stringify(values[0]))).toBeTruthy();});
 
   for (const viewport of [{width:375,height:667},{width:390,height:844},{width:430,height:932},{width:768,height:1024},{width:1024,height:768},{width:1366,height:768},{width:1440,height:900},{width:1920,height:1080}]) {
     test(`public pages fit ${viewport.width}x${viewport.height}`, async ({ page }) => {

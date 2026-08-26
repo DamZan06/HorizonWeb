@@ -29,6 +29,7 @@ function run() {
   const gallery = read('gallery.html');
   const replay = read('replay.html');
   const dashboard = read('dashboard.html');
+  const publicPages=['index.html','live.html','project.html','gallery.html','replay.html','dashboard.html','progress.html','diary.html','timeline.html'];
 
   expect('app init stays guarded and handles bootstrap responsibilities', app.includes('if (app._initialized)') && app.includes('renderNavigation') && app.includes('setupMobileNavigation'));
   expect('config holds the expedition start date in one place', config.includes('startDateIso') && config.includes('2026-08-31T04:00:00+02:00'));
@@ -54,6 +55,9 @@ function run() {
   expect('live page no longer loads Chart.js', !live.includes('chart.js'));
   expect('live page uses a pinned Leaflet version', live.includes('leaflet@1.9.4'));
   expect('no legacy root-level CSS remains in active pages', !home.includes('href="style.css') && !live.includes('href="style.css') && !project.includes('href="style.css') && !gallery.includes('href="style.css') && !replay.includes('href="style.css'));
+  publicPages.forEach(file=>{const html=read(file);expect(`${file} uses canonical social preview`,/property="og:image"[^>]+preview_link_horizon\.png/.test(html)&&/name="twitter:image"[^>]+preview_link_horizon\.png/.test(html)&&/name="twitter:card" content="summary_large_image"/.test(html)&&!/((preview\.png)|(social-card\.png))/.test(html));});
+  expect('map uses configured route only', mapScript.includes('HorizonConfig.routeGeoJsonUrl')&&!mapScript.includes("|| 'data/route/horizon-route.geojson'"));
+  expect('finish marker uses required GIF', mapScript.includes("L.icon({iconUrl:'assets/icons/finish-flag.gif'"));
 
   console.log('All smoke checks passed.');
 }

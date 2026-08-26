@@ -7,6 +7,8 @@
     let trackLayer = null;
     let hasAutoFit = false;
     let activeTileLayer = null;
+    let startMarker = null;
+    let finishMarker = null;
 
     function ensureMapContainer() {
         const container = document.getElementById('map');
@@ -73,8 +75,11 @@
             }
         });
 
+        [['plannedRoute',410],['actualTrack',420],['routeMarkers',430],['currentPosition',440],['userPosition',450]].forEach(([name,z])=>{map.createPane(name);map.getPane(name).style.zIndex=z;});
         routeLayer = window.L.layerGroup().addTo(map);
         markerLayer = window.L.layerGroup().addTo(map);
+        const legend=window.L.control({position:'bottomright'});legend.onAdd=()=>{const node=window.L.DomUtil.create('div','horizon-map-legend');node.innerHTML='<span><i class="legend-planned"></i><b data-map-legend="planned">Planned route</b></span><span><i class="legend-actual"></i><b data-map-legend="actual">Actual track</b></span>';return node;};legend.addTo(map);
+        const translateLegend=()=>{const values={en:['Planned route','Actual track'],it:['Percorso previsto','Traccia effettiva'],de:['Geplante Route','Tatsächliche Strecke'],fr:['Itinéraire prévu','Tracé réel']}[document.documentElement.lang]||['Planned route','Actual track'];document.querySelectorAll('[data-map-legend]').forEach((n,i)=>n.textContent=values[i]);};document.addEventListener('horizon:languagechange',translateLegend);translateLegend();
 
         return map;
     }
@@ -93,7 +98,7 @@
                 color: '#eadfc7',
                 weight: 3,
                 opacity: 0.72,
-                dashArray: '9 8'
+                dashArray: '8 7', pane:'plannedRoute'
             }
         });
 
@@ -101,13 +106,13 @@
         const layers = route.getLayers ? route.getLayers() : [];
         const latlngs = layers.flatMap((layer) => layer.getLatLngs ? layer.getLatLngs().flat(Infinity) : []).filter((p) => p && Number.isFinite(p.lat));
         if (latlngs.length) {
-            window.L.circleMarker(latlngs[0], { radius: 7, color: '#e8953f', fillOpacity: 1, className:'horizon-start-marker' }).bindTooltip('Piz Chavalatsch — start · east').addTo(routeLayer);
-            const flagIcon = window.L.divIcon({ className: 'horizon-finish-icon', html: '<span class="finish-pole"></span><span class="finish-fabric" aria-hidden="true"></span>', iconSize: [38, 42], iconAnchor: [4, 40] });
-            window.L.marker(latlngs.at(-1), { icon: flagIcon, title: 'Chancy — finish' }).bindTooltip('Chancy — finish · west').addTo(routeLayer);
+            startMarker=window.L.circleMarker(latlngs[0],{pane:'routeMarkers',radius:7,color:'#efe3c4',weight:3,fillColor:'#07100f',fillOpacity:1,className:'horizon-start-marker'}).bindTooltip('Start').addTo(routeLayer);
+            const flagIcon=window.L.icon({iconUrl:'assets/icons/finish-flag.gif',iconSize:[52,52],iconAnchor:[7,50],popupAnchor:[18,-44],className:'horizon-finish-icon'});
+            finishMarker=window.L.marker(latlngs.at(-1),{pane:'routeMarkers',icon:flagIcon,title:'Finish'}).bindTooltip('Finish').addTo(routeLayer);
         }
 
         if (!hasAutoFit && route.getBounds && route.getBounds().isValid()) {
-            map.fitBounds(route.getBounds(), { padding: [24, 24] });
+            map.fitBounds(route.getBounds(), { padding: [70, 70] });
             hasAutoFit = true;
         }
 
@@ -115,7 +120,7 @@
     }
 
     function loadRoute(routePath) {
-        const targetPath = routePath || (window.HorizonConfig && window.HorizonConfig.routeGeoJsonUrl) || 'data/route/horizon-route.geojson';
+        const targetPath = routePath || (window.HorizonConfig && window.HorizonConfig.routeGeoJsonUrl);
         if (!targetPath) {
             return Promise.resolve(null);
         }
@@ -142,7 +147,8 @@
 
         const position = Array.isArray(coords) && coords.length >= 2 ? [coords[0], coords[1]] : [coords.latitude, coords.longitude];
         if (!liveMarker) {
-            liveMarker = window.L.marker(position, {
+            const icon=window.L.divIcon({className:'horizon-current-icon',html:'<span></span>',iconSize:[24,24],iconAnchor:[12,12]});
+            liveMarker = window.L.marker(position, { pane:'currentPosition',icon,
                 title: options && options.label ? options.label : 'Live position',
                 riseOnHover: true
             }).addTo(markerLayer);
@@ -165,7 +171,7 @@
         const coords = (points || []).map((point) => [Number(point.latitude), Number(point.longitude)]).filter((point) => point.every(Number.isFinite));
         if (coords.length < 2) return null;
         if (trackLayer) trackLayer.setLatLngs(coords);
-        else trackLayer = window.L.polyline(coords, { color: '#e8953f', weight: 5, opacity: .96, lineCap: 'round' }).addTo(map);
+        else trackLayer = window.L.polyline(coords,{pane:'actualTrack',color:'#e8953f',weight:5,opacity:1,lineCap:'round'}).addTo(map);
         return trackLayer;
     }
 
@@ -177,7 +183,7 @@
         const position = Array.isArray(coords) && coords.length >= 2 ? [coords[0], coords[1]] : [coords.latitude, coords.longitude];
         if (!userMarker) {
             userMarker = window.L.circleMarker(position, {
-                radius: 7,
+                pane:'userPosition',radius: 7,
                 color: '#4dc0ff',
                 fillColor: '#4dc0ff',
                 fillOpacity: 0.9
@@ -214,6 +220,7 @@
         centerLive,
         centerUser,
         getMap: () => map,
-        getRouteLayer: () => routeLayer
+        getRouteLayer: () => routeLayer,
+        getActualTrack:()=>trackLayer,getLiveMarker:()=>liveMarker,getStartMarker:()=>startMarker,getFinishMarker:()=>finishMarker
     };
 })();

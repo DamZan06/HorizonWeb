@@ -36,15 +36,16 @@
             altitude: Number.isFinite(summary.currentAltitudeM) ? `${Math.round(summary.currentAltitudeM)} m` : 'Not available',
             lastUpdate: new Intl.DateTimeFormat(document.documentElement.lang || 'en', { dateStyle: 'medium', timeStyle: 'short' }).format(latest.timestamp),
             time: `${(summary.elapsedTimeMs/3600000).toFixed(1)} h`, elevation: `${Math.round(summary.actualElevationGainM)} m`,
-            steps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(document.documentElement.lang || 'en')
+            steps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(document.documentElement.lang || 'en'),
+            liveEta: summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang||'en',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(summary.eta) : (summary.state==='finished'?'Completed':'Not available')
         };
         Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
+        const etaBasis=document.getElementById('liveEtaBasis');if(etaBasis)etaBasis.textContent=summary.eta?(summary.state==='live'?'Based on moving pace':'ETA based on last moving pace'):'';
         const progress = document.getElementById('progressBar'); if (progress) progress.style.width = `${summary.completionPercent}%`;
         const state = summary.state;
         const statusCopy = { live: 'LIVE', offline: 'SIGNAL DELAYED', 'not-started': 'NOT STARTED', finished: 'FINISHED' };
         const statusNode = document.querySelector('.live-status span:last-child'); if (statusNode) statusNode.textContent = `${statusCopy[state] || 'SIGNAL DELAYED'} · ${points.length.toLocaleString()} points`;
         const dot = document.querySelector('.live-status .status-dot'); if (dot) dot.className = `status-dot ${state === 'live' ? 'status-moving' : 'status-not-started'}`;
-        setMapStatus(`Map ready — ${points.length.toLocaleString()} recorded points`);
     }
 
     function initLivePage() {
@@ -82,16 +83,14 @@
             }
             const summary = await window.HorizonExpedition.loadSummary();
             renderTrack(summary, mapApi);
-            return summary.latestPoint;
+            return summary;
         }).catch((error) => {
             console.warn('Live point load failed:', error);
             setMapStatus('LIVE DATA TEMPORARILY UNAVAILABLE');
             return null;
         });
 
-        Promise.all([routePromise, livePromise]).catch(() => {
-            setMapStatus('MAP STATE UNAVAILABLE');
-        });
+        Promise.all([routePromise,livePromise]).then(([routeReady,summary])=>{if(!routeReady)setMapStatus('ROUTE UNAVAILABLE');else if(!summary?.latestPoint)setMapStatus('LIVE DATA UNAVAILABLE — PLANNED ROUTE READY');else setMapStatus(`${summary.state==='live'?'MAP READY':'LIVE DATA DELAYED'} — ${summary.points.length.toLocaleString()} recorded points`);});
 
         const emptyValues = { distance: '0 km', remaining: `${window.HorizonConfig?.expectedDistanceKm || 500} km`, completion: '0%', speed: 'Not available', altitude: 'Not available', lastUpdate: 'Not available', completionText: '0%', time: '0 h', elevation: '0 m', steps: '0', visitorDistance: 'Not available' };
         Object.entries(emptyValues).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
@@ -108,6 +107,7 @@
         const refreshLoop = function () {
             window.HorizonExpedition?.loadSummary?.({ force:true }).then((summary) => {
                 renderTrack(summary, mapApi);
+                setMapStatus(`${summary.state==='live'?'MAP READY':'LIVE DATA DELAYED'} — ${summary.points.length.toLocaleString()} recorded points`);
             }).catch(() => {
                 setMapStatus('LIVE DATA TEMPORARILY UNAVAILABLE');
             });
