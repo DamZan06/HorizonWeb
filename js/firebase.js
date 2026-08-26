@@ -64,7 +64,8 @@
     }
 
     async function fetchLiveTrack(options) {
-        if (trackRequest && !options?.force) return trackRequest;
+        if (options?.force) trackRequest = null;
+        if (trackRequest) return trackRequest;
         const endpoint = getConfigValue('firebaseURL', '').trim();
         if (!endpoint) return [];
         trackRequest = timeoutFetch(endpoint, { headers: { Accept: 'application/json' }, cache: 'no-store' }, DEFAULT_TIMEOUT_MS)
@@ -107,7 +108,7 @@
         for (const endpoint of endpoints) {
             try {
                 const points = await fetchLiveTrack();
-                const point = points.at(-1) || normalizeLivePoint(payload);
+                const point = points.at(-1) || null;
                 if (point) {
                     localStorage.setItem('horizon-last-live-point', JSON.stringify(point));
                     return point;

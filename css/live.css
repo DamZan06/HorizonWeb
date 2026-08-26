@@ -164,6 +164,13 @@ body {
   background: #22323c;
 }
 
+/* The global responsive-image rule would otherwise collapse Leaflet icons
+   because marker panes intentionally have no intrinsic width. */
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  max-width: none;
+}
+
 .map-status {
   color: rgba(245, 242, 235, 0.96);
   border: 1px solid rgba(255,255,255,0.1);

@@ -101,9 +101,17 @@ test.describe('HORIZON site smoke E2E', () => {
     expect(await page.locator('#remaining').evaluate(n=>parseFloat(n.textContent))).toBeGreaterThan(0);
     await expect(page.locator('.map-status')).toContainText('recorded points', { timeout: 25000 });
     await expect(page.locator('.leaflet-pane path')).toHaveCount(3);
-    await expect(page.locator('img.horizon-finish-icon')).toBeVisible(); await expect(page.locator('img.horizon-finish-icon')).toHaveAttribute('src',/finish-flag\.gif/); await page.locator('#centerLiveBtn').click();
+    await page.locator('img.horizon-finish-icon').scrollIntoViewIfNeeded(); await expect(page.locator('img.horizon-finish-icon')).toBeVisible(); await expect(page.locator('img.horizon-finish-icon')).toHaveAttribute('src',/finish-flag\.gif/); await page.locator('#centerLiveBtn').click();
     await expect(page.locator('.horizon-start-marker')).toBeVisible(); await expect(page.locator('.leaflet-control-layers')).toBeVisible();
     expect(await page.evaluate(()=>({route:window.HorizonMap.getRouteLayer().getLayers()[0].getLayers()[0].getLatLngs().length,track:Boolean(window.HorizonMap.getActualTrack()),current:Boolean(window.HorizonMap.getLiveMarker()),start:Boolean(window.HorizonMap.getStartMarker()),finish:Boolean(window.HorizonMap.getFinishMarker())}))).toEqual({route:48797,track:true,current:true,start:true,finish:true});
+  });
+
+  test('live requests and renders visitor geolocation automatically', async ({ page, context }) => {
+    await context.grantPermissions(['geolocation'], { origin:'http://localhost:4173' });
+    await context.setGeolocation({ latitude:46.948, longitude:7.4474 });
+    await page.goto('http://localhost:4173/live.html');
+    await expect(page.locator('.leaflet-userPosition-pane path')).toBeVisible({ timeout:10000 });
+    expect(await page.evaluate(()=>Boolean(window.HorizonMap.getUserMarker()))).toBeTruthy();
   });
 
   test('gallery modal supports keyboard and focus restoration', async ({ page }) => {

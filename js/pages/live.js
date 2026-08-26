@@ -40,7 +40,7 @@
             liveEta: summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang||'en',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(summary.eta) : (summary.state==='finished'?'Completed':'Not available')
         };
         Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
-        const etaBasis=document.getElementById('liveEtaBasis');if(etaBasis)etaBasis.textContent=summary.eta?(summary.state==='live'?'Based on moving pace':'ETA based on last moving pace'):'';
+        const etaBasis=document.getElementById('liveEtaBasis');if(etaBasis)etaBasis.textContent=summary.eta?(summary.state==='live'?'Based on recent and average moving pace':'ETA based on recorded moving pace'):'';
         const progress = document.getElementById('progressBar'); if (progress) progress.style.width = `${summary.completionPercent}%`;
         const state = summary.state;
         const statusCopy = { live: 'LIVE', offline: 'SIGNAL DELAYED', 'not-started': 'NOT STARTED', finished: 'FINISHED' };
@@ -96,10 +96,12 @@
         Object.entries(emptyValues).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
         const progress = document.getElementById('progressBar'); if (progress) progress.style.width = '0%';
         document.getElementById('centerLiveBtn')?.addEventListener('click', () => { if (!mapApi.centerLive()) setMapStatus('No recent live position available.'); });
-        document.getElementById('centerUserBtn')?.addEventListener('click', () => {
+        const requestVisitorPosition = (center = true) => {
             if (!navigator.geolocation) { setMapStatus('Geolocation is not supported by this browser.'); return; }
-            navigator.geolocation.getCurrentPosition((position) => { mapApi.setUserPosition([position.coords.latitude, position.coords.longitude]); mapApi.centerUser(); setMapStatus('Your position is shown on the planned route.'); }, () => setMapStatus('Location permission denied. The planned route remains available.'));
-        });
+            navigator.geolocation.getCurrentPosition((position) => { mapApi.setUserPosition([position.coords.latitude, position.coords.longitude]); if (center) mapApi.centerUser(); setMapStatus('Your position is shown on the planned route.'); }, () => setMapStatus('Location permission denied. The planned route remains available.'), { enableHighAccuracy:false, timeout:10000, maximumAge:60000 });
+        };
+        document.getElementById('centerUserBtn')?.addEventListener('click', () => requestVisitorPosition(true));
+        requestVisitorPosition(false);
         const wrap = document.getElementById('map')?.closest('.map-wrap');
         document.getElementById('mapFullscreenBtn')?.addEventListener('click', async () => { if (!document.fullscreenElement) await wrap?.requestFullscreen(); else await document.exitFullscreen(); });
         document.addEventListener('fullscreenchange', () => setTimeout(() => map.invalidateSize(), 50));

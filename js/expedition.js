@@ -39,13 +39,16 @@
         const movingSpeed = Number(movingAverageSpeedKmh);
         const recentSpeed = Number(recentMovingSpeedKmh);
 
-        const selected = valid(overallSpeed) && overallSpeed >= 0.5 && overallSpeed < 80
-            ? ['overall-average', overallSpeed]
-            : valid(movingSpeed) && movingSpeed >= 0.5 && movingSpeed < 80
-                ? ['moving-average', movingSpeed]
-                : valid(recentSpeed) && recentSpeed >= 0.5 && recentSpeed < 80
-                    ? ['recent', recentSpeed]
-                    : null;
+        const usable = (speed) => valid(speed) && speed >= 0.5 && speed < 80;
+        const selected = usable(recentSpeed) && usable(movingSpeed)
+            ? ['recent-and-moving', recentSpeed * 0.65 + movingSpeed * 0.35]
+            : usable(recentSpeed)
+                ? ['recent', recentSpeed]
+                : usable(movingSpeed)
+                    ? ['moving-average', movingSpeed]
+                    : usable(overallSpeed)
+                        ? ['overall-average', overallSpeed]
+                        : null;
 
         return selected ? { eta: Number(now) + (Number(remainingDistanceKm) / Number(selected[1])) * 3600000, basis: selected[0], speedKmh: Number(selected[1]) } : { eta: null, basis: null, speedKmh: null };
     }
@@ -56,12 +59,19 @@
         const recordedDistance=valid(latestPoint?.cumulativeDistanceKm)?Number(latestPoint.cumulativeDistanceKm):window.HorizonStats.routeDistance(list);
         const coveredDistanceKm=window.HorizonStats.clamp(recordedDistance,0,plannedDistanceKm);
         let movingTimeMs=0,movingDistanceKm=0,maxSpeedKmh=0;
-        for(let i=1;i<list.length;i++){const delta=Math.max(0,list[i].timestamp-list[i-1].timestamp),speed=Number(list[i].speed);if(valid(speed)&&speed>0.5&&speed<80&&delta<=300000){movingTimeMs+=delta;movingDistanceKm+=window.HorizonStats.distanceKm(list[i-1],list[i]);}if(valid(speed)&&speed<80)maxSpeedKmh=Math.max(maxSpeedKmh,speed);}
+        const movingSamples=[];
+        for(let i=1;i<list.length;i++){
+            const delta=Math.max(0,list[i].timestamp-list[i-1].timestamp), segmentKm=window.HorizonStats.distanceKm(list[i-1],list[i]);
+            const reportedSpeed=Number(list[i].speed), inferredSpeed=delta>0?segmentKm/(delta/3600000):null;
+            const speed=valid(reportedSpeed)&&reportedSpeed>=0&&reportedSpeed<80?reportedSpeed:inferredSpeed;
+            if(valid(speed)&&speed>0.5&&speed<80&&delta<=300000){movingTimeMs+=delta;movingDistanceKm+=segmentKm;movingSamples.push({timestamp:list[i].timestamp,speed});}
+            if(valid(speed)&&speed<80)maxSpeedKmh=Math.max(maxSpeedKmh,speed);
+        }
         const elapsedTimeMs=firstPoint&&latestPoint?Math.max(0,latestPoint.timestamp-firstPoint.timestamp):0;
         const averageSpeedKmh=elapsedTimeMs>0?coveredDistanceKm/(elapsedTimeMs/3600000):null;
         const movingAverageSpeedKmh=movingTimeMs>0?movingDistanceKm/(movingTimeMs/3600000):null;
-        const recent=list.filter((p)=>latestPoint&&p.timestamp>=latestPoint.timestamp-3600000&&Number(p.speed)>0.5&&Number(p.speed)<80);
-        const recentMovingSpeedKmh=recent.length?recent.reduce((sum,p)=>sum+Number(p.speed),0)/recent.length:null;
+        const recent=movingSamples.filter((sample)=>latestPoint&&sample.timestamp>=latestPoint.timestamp-3600000);
+        const recentMovingSpeedKmh=recent.length?recent.reduce((sum,sample)=>sum+sample.speed,0)/recent.length:null;
         const remainingDistanceKm=Math.max(0,plannedDistanceKm-coveredDistanceKm), completionPercent=window.HorizonStats.clamp(coveredDistanceKm/plannedDistanceKm*100,0,100);
         const state=window.HorizonStatus.getExpeditionState({now,startDate:window.HorizonConfig.startDateIso,hasValidPoints:Boolean(list.length),latestPointTimestamp:latestPoint?.timestamp,trackerState:latestPoint?.trackerState,finished:completionPercent>=99.9});
         const etaResult=calculateEta({remainingDistanceKm,recentMovingSpeedKmh,movingAverageSpeedKmh,averageSpeedKmh,latestPointTimestamp:latestPoint?.timestamp,now,pointCount:list.length,finished:completionPercent>=99.9});
