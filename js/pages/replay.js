@@ -32,7 +32,11 @@
         }
 
         const routePath = (window.HorizonConfig && window.HorizonConfig.routeGeoJsonUrl) || 'data/route/horizon-route.geojson';
-        fetch(routePath).then((response) => { if (!response.ok) throw new Error('route'); return response.json(); }).then((data) => { const layer = window.L.geoJSON(data, { style: { color: '#e8953f', weight: 4 } }).addTo(map); map.fitBounds(layer.getBounds(), { padding: [20,20] }); }).catch(() => setStatus('Planned route unavailable.'));
+        fetch(routePath).then((response) => { if (!response.ok) throw new Error('route'); return response.json(); }).then((data) => {
+            const layer = window.L.geoJSON(data, { style: { color: '#eadfc7', weight: 3, opacity: .72, dashArray: '9 8' } }).addTo(map); map.fitBounds(layer.getBounds(), { padding: [20,20] });
+            const parts = layer.getLayers().flatMap((item) => item.getLatLngs ? item.getLatLngs().flat(Infinity) : []).filter((point) => point?.lat);
+            if (parts.length) { const icon=window.L.divIcon({className:'horizon-finish-icon',html:'<span class="finish-pole"></span><span class="finish-fabric"></span>',iconSize:[38,42],iconAnchor:[4,40]}); window.L.marker(parts.at(-1),{icon,title:'Chancy — finish'}).bindTooltip('Chancy — finish · west').addTo(map); }
+        }).catch(() => setStatus('Planned route unavailable.'));
         replayState.map = map;
 
         return map;
@@ -129,8 +133,15 @@
 
         updateReplayUi();
         buildMarker();
-        [playButton, pauseButton, resetButton, speedInput].forEach((control) => { if (control) control.disabled = !replayState.routePoints.length; });
-        setStatus('Replay will become available once journey data has been recorded.');
+        const controls = [playButton, pauseButton, resetButton, speedInput];
+        controls.forEach((control) => { if (control) control.disabled = true; });
+        setStatus('Loading recorded journey…');
+        window.HorizonFirebase?.fetchLiveTrack?.().then((points) => {
+            replayState.routePoints = points.map((point) => [point.latitude, point.longitude]);
+            if (replayState.routePoints.length > 1) window.L.polyline(replayState.routePoints, { color:'#e8953f', weight:4, opacity:.9 }).addTo(replayState.map);
+            controls.forEach((control) => { if (control) control.disabled = !replayState.routePoints.length; });
+            renderReplayFrame();
+        }).catch(() => setStatus('Replay is temporarily unavailable.'));
     }
 
     window.HorizonReplay = {

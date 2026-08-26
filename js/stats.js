@@ -23,7 +23,9 @@
         return gain;
     }
     function summarize(points, totalKm) {
-        const list = points || [], total = number(totalKm) || 500, covered = clamp(routeDistance(list), 0, total);
+        const list = points || [], total = number(totalKm) || 500;
+        const recorded = number(list.at(-1)?.cumulativeDistanceKm);
+        const covered = clamp(recorded !== null ? recorded : routeDistance(list), 0, total);
         const speeds = list.map((p) => number(p.speed)).filter((v) => v !== null && v >= 0 && v < 80);
         const hrs = list.length > 1 ? Math.max(0, (new Date(list.at(-1).timestamp) - new Date(list[0].timestamp)) / 3600000) : 0;
         return { coveredKm: covered, remainingKm: clamp(total - covered, 0, total), completion: clamp(covered / total * 100, 0, 100), elevationGainM: elevationGain(list), currentSpeed: speeds.at(-1) ?? null, averageSpeed: speeds.length ? speeds.reduce((a,b)=>a+b,0)/speeds.length : null, maxSpeed: speeds.length ? Math.max(...speeds) : null, elapsedHours: Number.isFinite(hrs) ? hrs : 0 };

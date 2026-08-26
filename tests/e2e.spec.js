@@ -95,11 +95,12 @@ test.describe('HORIZON site smoke E2E', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBeTruthy();
   });
 
-  test('live controls expose honest empty states', async ({ page }) => {
+  test('live map renders Firebase simulation, planned route and finish flag', async ({ page }) => {
     await page.goto('http://localhost:4173/live.html'); await page.waitForTimeout(700);
-    await expect(page.locator('#distance')).toHaveText('0 km'); await expect(page.locator('#remaining')).toHaveText('500 km');
-    await page.locator('#centerLiveBtn').click(); await expect(page.locator('.map-status')).toContainText('No recent live position');
-    await expect(page.locator('.leaflet-overlay-pane path').first()).toBeVisible();
+    await expect(page.locator('#distance')).not.toHaveText('0 km', { timeout: 25000 });
+    await expect(page.locator('.map-status')).toContainText('18', { timeout: 25000 });
+    await expect(page.locator('.leaflet-overlay-pane path')).toHaveCount(3);
+    await expect(page.locator('.horizon-finish-icon')).toBeVisible(); await page.locator('#centerLiveBtn').click();
   });
 
   test('gallery modal supports keyboard and focus restoration', async ({ page }) => {
@@ -108,9 +109,9 @@ test.describe('HORIZON site smoke E2E', () => {
     await expect(page.locator('.modal-backdrop')).not.toHaveClass(/is-open/); await expect(trigger).toBeFocused();
   });
 
-  test('replay is disabled before recorded data exists', async ({ page }) => {
-    await page.goto('http://localhost:4173/replay.html'); await expect(page.locator('#replayPlay')).toBeDisabled();
-    await expect(page.locator('#replayStatus')).toContainText('once journey data has been recorded');
+  test('replay consumes the recorded Firebase track', async ({ page }) => {
+    await page.goto('http://localhost:4173/replay.html'); await expect(page.locator('#replayPlay')).toBeEnabled({ timeout:25000 });
+    await expect(page.locator('#replayStatus')).toContainText('Replay ready'); await expect(page.locator('.horizon-finish-icon')).toBeVisible();
   });
 
   test('countdown handles before and after departure', async ({ page }) => {
@@ -131,6 +132,23 @@ test.describe('HORIZON site smoke E2E', () => {
     await expect(page.locator('#adminModeLabel')).toContainText('Publishing is disabled');
     await page.locator('#adminLoginForm input[type=password]').fill('fixture'); await page.locator('#adminLoginForm button[type=submit]').click();
     await expect(page.locator('#adminLoginError')).toContainText('unavailable'); expect(errors).toEqual([]);
+  });
+
+  test('home and dashboard consume the shared Firebase track', async ({ page }) => {
+    await page.goto('http://localhost:4173/index.html'); await expect(page.locator('#homeDistance')).toContainText('203.8', { timeout:25000 });
+    await expect(page.locator('#countdownStartDate')).not.toBeEmpty();
+    await page.goto('http://localhost:4173/dashboard.html'); await expect(page.locator('#metricDistance')).toContainText('203.8', { timeout:25000 });
+    await expect(page.locator('canvas')).toHaveCount(4);
+  });
+
+  test('HORIZON visual assets and editorial portraits are restored', async ({ page }) => {
+    await page.setViewportSize({width:1440,height:900}); await page.goto('http://localhost:4173/index.html');
+    expect(await page.locator('.horizon-hero').evaluate((node)=>getComputedStyle(node).backgroundImage)).toContain('Sfondo.png');
+    await expect(page.locator('.person-portrait img')).toHaveCount(2); const box=await page.locator('.person-card').first().boundingBox(); expect(box.width).toBeGreaterThan(800);
+  });
+
+  test('language selector is present on every public destination', async ({ page }) => {
+    for(const path of ['index.html','live.html','project.html','gallery.html','replay.html','dashboard.html','progress.html']) { await page.goto(`http://localhost:4173/${path}`); await expect(page.locator('.lang-switcher-desktop select')).toBeVisible(); await expect(page.locator('.lang-switcher-mobile select')).toHaveCount(1); }
   });
 
   for (const viewport of [{width:375,height:667},{width:390,height:844},{width:430,height:932},{width:768,height:1024},{width:1024,height:768},{width:1366,height:768},{width:1440,height:900},{width:1920,height:1080}]) {

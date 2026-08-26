@@ -1,8 +1,8 @@
-# HORIZON — COMPLETE WEBSITE AUDIT, REFACTOR, BUG FIXING AND RELEASE VALIDATION
+# HORIZON — COMPLETE VISUAL, FUNCTIONAL AND LANGUAGE RESTORATION
 
-You are working on the complete HORIZON website repository.
+You are working on the complete HORIZON website.
 
-Live production website:
+Live site:
 
 https://damzan06.github.io/HorizonWeb/
 
@@ -10,345 +10,458 @@ Repository:
 
 https://github.com/DamZan06/HorizonWeb
 
-Your task is NOT to fix one isolated bug.
+The website is currently cleaner than before, but the latest refactor has removed too much of its visual identity and several features are still incomplete or inconsistent.
 
-Your task is to perform a **complete end-to-end audit, repair, refactor and validation of the entire website** until the project behaves like a stable production website.
+Your task is to restore HORIZON as a **premium, cinematic, Alpine expedition website**, while preserving the improved code architecture.
 
-## ABSOLUTE COMPLETION RULE
+This is NOT a request to redesign everything from scratch.
 
-Do **not** declare the task finished after making code changes.
+Keep the current structure where it is good.
 
-Do **not** declare the task finished because the code “looks correct”.
-
-Do **not** declare the task finished because one page works.
-
-Do **not** stop after fixing the bugs explicitly mentioned in this prompt.
-
-You may declare the work finished ONLY when:
-
-1. every public page has been tested;
-2. every interactive function has been tested;
-3. every map has been tested;
-4. every timer/countdown has been tested;
-5. every data-driven statistic has been tested;
-6. every language switcher has been tested;
-7. every navigation link has been tested;
-8. desktop and mobile layouts have been tested;
-9. browser console errors have been eliminated;
-10. broken network requests and 404s have been eliminated;
-11. all automated tests pass;
-12. the website still works after a fresh reload;
-13. failure/empty-data states behave correctly;
-14. no feature remains permanently stuck on placeholders such as `--`, `Loading…`, `Calculating…`, etc. unless there is legitimately no available data;
-15. no legacy/dead code is required for the new implementation to function.
-
-If something fails during testing, fix it and run the tests again.
-
-Repeat:
-
-**AUDIT → FIX → TEST → FIND REMAINING PROBLEMS → FIX → TEST AGAIN**
-
-until the complete website passes.
+Fix what is broken, restore what was lost, improve the styling, and test the complete site.
 
 ---
 
-# 1. FIRST: UNDERSTAND THE ENTIRE PROJECT
+# ABSOLUTE COMPLETION RULE
 
-Before editing anything, inspect the complete repository.
+DO NOT STOP after editing files.
 
-Inspect at minimum:
+DO NOT tell me the task is finished because the code compiles.
 
-* every `.html` file;
-* every `.js` file;
-* every `.css` file;
-* `package.json`;
-* `firebase-config.js`;
-* route GPX/GeoJSON files;
-* `assets/`;
-* `data/`;
-* `tools/`;
-* navigation;
-* Firebase/live tracking integration;
-* translations;
-* status logic;
-* map logic;
-* chart logic;
-* gallery logic;
-* replay logic;
-* admin functions;
-* progress/timeline/diary functions.
+DO NOT stop after fixing only the issues explicitly mentioned here.
 
-Do not assume a file is still used just because it exists.
+You may only declare completion when:
 
-Determine:
+* every page works;
+* every language works;
+* every visible string is translated;
+* the countdown works;
+* the map loads;
+* Firebase simulation data is visible;
+* the visual identity is restored;
+* participant images are correctly displayed;
+* the correct HORIZON logo is used;
+* the HORIZON background is restored;
+* the finish flag is visible;
+* desktop and mobile layouts are verified;
+* no console errors remain;
+* no failed local asset requests remain;
+* all automated and browser-level tests pass.
 
-* which files are current;
-* which files are legacy;
-* which functions are duplicated;
-* which HTML files load obsolete scripts;
-* which scripts are never loaded;
-* which assets have incorrect paths;
-* which DOM elements expect controllers that do not exist;
-* which controllers are implemented but never imported.
+If something fails:
 
-Create a dependency map internally before making large changes.
+FIX IT → TEST AGAIN.
+
+Continue until the complete site works.
 
 ---
 
-# 2. IMPORTANT KNOWN BUG — HOMEPAGE COUNTDOWN
+# 1. FIRST INSPECT THE CURRENT REPOSITORY
 
-The homepage currently displays:
+Before changing anything:
 
-* Days `--`
-* Hours `--`
-* Minutes `--`
-* Seconds `--`
-* `Calculating remaining time...`
+* inspect all HTML;
+* inspect all CSS;
+* inspect all JavaScript;
+* inspect `assets/`;
+* inspect `data/`;
+* inspect Firebase integration;
+* inspect current translations;
+* inspect the currently available logo and background images;
+* inspect the participant photos;
+* inspect route files;
+* inspect current map markers.
 
-and stays like this.
+Do NOT invent new filenames if existing appropriate assets already exist.
 
-THIS IS A BUG.
+IMPORTANT:
 
-The expedition start configuration currently contains approximately:
+I have intentionally deleted files/images that contained NORTHLINE branding.
 
-```js
-startDateIso: '2026-08-31T04:00:00+02:00'
-```
+Therefore:
 
-The countdown therefore does not require any external API.
+**DO NOT recreate, restore or reference deleted NorthLine image files.**
 
-Implement a reliable countdown controller.
+If an old code reference points to a NorthLine asset that no longer exists:
 
-The countdown must:
+REMOVE THAT REFERENCE.
 
-* use the configured `startDateIso`;
-* calculate the difference using `Date.now()`;
-* respect the explicit timezone contained in the ISO timestamp;
-* update immediately when the page initializes;
-* update once per second;
-* correctly calculate days;
-* correctly calculate remaining hours;
-* correctly calculate minutes;
-* correctly calculate seconds;
-* never show negative values;
-* work after changing language;
-* not reset when translations are applied;
-* cleanly transition when the countdown reaches zero.
+Replace it with the correct HORIZON asset that currently exists in the repository.
 
-Before departure:
-
-```text
-05 DAYS
-18 HOURS
-23 MINUTES
-14 SECONDS
-```
-
-or the equivalent layout currently used by the website.
-
-After departure, replace the countdown state with a meaningful expedition state such as:
-
-`HORIZON IS UNDERWAY`
-
-or use the existing translated equivalent.
-
-Do not permanently leave:
-
-`Calculating remaining time...`
-
-That text may only exist momentarily before JavaScript initializes.
-
-Create a dedicated controller if necessary, for example:
-
-```text
-js/pages/home.js
-```
-
-Do NOT bury this feature inside a giant legacy runtime file.
-
-Test the calculation using mocked dates both before and after departure.
+The repository itself is the source of truth for available images.
 
 ---
 
-# 3. CRITICAL BUG — LIVE MAP
+# 2. RESTORE HORIZON VISUAL IDENTITY
 
-The Live page currently displays:
+The current site looks too basic and generic.
 
-`LOADING MAP…`
+It has become overly minimal after the refactor.
 
-and the map does not reliably load.
+HORIZON should feel:
 
-Investigate the complete cause.
+* cinematic;
+* premium;
+* Alpine;
+* serious;
+* expedition-oriented;
+* atmospheric;
+* distinctive;
+* visually connected to the HORIZON poster.
 
-A known inconsistency currently exists:
+Do NOT turn it into:
 
-`js/pages/live.js` tries to load:
+* a SaaS dashboard;
+* a corporate website;
+* a plain dark Bootstrap layout;
+* a generic black/white landing page.
+
+The aesthetic should use:
+
+* deep navy;
+* charcoal;
+* warm ivory;
+* antique gold;
+* muted orange sunset accents;
+* subtle Alpine imagery;
+* atmospheric gradients;
+* light grain / texture where tasteful;
+* stronger typography hierarchy.
+
+---
+
+# 3. RESTORE THE HERO BACKGROUND IMAGE
+
+The homepage previously had a strong background image.
+
+It is currently missing.
+
+There is an existing HORIZON background image in the repository.
+
+Inspect the current available assets, including:
 
 ```text
-data/route/horizon-route.geojson
+data/Sfondo.png
 ```
 
-while the repository currently contains:
+and any newer/moved equivalent.
+
+Use the correct CURRENT HORIZON background asset.
+
+DO NOT use any NorthLine background.
+
+The homepage hero should again have a cinematic Alpine background.
+
+Recommended structure:
 
 ```text
-data/horizon-route.geojson
+background image
++
+dark navy overlay
++
+subtle gradient
++
+text
 ```
 
-Fix this properly.
+The image should remain visible but must not reduce text readability.
 
-DO NOT simply hardcode another random path.
+Example conceptual CSS:
 
-There must be ONE canonical route path stored in configuration.
+```css
+background:
+  linear-gradient(
+    180deg,
+    rgba(5, 12, 20, .55),
+    rgba(5, 12, 20, .92)
+  ),
+  url(...);
+```
+
+Do not blindly copy these exact values.
+
+Tune them visually.
+
+The hero must feel large and immersive.
+
+---
+
+# 4. CORRECT HORIZON LOGO ONLY
+
+The navigation currently uses an incorrect or outdated logo treatment.
+
+The HORIZON website must use ONLY HORIZON branding.
+
+DO NOT use:
+
+* NorthLine logo;
+* NorthLine mountain graphic;
+* NorthLine favicon;
+* deleted NorthLine image assets.
+
+Inspect the repository and identify the CURRENT correct HORIZON logo/favicon.
+
+Use it consistently for:
+
+* navbar;
+* favicon;
+* mobile header;
+* social metadata where appropriate.
+
+If there are conflicting old favicon/logo files, determine which is the actual HORIZON version from the existing assets and remove obsolete references.
+
+Do NOT generate a new logo unless absolutely necessary.
+
+Use the current HORIZON asset already present.
+
+---
+
+# 5. PARTICIPANT SECTION — DESKTOP LAYOUT
+
+The participant images are vertical portraits.
+
+The current layout crops the subject too aggressively because the image is forced into a wide card format.
+
+On DESKTOP:
+
+use a horizontal participant layout.
+
+For each participant:
+
+```text
+IMAGE | TEXT
+```
+
+or alternating:
+
+```text
+Damiano:
+IMAGE | TEXT
+
+Nicolas:
+TEXT | IMAGE
+```
+
+if visually balanced.
+
+Preferred layout:
+
+* image approximately 35–40% width;
+* text approximately 60–65%;
+* image remains portrait;
+* image height around 420–520 px depending on viewport;
+* preserve the subject;
+* avoid aggressive cropping.
+
+Use:
+
+```css
+object-fit: cover;
+```
+
+only if the correct `object-position` preserves the person.
+
+If necessary use:
+
+```css
+object-fit: contain;
+```
+
+or a portrait wrapper with a dark background.
+
+The primary requirement is:
+
+**DO NOT CUT OFF THE SUBJECT OF THE PARTICIPANT PHOTO.**
+
+Use the existing participant images currently present in the repository:
+
+```text
+DamZan.jpg
+NicMos.jpeg
+```
+
+or their current moved equivalents.
+
+On MOBILE:
+
+stack:
+
+```text
+IMAGE
+TEXT
+```
+
+while preserving a reasonable portrait ratio.
+
+---
+
+# 6. MAKE THE VISUAL LANGUAGE LESS MONOTONOUS
+
+The current site uses too much:
+
+```text
+white heading
+white paragraph
+dark background
+card
+dark background
+white heading
+```
+
+This feels flat.
+
+Introduce stronger hierarchy.
+
+Use the HORIZON accent colour selectively.
 
 For example:
 
-```js
-routeGeoJsonUrl: 'data/horizon-route.geojson'
-```
+### Eyebrows / section labels
 
-Then all maps use that value.
+warm antique gold.
 
-Search the entire repository for:
+### Important heading words
 
-```text
-Horizon.gpx
-horizon.gpx
-horizon-route.geojson
-data/route/
-data/Horizon.gpx
-```
+Use accent colour selectively.
 
-and eliminate inconsistent paths.
-
-The Live map must successfully display:
-
-* Leaflet base tiles;
-* the complete HORIZON route;
-* correct geographic orientation;
-* route start;
-* route finish;
-* live position when real data exists;
-* useful empty state before departure;
-* visitor position when permission is granted;
-* center-on-user control;
-* center-on-live-position control;
-* fullscreen control.
-
-If live GPS data does not yet exist because HORIZON has not started, THAT MUST NOT BREAK THE MAP.
-
-The planned route must still display.
-
-Correct behavior before departure:
-
-```text
-Map visible
-Planned route visible
-Status: Expedition not started / waiting for live position
-No fake live marker
-```
-
-Incorrect behavior:
-
-```text
-LOADING MAP…
-forever
-```
-
-Also make sure that failures are not hidden.
-
-The current architecture must not do something like:
-
-```js
-Promise.allSettled(...).finally(() => setMapStatus('Map ready'))
-```
-
-if the route actually failed.
-
-The UI must distinguish:
-
-* map ready;
-* route unavailable;
-* tile service unavailable;
-* live data unavailable;
-* geolocation denied.
-
----
-
-# 4. REMOVE LEGACY SCRIPT REFERENCES
-
-Audit every HTML file for obsolete JavaScript references.
-
-There are currently pages that still reference:
+Example:
 
 ```html
-<script src="script.js"></script>
+<h2>
+  500 kilometres.
+  <span class="accent">One direction.</span>
+</h2>
 ```
 
-while the architecture is being moved to:
+Do NOT colour every heading.
+
+### Bold emphasis
+
+Use `<strong>` strategically inside paragraphs for:
+
+* 500 km;
+* 10,000 m+;
+* two people;
+* east to west;
+* Piz Chavalatsch;
+* Chancy.
+
+Do not overuse bold.
+
+### Section backgrounds
+
+Introduce subtle variation:
 
 ```text
-js/app.js
-js/config.js
-js/map.js
-js/firebase.js
-js/pages/*
-js/ui/*
+transparent
+dark navy
+slightly lighter navy
+background image section
+route section
+full-width statement
 ```
 
-Determine whether `script.js` is legacy.
+rather than putting everything inside identical cards.
 
-If the new architecture replaces it:
+### Dividers
 
-REMOVE EVERY REFERENCE TO IT.
+Use subtle lines / glow / route-like motifs.
 
-Do not keep compatibility files “just in case”.
-
-Also fix `package.json`.
-
-The current test script must NOT keep checking only:
-
-```text
-script.js
-```
-
-when the application actually consists of many JavaScript modules.
+The site should feel like an expedition story, not a collection of dashboard widgets.
 
 ---
 
-# 5. AUTOMATED JAVASCRIPT VALIDATION
+# 7. TRANSLATIONS MUST BE COMPLETE
 
-Create a script that syntax-checks EVERY JavaScript file.
+THIS IS A HIGH PRIORITY REQUIREMENT.
 
-For example, create an appropriate Node test utility that recursively scans:
+If the user chooses:
 
 ```text
-js/
-tools/
+Deutsch
 ```
 
-and validates all `.js` files.
+then the ENTIRE visible website must be German.
 
-`npm test` must fail if any application JavaScript contains a syntax error.
+Not:
 
-Do not manually list every JavaScript file if a recursive solution is reasonable.
+```text
+Navbar German
+Heading English
+Button English
+Footer English
+Status German
+```
+
+The same applies to:
+
+* English;
+* Italian;
+* German;
+* French.
+
+Audit EVERY visible string.
+
+This includes:
+
+* navbar;
+* page titles;
+* hero;
+* CTA buttons;
+* countdown;
+* statistics labels;
+* map controls;
+* status;
+* accessibility labels;
+* Project page;
+* Journey page;
+* Replay page;
+* Dashboard;
+* Progress;
+* Diary;
+* Timeline;
+* modal labels;
+* empty states;
+* errors;
+* buttons;
+* footer;
+* photo descriptions if static;
+* date labels;
+* countdown labels.
+
+Use ONE translation system.
+
+Prefer:
+
+```html
+data-i18n="..."
+```
+
+for static UI.
+
+Use:
+
+```js
+t('...')
+```
+
+for dynamic strings.
+
+DO NOT leave hardcoded English UI inside page HTML.
 
 ---
 
-# 6. ADD REAL BROWSER END-TO-END TESTING
+# 8. LANGUAGE SELECTOR ON EVERY PAGE
 
-The current smoke tests are not sufficient for this website.
+Currently language switching is not consistently available from desktop on all pages.
 
-Introduce browser-level testing, preferably **Playwright**, if suitable for this static GitHub Pages project.
+Fix this.
 
-The purpose is NOT to overengineer the website.
+Every public page must have the SAME desktop language selector in the header.
 
-The purpose is to prevent future refactors from silently breaking maps, timers, controls and navigation again.
+Every public page must also have language switching inside the mobile navigation.
 
-Add an E2E test suite.
-
-It should launch the local server and test the real pages in Chromium.
-
-At minimum test:
+Pages include at minimum:
 
 ```text
 index.html
@@ -362,1397 +475,1071 @@ diary.html
 timeline.html
 ```
 
-and admin functionality where safely testable.
-
-Tests must detect:
-
-* uncaught JavaScript errors;
-* console errors;
-* failed local resource requests;
-* 404 scripts;
-* 404 CSS;
-* 404 images;
-* missing route data;
-* controls that do nothing;
-* permanent loading states.
-
----
-
-# 7. HOMEPAGE COMPLETE FUNCTIONAL TEST
-
-Test everything on `index.html`.
-
-Verify:
-
-### Navigation
-
-* logo → Home
-* Home
-* Live
-* Project
-* Journey
-* Replay
-* mobile hamburger
-* mobile overlay
-* Escape closes mobile navigation
-* clicking a link closes mobile navigation
-
-### Languages
-
-Test:
-
-* English
-* Italian
-* German
-* French
-
-Switch languages repeatedly.
-
-Refresh the page.
-
-The selected language must persist using the configured storage key.
-
-No section should remain accidentally in another language.
-
-### Countdown
-
-Test it thoroughly as defined earlier.
-
-### Hero
-
-Verify both CTA links work.
-
-### Live status
-
-Before departure it must NOT claim that HORIZON is live.
-
-The website currently knows the configured departure date.
-
-Use the same shared expedition-state calculation everywhere.
-
-### Statistics
-
-Before departure, display deliberate zero/empty states.
-
-Do not show misleading information.
+The selected language must persist when navigating.
 
 Example:
 
-```text
-Distance: 0 km
-Remaining: 500 km
-Completed: 0%
-Elapsed: 0 h
-Elevation: 0 m
-Steps: 0
-ETA: —
-```
-
-or an equally clear presentation.
-
-Avoid arbitrary `--` when a value can logically be determined.
-
-### Content
-
-Remove unnecessary repetition.
-
-The homepage currently repeats several concepts multiple times:
-
-* east → west;
-* 500 km;
-* 10,000 m;
-* moving toward the horizon;
-* endurance;
-* the challenge.
-
-Keep the cinematic storytelling, but make the page tighter.
-
-Do NOT remove the strong HORIZON identity.
-
----
-
-# 8. CORRECT ROUTE ORIENTATION
-
-HORIZON goes:
+User:
 
 ```text
-PIZ CHAVALATSCH → CHANCY
-EAST → WEST
-RIGHT → LEFT on a normal north-up map
+Home → Deutsch
 ```
 
-Check every graphical representation of the route.
-
-Do not accidentally render Piz Chavalatsch on the left and Chancy on the right.
-
-The geographic map must always remain:
+then clicks:
 
 ```text
-north = top
-east = right
-west = left
+Live
 ```
 
-Never mirror the route for aesthetic reasons.
+Live must already be German.
+
+Then:
+
+```text
+Project
+```
+
+Project must still be German.
+
+Use the shared:
+
+```text
+languageStorageKey
+```
+
+configuration.
+
+Also update:
+
+```html
+<html lang="de">
+```
+
+dynamically when German is selected.
+
+Equivalent for:
+
+```text
+en
+it
+fr
+```
 
 ---
 
-# 9. LIVE PAGE COMPLETE FUNCTIONAL TEST
+# 9. COUNTDOWN — ADD THE ACTUAL START DATE
 
-Test `live.html`.
+Above the countdown, display the expedition start date clearly.
 
-Verify:
+The configured expedition start is:
 
-* page initialization;
-* navigation;
-* language switcher;
-* current status;
-* Firebase request;
-* latest live point;
-* route GeoJSON;
-* map;
-* route geometry;
-* current marker;
-* distance;
-* remaining distance;
-* completion;
-* speed;
-* altitude;
-* last update;
-* progress bar;
-* elapsed time;
-* elevation gain;
-* steps;
-* visitor distance.
+```text
+31 August 2026
+04:00
+```
 
-Test controls:
+using the ISO configuration as the single source of truth.
 
-* center visitor;
-* center live position;
-* fullscreen;
-* exit fullscreen;
-* browser resize after fullscreen;
-* denied geolocation;
-* unsupported geolocation.
+Do NOT hardcode separate dates in every language.
 
-Test BEFORE expedition data exists.
+Display something visually like:
 
-Test WITH mock live data.
+```text
+START
+31 AUGUST 2026 · 04:00
+```
 
-Test stale live data.
+Localized properly.
 
-Test malformed live data.
+German:
 
-Test Firebase unavailable.
+```text
+START
+31. AUGUST 2026 · 04:00
+```
 
-The page must never pretend:
+Italian:
 
-`LIVE · Updated 1 min ago`
+```text
+PARTENZA
+31 AGOSTO 2026 · 04:00
+```
 
-when no recent valid point actually exists.
+French:
 
-Use the same centralized state logic everywhere.
+```text
+DÉPART
+31 AOÛT 2026 · 04:00
+```
 
----
+English:
 
-# 10. FIREBASE / LIVE TRACKING
+```text
+START
+31 AUGUST 2026 · 04:00
+```
 
-Audit `js/firebase.js` completely.
+Use `Intl.DateTimeFormat` where appropriate.
 
-Validate:
+Then display:
 
-* URL;
-* expected payload format;
-* latest point selection;
-* timestamp parsing;
-* latitude;
-* longitude;
-* altitude;
-* speed;
-* heart rate if available;
-* handling of missing fields;
-* ordering;
-* duplicate points;
-* empty database;
-* network failures;
-* stale data.
+```text
+DAYS
+HOURS
+MINUTES
+SECONDS
+```
 
-Do not let malformed historical points crash current rendering.
+below.
 
-All data parsing should be isolated from presentation.
+This should make it immediately obvious what the countdown refers to.
+
+The countdown must actually work.
 
 ---
 
-# 11. CENTRAL EXPEDITION STATE
+# 10. LIVE MAP — MUST LOAD
 
-Create ONE function responsible for determining the expedition state.
+The map is still a critical requirement.
+
+The page must never remain indefinitely at:
+
+```text
+LOADING MAP…
+```
+
+Test:
+
+* Leaflet initialization;
+* map element dimensions;
+* route file;
+* tile layer;
+* route parsing;
+* map fitting;
+* markers;
+* Firebase data;
+* page-specific JS load order.
+
+Verify actual network requests.
+
+If any route file produces a 404, fix the canonical path.
+
+Use ONE route URL from config.
+
+---
+
+# 11. RETURN THE WAVING FINISH FLAG
+
+Restore the animated finish flag at CHANCY.
+
+The route ending must visually show a small waving flag marker.
+
+Requirements:
+
+* placed at the real finish coordinate;
+* Chancy / west;
+* visible without obscuring the route;
+* stylistically compatible with HORIZON;
+* subtle animation;
+* not cartoonish;
+* accessible title / tooltip.
+
+The animation should resemble a fabric flag gently moving in wind.
 
 For example:
 
 ```text
-not-started
-live
-delayed
-resting
-finished
-offline
+small pole
+small ivory/gold or Swiss-inspired flag
+subtle CSS wave animation
 ```
 
-Do NOT independently infer this state in five different files.
+Do NOT use an unrelated NorthLine flag asset.
 
-Possible input:
+Prefer CSS/SVG if no appropriate current image exists.
 
-```js
-getExpeditionState({
-  now,
-  startDate,
-  latestPointTimestamp,
-  forcedAdminState
-})
-```
+The marker should appear on:
 
-Home, Live, Dashboard and other pages must consume the same state.
+* live route map;
+* other route maps where endpoint markers are shown.
 
-This prevents contradictions such as:
-
-Homepage:
-
-`Not started`
-
-while Live says:
-
-`LIVE · Updated 1 min ago`
-
-at exactly the same time.
+Start marker should remain clearly distinguishable.
 
 ---
 
-# 12. DASHBOARD — MAKE IT ACTUALLY WORK
+# 12. FIREBASE SIMULATION DATA IS CURRENTLY NOT VISIBLE
 
-`dashboard.html` already contains UI for:
+There is currently test activity data in Firebase.
+
+It was imported intentionally to simulate a real activity and verify the website.
+
+The data is not being displayed correctly.
+
+You MUST investigate the REAL Firebase payload.
+
+Do NOT guess its structure.
+
+Inspect the response from the configured Firebase endpoint.
+
+Current configuration references:
+
+```text
+/livetrack/points.json
+```
+
+Determine what Firebase actually returns.
+
+Possible structures may include:
+
+```js
+{
+  id1: {...},
+  id2: {...},
+  id3: {...}
+}
+```
+
+or:
+
+```js
+[
+  {...},
+  {...}
+]
+```
+
+or nested activity objects.
+
+The current parser is too simplistic if it only expects a single direct point.
+
+Implement a robust parser.
+
+---
+
+# 13. FIREBASE TRACK DATA NORMALIZATION
+
+Create a proper normalization layer.
+
+For example:
+
+```js
+normalizeTrackPayload(payload)
+```
+
+that returns:
+
+```js
+[
+  {
+    latitude,
+    longitude,
+    timestamp,
+    altitude,
+    speed,
+    heartRate,
+    ...
+  }
+]
+```
+
+sorted chronologically.
+
+Support the REAL imported structure.
+
+Do not blindly support arbitrary formats that do not exist.
+
+Inspect actual data first.
+
+Validate coordinates.
+
+Reject invalid entries.
+
+Sort timestamps.
+
+Deduplicate points where appropriate.
+
+---
+
+# 14. DO NOT ONLY FETCH THE LAST POINT
+
+For the simulation and live journey the application needs TWO concepts:
+
+### Latest live point
+
+Used for:
+
+* current marker;
+* current speed;
+* altitude;
+* last update.
+
+### Full recorded track
+
+Used for:
+
+* travelled path;
+* distance completed;
+* charts;
+* replay;
+* statistics;
+* elevation;
+* route progress.
+
+Implement separate functions if appropriate:
+
+```js
+fetchLiveTrack()
+fetchLatestLivePoint()
+```
+
+Do not attempt to build the complete site around only one GPS point.
+
+---
+
+# 15. SHOW THE RECORDED ACTIVITY ON THE MAP
+
+The Firebase simulation track should become visible as a second line.
+
+The map should distinguish:
+
+```text
+PLANNED HORIZON ROUTE
+```
+
+and:
+
+```text
+ACTUAL RECORDED TRACK
+```
+
+Recommended visual treatment:
+
+Planned route:
+
+```text
+muted ivory / dashed / slightly transparent
+```
+
+Actual track:
+
+```text
+strong warm gold / orange / solid
+```
+
+Do not use unrelated bright colours.
+
+Current position should be at the end of the actual track.
+
+---
+
+# 16. CALCULATE PROGRESS FROM THE ACTUAL TRACK
+
+Using Firebase recorded data, calculate:
 
 * distance covered;
 * distance remaining;
-* completion;
+* current progress;
+* elapsed time;
+* current altitude;
+* elevation gain;
 * current speed;
-* average moving speed;
-* average total speed;
-* maximum speed;
-* altitude;
-* elevation;
-* total time;
-* moving time;
-* heart rate;
-* average heart rate;
-* calories;
-* estimated water loss;
-* ETA.
+* last update;
+* estimated arrival where meaningful.
 
-It also contains charts for:
-
-* speed;
-* altitude;
-* heart rate;
-* cumulative elevation.
-
-At the moment the page does not correctly connect all of the required controllers.
-
-Create:
+Do not leave:
 
 ```text
-js/pages/dashboard.js
+--
 ```
 
-or another clean equivalent.
+if the value can be calculated.
 
-Load the correct dependencies.
+If a metric genuinely cannot be calculated:
 
-Use:
+display a translated unavailable state.
+
+---
+
+# 17. IMPORTANT — TRACK PROGRESS SHOULD FOLLOW THE ROUTE
+
+Do not calculate progress only using straight-line distance between Piz Chavalatsch and current location.
+
+Use route progress.
+
+Prefer projecting the current/actual track onto the planned HORIZON route.
+
+Then calculate how far along the planned route the user is.
+
+This is much more meaningful than simple crow-fly distance.
+
+---
+
+# 18. STATUS MUST MATCH REAL DATA
+
+Currently the public Live page can show:
 
 ```text
-js/firebase.js
-js/stats.js
-js/charts.js
+LIVE · Updated 1 min ago
+```
+
+even while the map does not display the corresponding activity.
+
+Fix this.
+
+Status must come from the real track state.
+
+Examples:
+
+### No points
+
+```text
+NOT STARTED
+```
+
+### Recent valid point
+
+```text
+LIVE
+```
+
+### Latest point older than threshold
+
+```text
+SIGNAL DELAYED
+```
+
+### Explicit pause/rest
+
+```text
+RESTING
+```
+
+### Finished
+
+```text
+FINISHED
+```
+
+Use the configured:
+
+```text
+staleDataThresholdMs
 ```
 
 where appropriate.
 
-Do not duplicate calculations inside dashboard.js if they belong in stats.js.
+---
 
-Test every metric.
+# 19. HOMEPAGE LIVE PREVIEW
 
-If a metric cannot currently be calculated because data does not contain what is needed, explicitly display:
+If Firebase contains valid simulation/live data, the homepage statistics should also update.
+
+For example:
 
 ```text
-Not available
+distance
+remaining
+progress
+time
+elevation
+estimated arrival
 ```
 
-or an equivalent translated state.
+The homepage and Live page must consume the same calculated data.
 
-Do NOT invent values.
-
-### Charts
-
-Verify:
-
-* Chart.js loads;
-* canvases are found;
-* datasets populate;
-* no chart is initialized twice;
-* X-axis distance mode works;
-* X-axis time mode works;
-* fullscreen buttons work;
-* exiting fullscreen works;
-* charts resize correctly;
-* empty datasets show a proper empty state.
+Do NOT implement two different calculation systems.
 
 ---
 
-# 13. GALLERY / JOURNEY — MAKE EVERY FEATURE REAL
+# 20. HEADER CONSISTENCY
 
-Audit `gallery.html`.
+Use one shared header/navigation design across all public pages.
 
-The page currently contains UI for:
-
-* gallery grid;
-* photo map;
-* fullscreen map;
-* image modal;
-* previous image;
-* next image;
-* close modal;
-* title;
-* location;
-* description.
-
-Make ALL of it functional.
-
-Create a page controller:
+It should contain:
 
 ```text
-js/pages/gallery.js
+HORIZON LOGO
+HORIZON
+page subtitle where appropriate
+
+HOME
+LIVE
+PROJECT
+JOURNEY
+REPLAY
+
+LANGUAGE SELECTOR
 ```
 
-if appropriate.
+Desktop language switcher must always be visible.
 
-Implement:
-
-* loading images;
-* rendering cards;
-* geolocated image markers;
-* marker clustering;
-* clicking a photo;
-* clicking a marker;
-* modal opening;
-* modal closing;
-* previous;
-* next;
-* keyboard arrows;
-* Escape;
-* appropriate focus behavior;
-* fullscreen map.
-
-Replace the current fullscreen button text:
-
-```text
-?
-```
-
-with a proper accessible icon consistent with the Live map.
-
-Replace simplistic:
-
-```text
-X
-《
-》
-```
-
-where appropriate with accessible SVG icons.
-
-Ensure every button has:
-
-* `type="button"`;
-* accessible label;
-* keyboard support;
-* visible focus state.
-
-If there are no journey photos yet, display a polished empty state.
-
-It must not look broken.
+Do not hide language switching only because the user is on another page.
 
 ---
 
-# 14. REPLAY — IMPLEMENT THE CONTROLS
+# 21. NAVBAR VISUAL IMPROVEMENT
 
-`replay.html` contains:
+The navbar currently feels functional but generic.
 
-* Play;
-* Pause;
-* Reset;
-* speed slider;
-* status;
-* map.
+Refine it subtly.
 
-Make them actually work.
+Suggested qualities:
 
-Create:
+* slight transparency;
+* backdrop blur;
+* thin warm divider;
+* active link accent;
+* smooth hover underline;
+* HORIZON logo clearly visible;
+* compact language selector.
 
-```text
-js/pages/replay.js
-```
-
-if necessary.
-
-The replay should:
-
-1. load the actual recorded points;
-2. initialize the route/map;
-3. start at the first real point;
-4. advance chronologically;
-5. move a marker;
-6. update status;
-7. pause reliably;
-8. resume reliably;
-9. reset reliably;
-10. change playback speed without corrupting state;
-11. stop at the final point.
-
-Prevent multiple timers from being created when Play is clicked repeatedly.
-
-Before recorded journey data exists, do NOT show controls pretending a replay is ready.
-
-Instead show a clear state:
-
-```text
-Replay will become available once journey data has been recorded.
-```
-
-Disable controls when no replay exists.
+Do not make it oversized.
 
 ---
 
-# 15. PROJECT PAGE
+# 22. SECTION TYPOGRAPHY
 
-Review `project.html`.
+Improve typography hierarchy.
 
-The project is no longer framed as a solo challenge.
+Use approximately:
 
-HORIZON is completed by TWO people travelling together.
+```text
+EYEBROW
+small uppercase
+wide letter-spacing
+warm gold
 
-Remove old language such as:
+H1
+very large
+ivory
+
+H2
+large
+ivory + optional accent word
+
+BODY
+soft ivory/grey
+comfortable line-height
+```
+
+Important numbers should be stronger.
+
+For example:
+
+```text
+500 KM
+10,000 M+
+2 PEOPLE
+```
+
+should feel visually significant.
+
+---
+
+# 23. PROJECT PAGE LANGUAGE AND CONTENT
+
+Project currently contains old solo-oriented language such as:
 
 ```text
 personal test
 personal challenge
 ```
 
-when it implies only one participant.
+Update this.
 
-Make the narrative consistent with:
+HORIZON is undertaken by TWO people together.
+
+The Project page should consistently describe:
+
+* shared challenge;
+* two participants;
+* one route;
+* shared pacing;
+* shared decisions;
+* east-to-west crossing.
+
+Then translate the COMPLETE page into:
 
 ```text
-two people
-one route
-east to west
-shared endurance
-shared decisions
-shared journey
+EN
+IT
+DE
+FR
 ```
-
-Keep the tone serious and premium.
-
-Avoid overdramatic generic motivational language.
 
 ---
 
-# 16. DIARY
+# 24. PHOTO / PARTICIPANT DESIGN
 
-Test `diary.html`.
+Use the real participant photos as meaningful visual content.
 
-Verify:
+Do not crop them into anonymous squares.
 
-* data source;
-* loading;
-* chronological order;
-* date formatting;
-* language;
-* empty state;
-* photos;
-* text;
-* links;
-* mobile layout.
-
-If the diary and gallery overlap conceptually, establish clear responsibilities.
+Desktop cards should feel editorial.
 
 Example:
 
 ```text
-Journey / Gallery = photographs and places
-Diary = written chronological field notes
+┌─────────────────────────────────────────────┐
+│  PORTRAIT        NAME                      │
+│  PORTRAIT        TAGLINE                   │
+│  PORTRAIT        biography...              │
+│  PORTRAIT        biography...              │
+└─────────────────────────────────────────────┘
 ```
 
-Do not keep redundant pages without clear purpose.
+Use subtle border/texture.
+
+Do not make every element another identical card.
 
 ---
 
-# 17. TIMELINE
+# 25. ADD MORE VISUAL RHYTHM
 
-Test `timeline.html`.
+Introduce visually distinct sections.
 
-Every timeline element must either:
+Possible ideas:
 
-* load real content;
-* show a deliberate empty state;
-* or be removed if obsolete.
+* hero with photo;
+* clean countdown;
+* large stats strip;
+* dark narrative section;
+* participants with large portraits;
+* route section with map silhouette;
+* full-width statement;
+* challenge grid;
+* live CTA.
 
-Do not leave half-implemented pages accessible publicly.
+Use whitespace intentionally.
+
+Avoid a repetitive sequence of identical rectangles.
 
 ---
 
-# 18. PROGRESS PAGE
+# 26. DO NOT OVERDESIGN
 
-Test `progress.html`.
+Even though the current site is too basic, do not overcorrect.
 
-If it contains badges/milestones:
+Avoid:
 
-* define how they are unlocked;
-* centralize milestone configuration;
-* derive unlocked state from real distance/elevation/data;
-* handle zero-data state correctly;
-* test boundary conditions.
+* neon;
+* glowing everything;
+* excessive animations;
+* glassmorphism everywhere;
+* excessive gradients;
+* huge border radii;
+* generic tech-dashboard styling.
 
-Example:
+HORIZON should remain:
 
 ```text
-49.99 km → 50 km badge locked
-50.00 km → unlocked
+serious
+physical
+outdoor
+premium
+Swiss
+cinematic
 ```
-
-Do not hardcode state independently in HTML.
 
 ---
 
-# 19. ADMIN PAGE
+# 27. ACCESSIBILITY MUST REMAIN GOOD
 
-Audit `admin.html`.
+While improving visuals:
 
-Check:
+* preserve contrast;
+* preserve keyboard navigation;
+* preserve focus states;
+* preserve alt text;
+* preserve semantic headings;
+* preserve reduced-motion support.
 
-* authentication/session behavior;
-* forced expedition status;
-* forms;
-* localStorage;
-* Firebase write operations if any;
-* empty values;
-* validation;
-* user feedback;
-* accidental public exposure of sensitive credentials.
+For the waving flag:
 
-IMPORTANT:
-
-Never put secret Firebase admin credentials or private API keys in client-side JavaScript.
-
-If the page only changes browser-local state, make that obvious.
-
-Make sure admin controls cannot accidentally make public visitors see fake expedition status unless this is intentionally backed by shared storage/database.
-
----
-
-# 20. NAVIGATION — ONE SOURCE OF TRUTH
-
-There must be ONE canonical public navigation configuration.
-
-Do not manually maintain a different navbar inside every HTML page.
-
-The visible main public navigation should remain simple.
-
-Recommended:
-
-```text
-HOME
-LIVE
-PROJECT
-JOURNEY
-REPLAY
-```
-
-Advanced telemetry can be linked from Live instead of making the navbar overcrowded.
-
-Progress can similarly be linked contextually if appropriate.
-
-The navigation component must correctly set:
-
-```html
-aria-current="page"
-```
-
-for the current page.
-
-Test desktop and mobile.
-
----
-
-# 21. LANGUAGE SYSTEM — ONE IMPLEMENTATION
-
-There are currently signs of duplicated translation logic between the newer `i18n.js` architecture and legacy runtime code.
-
-Consolidate this.
-
-Use ONE translation catalog.
-
-Use ONE language persistence mechanism.
-
-Prefer:
-
-```html
-data-i18n="..."
-```
-
-for static content and:
-
-```js
-t('...')
-```
-
-for dynamic content.
-
-Do not use:
-
-* one translation system in Home;
-* another in Live;
-* DOM-selector-specific translation hacks;
-* a third translation dictionary inside legacy runtime.
-
-All four supported languages must work:
-
-```text
-English
-Italian
-German
-French
-```
-
-Test every public page in every language.
-
-No mixed-language page.
-
-No broken accents.
-
-No untranslated placeholder UI.
-
----
-
-# 22. CSS REFACTOR
-
-The repository currently contains both the legacy monolithic stylesheet and the newer CSS structure.
-
-Complete the migration.
-
-Target structure:
-
-```text
-css/
-├── tokens.css
-├── global.css
-├── home.css
-├── live.css
-├── dashboard.css
-├── gallery.css
-├── replay.css
-├── project.css
-└── ...
-```
-
-Do not create page CSS files if a page needs only a few global styles.
-
-Avoid unnecessary fragmentation.
-
-### `tokens.css`
-
-Centralize reusable design values:
+respect:
 
 ```css
---color-*
---font-*
---space-*
---radius-*
---shadow-*
---transition-*
---content-width-*
---navbar-*
---breakpoint-* where useful
+@media (prefers-reduced-motion: reduce)
 ```
 
-Do not repeatedly hardcode the same colors, spacing and radii throughout the project.
-
-### Remove inline style attributes
-
-Replace things such as:
-
-```html
-style="display:grid;gap:16px;"
-style="min-height:560px;"
-```
-
-with meaningful CSS classes.
-
-### Delete legacy stylesheet
-
-ONLY after all pages have been visually verified with the new CSS structure:
-
-remove `style.css`.
-
-Before deleting it, search for every class still dependent on it.
+and disable/reduce animation.
 
 ---
 
-# 23. UI/UX QUALITY PASS
+# 28. TEST ALL FOUR LANGUAGES ON ALL PAGES
 
-After functionality is fixed, audit the UI.
+Create a test matrix.
 
-The visual direction should remain:
-
-* dark;
-* premium;
-* Alpine;
-* expedition-focused;
-* minimal;
-* cinematic;
-* warm ivory/gold accent;
-* strong typography;
-* restrained.
-
-Do NOT redesign HORIZON into a generic SaaS dashboard.
-
-However, improve weak UI.
-
-### Avoid excessive cards
-
-Currently too many sections are presented as similarly styled rectangular cards.
-
-Create stronger visual hierarchy.
-
-The most visually important areas should be:
-
-1. hero;
-2. route/live map;
-3. people/journey.
-
-Secondary information can be visually quieter.
-
-### Reduce excessive homepage repetition
-
-Shorten copy where the same message appears repeatedly.
-
-Every section should answer a different question.
-
-Recommended narrative:
+For EVERY page:
 
 ```text
-HERO
-What is happening?
-
-LIVE STATUS
-What is happening right now?
-
-THE CHALLENGE
-What is HORIZON?
-
-THE SCALE
-How large is it?
-
-THE PEOPLE
-Who is doing it?
-
-THE ROUTE
-Where does it go?
-
-WHAT MAKES IT HARD
-Why is it difficult?
-
-FIELD NOTES
-What is happening during the journey?
-
-FINAL CTA
-Follow it live.
+EN
+IT
+DE
+FR
 ```
 
-Do not repeat essentially identical motivational paragraphs.
+Check visible text.
+
+There must be zero accidental English strings when German is selected, except proper names such as:
+
+```text
+HORIZON
+Piz Chavalatsch
+Chancy
+Damiano Zanoni
+Nicolas Mooser
+```
+
+The same rule applies to other languages.
 
 ---
 
-# 24. RESPONSIVE TESTING
+# 29. TEST DESKTOP PARTICIPANT LAYOUT
 
-Test at least:
+At least test:
 
 ```text
-375 × 667
-390 × 844
-430 × 932
-768 × 1024
-1024 × 768
 1366 × 768
 1440 × 900
 1920 × 1080
 ```
 
-Verify:
+Verify participant images are not badly cropped.
 
-* navbar;
-* hero;
-* countdown;
-* cards;
-* long German/French strings;
-* maps;
-* map buttons;
-* fullscreen;
-* charts;
-* gallery;
-* modal;
-* replay controls;
-* footer.
+Check faces/head/body composition.
 
-No horizontal scrolling.
+Use appropriate:
 
-No overlapping content.
+```css
+object-position
+```
 
-No clipped buttons.
+per participant if needed.
 
-No tiny unreadable labels.
+Do not force both images to use the same crop if the source composition differs.
 
 ---
 
-# 25. ACCESSIBILITY PASS
+# 30. TEST MOBILE PARTICIPANT LAYOUT
 
-Check:
+Test:
 
-* semantic headings;
-* one sensible `h1` per page;
-* button labels;
-* links;
-* skip link;
-* form labels;
-* language select;
-* `aria-expanded`;
-* `aria-current`;
-* focus indicators;
-* modal focus;
-* Escape behavior;
-* keyboard-only navigation;
-* contrast;
-* images and alt text;
-* status updates.
+```text
+375 × 667
+390 × 844
+430 × 932
+```
 
-Do not abuse `aria-live`.
+Images should stack above text.
 
-For example a second-by-second countdown should not cause a screen reader to announce four changing numbers every second.
+No horizontal overflow.
+
+Do not make portraits excessively tall.
 
 ---
 
-# 26. PERFORMANCE
+# 31. IMAGE PATH CLEANUP
 
-Measure obvious performance problems.
+Because obsolete NorthLine image files were intentionally deleted:
 
-Especially maps.
-
-The Live page should not unnecessarily load:
-
-* GPX parser if using GeoJSON;
-* MarkerCluster if not needed;
-* Chart.js when there are no charts;
-* gallery libraries on Live;
-* legacy runtime code.
-
-Only load page-specific dependencies on pages that need them.
-
-Prefer the prebuilt:
+search the complete repository for:
 
 ```text
-horizon-route.geojson
+northline
+NorthLine
+north-line
+old logo filenames
+deleted image references
 ```
 
-for rendering rather than parsing the GPX client-side on every visit.
+For EVERY result:
 
-The GPX remains the geographic source file, while GeoJSON can be the optimized web artifact.
+determine whether it is legitimate.
 
-Make sure GeoJSON is generated from GPX and not manually edited inconsistently.
+If it references obsolete visual branding:
 
-If appropriate:
+REMOVE OR REPLACE IT.
 
-```text
-npm run build:route
-```
+Do not recreate missing old images just to eliminate a 404.
 
-should regenerate it.
+Use the current HORIZON images.
 
 ---
 
-# 27. REMOVE `runtime.js` LEGACY MONOLITH
+# 32. SOCIAL PREVIEW
 
-`js/runtime.js` is currently far too large and duplicates responsibilities now present elsewhere.
-
-Do NOT leave the website dependent on two parallel architectures.
-
-Extract useful functionality into clearly scoped modules.
-
-Suggested architecture:
+Also inspect:
 
 ```text
-js/
-├── app.js
-├── config.js
-├── i18n.js
-├── firebase.js
-├── stats.js
-├── status.js
-├── map.js
-├── charts.js
-│
-├── ui/
-│   └── navigation.js
-│
-└── pages/
-    ├── home.js
-    ├── live.js
-    ├── dashboard.js
-    ├── gallery.js
-    ├── replay.js
-    ├── diary.js
-    ├── progress.js
-    └── admin.js
+og:image
+twitter:image
+preview.png
+social-card.png
 ```
 
-This is a guide, not an obligation.
+Ensure they visually belong to HORIZON.
 
-Do not create pointless 10-line files just to follow this structure.
+If any existing social preview still uses NorthLine branding, replace the reference with a current HORIZON asset.
 
-Main principle:
-
-**one responsibility → one obvious module.**
-
-When all needed functionality has been migrated and tested:
-
-DELETE `runtime.js`.
+Do not use a deleted NorthLine file.
 
 ---
 
-# 28. DATA AND ASSET ORGANIZATION
+# 33. FULL FIREBASE TEST
 
-Clean the repository.
+Use the current simulation data already present in Firebase.
 
-`data/` should contain actual application data.
+Test:
 
-Images should not live beside GPX/GeoJSON files.
+1. fetch succeeds;
+2. payload is parsed;
+3. track contains points;
+4. points appear on map;
+5. final/latest point appears;
+6. statistics update;
+7. actual route is drawn;
+8. replay can consume the points;
+9. dashboard can consume the points;
+10. stale/live status works.
 
-Recommended:
+If the simulation data has unexpected structure:
 
-```text
-assets/
-├── people/
-├── journey/
-├── backgrounds/
-├── icons/
-├── favicons/
-└── social/
-```
+adapt the parser to the real structure.
 
-and:
+Do NOT modify the Firebase data just to make your existing parser pass unless the data itself is clearly malformed.
 
-```text
-data/
-├── Horizon.gpx
-├── horizon-route.geojson
-└── other structured data
-```
-
-or:
-
-```text
-data/route/
-```
-
-IF YOU CHOOSE `data/route/`, then actually move the files there and update EVERY reference.
-
-Do not create paths in JavaScript pointing to folders that do not exist.
+The website should adapt to the intended data model.
 
 ---
 
-# 29. CENTRAL CONFIGURATION
+# 34. DEBUG NETWORK REQUESTS
 
-Keep stable project values centralized.
+Inspect browser network.
 
-Examples:
-
-```js
-projectName
-expeditionYear
-startDateIso
-startLocation
-finishLocation
-expectedDistanceKm
-expectedElevationM
-routeGeoJsonUrl
-routeGpxUrl
-firebaseURL
-staleDataThresholdMs
-supportedLanguages
-defaultLanguage
-languageStorageKey
-```
-
-Do not rewrite:
-
-```text
-500
-10000
-Piz Chavalatsch
-Chancy
-31 August
-```
-
-in application logic in multiple places.
-
-Textual storytelling may mention them, but calculations must use configuration.
-
-Do not put transient runtime state inside config.
-
----
-
-# 30. NETWORK ERROR AUDIT
-
-Using browser developer tools / Playwright request listeners, verify that normal page loads do NOT produce unnecessary:
+There should be no unexplained:
 
 ```text
 404
 403
+CORS
 500
-CORS errors
-failed script requests
-failed stylesheet requests
-failed route requests
+failed JSON
+failed image
+failed JS
+failed CSS
 ```
 
-A page is NOT considered passing while its console/network panel contains expected-looking but unresolved errors.
+especially for:
 
-Fix the root cause.
+```text
+Firebase
+GeoJSON
+GPX
+background
+logo
+participant images
+Leaflet tiles
+```
 
 ---
 
-# 31. JAVASCRIPT CONSOLE AUDIT
+# 35. TEST THE LIVE MAP AFTER FIREBASE DATA LOADS
 
-Every page must be tested with console collection enabled.
+The following must be simultaneously visible:
 
-Fail the test on:
+* planned HORIZON route;
+* actual activity track;
+* latest/current position;
+* finish flag at Chancy.
 
-```text
-console.error
-pageerror
-uncaught exception
-unhandled promise rejection
-```
+Then test:
 
-Review `console.warn` as well.
-
-Do not simply suppress console messages.
-
-Fix the underlying problem.
+* center current position;
+* center visitor position;
+* fullscreen;
+* resize;
+* mobile.
 
 ---
 
-# 32. EMPTY STATE TESTING
+# 36. UPDATE ROUTE ENDPOINT VISUALS
 
-HORIZON has not necessarily started yet.
+Use:
 
-Therefore empty data is a NORMAL application state, not an exception.
+### Start
 
-Every data page needs a designed empty state.
+A clear start marker.
 
-Examples:
+### Finish
 
-### Live
+The waving flag.
 
-```text
-Expedition not started.
-The planned route is shown below.
-Live position will appear after departure.
-```
+Tooltip/popups should use localized content.
 
-### Dashboard
+Example DE:
 
 ```text
-Telemetry will appear once tracking begins.
+START · OSTEN
+Piz Chavalatsch
 ```
-
-### Gallery
 
 ```text
-Field notes will appear during the journey.
+ZIEL · WESTEN
+Chancy
 ```
 
-### Replay
-
-```text
-Replay becomes available after recorded tracking data exists.
-```
-
-The site should still look complete and intentional before the expedition starts.
+Equivalent in EN/IT/FR.
 
 ---
 
-# 33. TEST WITH MOCK DATA
+# 37. RESTORE BACKGROUND WITHOUT HURTING PERFORMANCE
 
-A major requirement:
+Optimize background loading.
 
-Do NOT wait for the real expedition to test live functionality.
+Use:
 
-Create mock fixtures representing:
+* modern compression if possible;
+* reasonable resolution;
+* preload only if necessary;
+* correct sizing;
+* no 10 MB hero background.
 
-### State A — no data
+Do not remove the background again merely to improve Lighthouse.
 
-```text
-No Firebase points
-Before start date
-```
+Visual identity matters.
 
-### State B — first point
-
-One valid GPS point.
-
-### State C — active journey
-
-Multiple valid points containing:
-
-* timestamps;
-* latitude;
-* longitude;
-* altitude;
-* speed;
-* HR when available.
-
-### State D — stale tracker
-
-Latest point older than the stale threshold.
-
-### State E — malformed point
-
-Missing or invalid coordinate.
-
-### State F — finished journey
-
-Last point at/near finish or explicitly completed state.
-
-Run UI logic against these fixtures.
+Optimize it instead.
 
 ---
 
-# 34. TEST CALCULATIONS
+# 38. FINAL VISUAL REVIEW
 
-Unit test critical pure calculations.
+Before completion compare the final site against these questions:
 
-At minimum:
+### Does this feel like HORIZON?
 
-### Countdown
+If the logo were removed, could it still visually be recognized as the same expedition brand?
 
-* before start;
-* exactly at start;
-* after start.
+### Is the homepage memorable?
 
-### Distance remaining
+Or is it simply dark cards and white text?
 
-```text
-remaining = total - completed
-```
+### Are important ideas visually emphasized?
 
-Clamp between `0` and total.
+* east to west;
+* 500 km;
+* Piz Chavalatsch;
+* Chancy;
+* two people;
+* live journey.
 
-### Completion
+### Does every section have a reason to exist?
 
-Clamp between:
-
-```text
-0%
-100%
-```
-
-### Elevation
-
-Reject impossible/invalid points where necessary.
-
-### Moving speed
-
-Correctly distinguish zero/missing movement.
-
-### ETA
-
-Do not calculate nonsensical ETA from:
-
-* zero speed;
-* one point;
-* stale data;
-* invalid data.
-
-### Status
-
-Test all expedition states.
+Remove unnecessary repetition.
 
 ---
 
-# 35. FINAL TEST MATRIX
+# 39. FINAL FUNCTIONAL TEST
 
-Before declaring completion, explicitly run this matrix:
+After all styling changes:
 
-| Page      | Desktop | Mobile | Navigation | Language | Main function | Empty state | Errors |
-| --------- | ------- | ------ | ---------- | -------- | ------------- | ----------- | ------ |
-| Home      | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
-| Live      | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
-| Project   | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
-| Journey   | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
-| Replay    | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
-| Dashboard | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
-| Progress  | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
-| Diary     | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
-| Timeline  | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
+TEST FUNCTIONALITY AGAIN.
 
-Do not write PASS unless it was actually tested.
+Visual changes must not break:
 
----
-
-# 36. FINAL CLEANUP
-
-Before finishing, search the entire repository for:
-
-```text
-TODO
-FIXME
-TEMP
-temporary
-placeholder
-Calculating
-LOADING
-script.js
-runtime.js
-data/route/
-console.log
-style="
-href="#"
-?
-```
-
-Review every result.
-
-Not every occurrence is necessarily wrong, but none should remain unexplained.
-
-Also find:
-
-* unused files;
-* unused functions;
-* unused CSS selectors;
-* duplicate constants;
-* obsolete event handlers;
-* libraries loaded on pages where they are not needed.
-
-Remove dead code.
+* countdown;
+* translations;
+* Firebase;
+* map;
+* markers;
+* fullscreen;
+* mobile nav;
+* stats;
+* replay;
+* gallery;
+* dashboard.
 
 ---
 
-# 37. FINAL ACCEPTANCE TEST
+# 40. FINAL ACCEPTANCE CONDITIONS
 
-Perform one final clean test from scratch.
+You may only stop when ALL are true:
 
-1. Stop the development server.
-2. Start it again.
-3. Open a new browser context.
-4. Clear localStorage/sessionStorage.
-5. Load Home.
-6. Verify countdown.
-7. Navigate using the actual navbar.
-8. Open Live.
-9. Verify the map.
-10. Verify planned route.
-11. Test live empty state.
-12. Test mock live data.
-13. Open Project.
-14. Open Journey.
-15. Test gallery/modal/map.
-16. Open Replay.
-17. Test replay or correct unavailable state.
-18. Open Dashboard.
-19. Test metrics/charts.
-20. Test Progress.
-21. Test Diary.
-22. Test Timeline.
-23. Switch EN → IT → DE → FR.
-24. Refresh pages.
-25. Test mobile.
-26. Review console.
-27. Review failed network requests.
-28. Run all automated tests.
+* HORIZON logo correct;
+* no NorthLine branding;
+* background restored;
+* participant photos visible and correctly cropped;
+* desktop participant image/text layout improved;
+* site no longer visually monotonous;
+* headings have stronger hierarchy;
+* selective accent colour added;
+* selective bold emphasis added;
+* all pages fully translated;
+* desktop language selector available everywhere;
+* language persists between pages;
+* countdown date visible;
+* countdown works;
+* map loads;
+* route loads;
+* finish flag restored;
+* Firebase imported activity data visible;
+* actual track visible;
+* statistics derived from Firebase;
+* navigation consistent;
+* no broken image references;
+* no console errors;
+* no unexplained failed requests;
+* desktop tested;
+* mobile tested;
+* all automated tests pass.
 
-ONLY IF ALL OF THIS PASSES may you finish.
+If ANY item is not true:
+
+DO NOT DECLARE COMPLETION.
+
+Continue fixing.
 
 ---
 
-# 38. WHAT YOU MUST REPORT WHEN FINISHED
+# FINAL REPORT FORMAT
 
-Do not give me a vague response such as:
+When the implementation is truly finished provide:
 
-> “I fixed several issues and improved the architecture.”
+## VISUAL CHANGES
 
-Instead provide:
+What was restored/improved.
 
-## FIXED
+## BRANDING
 
-Exact bugs repaired.
+Which HORIZON assets are now used.
 
-## REFACTORED
+## TRANSLATIONS
 
-Files/modules moved or reorganized.
+Pages and languages tested.
 
-## REMOVED
+## FIREBASE
 
-Legacy/dead files removed.
+Actual payload structure discovered and how it is parsed.
 
-## TESTS ADDED
+## MAP
 
-List of automated tests.
+Planned route, actual track, live point and finish flag validation.
 
-## MANUAL/E2E VALIDATION
+## RESPONSIVE
 
-Pages and functionality verified.
+Desktop/mobile sizes tested.
 
-## REMAINING LIMITATIONS
+## TESTS
 
-Only list genuinely unavoidable limitations caused by external services.
+Automated and browser tests run.
 
-For each limitation explain why it cannot be fixed in this repository.
+## ERRORS
 
-## FINAL RESULT
+Console/network errors remaining.
 
 Only write:
 
 **ALL ACCEPTANCE TESTS PASS**
 
-if they actually do.
-
-Otherwise continue working.
-
----
-
-# MOST IMPORTANT INSTRUCTION
-
-Do not optimize for finishing quickly.
-
-Optimize for leaving me with a website where I no longer have to manually discover that:
-
-* the countdown does not count;
-* the map does not load;
-* a button does nothing;
-* a chart is empty because its controller was never imported;
-* an old script path produces a 404;
-* one page says “Live” while another says “Not started”;
-* a refactor silently disconnected a feature.
-
-Treat this as a production release.
-
-**Do not stop after editing. Test the result. If something is broken, keep fixing it. Only declare completion once the entire HORIZON website has passed the complete validation process.**
+if every requirement above actually passed.

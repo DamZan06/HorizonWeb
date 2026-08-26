@@ -1,5 +1,6 @@
 (function () {
-    const DEFAULT_TIMEOUT_MS = 7000;
+    const DEFAULT_TIMEOUT_MS = 20000;
+    let trackRequest = null;
 
     function getConfigValue(name, fallbackValue) {
         const config = window.HorizonConfig || {};
@@ -41,7 +42,9 @@
                 timestamp,
                 altitude: Number.isFinite(Number(value.altitude ?? value.elevation ?? value.altitudine?.metri)) ? Number(value.altitude ?? value.elevation ?? value.altitudine?.metri) : null,
                 speed: Number.isFinite(Number(value.speed ?? value.velocita?.km_h ?? value.velocita?.kmh)) ? Number(value.speed ?? value.velocita?.km_h ?? value.velocita?.kmh) : null,
-                heartRate: Number.isFinite(Number(value.heartRate ?? value.hr)) ? Number(value.heartRate ?? value.hr) : null
+                heartRate: Number.isFinite(Number(value.heartRate ?? value.hr ?? value.frequenza_cardiaca?.bpm)) ? Number(value.heartRate ?? value.hr ?? value.frequenza_cardiaca?.bpm) : null,
+                cumulativeDistanceKm: Number.isFinite(Number(value.distanceKm ?? value.distanza?.km)) ? Number(value.distanceKm ?? value.distanza?.km) : null,
+                trackerState: String(value.status ?? value.stato ?? '').toLowerCase() || null
             };
         }
 
@@ -53,6 +56,17 @@
         const unique = new Map();
         raw.forEach((item) => { const point = normalizeLivePoint(item); if (point) unique.set(`${point.timestamp}:${point.latitude}:${point.longitude}`, point); });
         return Array.from(unique.values()).sort((a, b) => a.timestamp - b.timestamp);
+    }
+
+    async function fetchLiveTrack(options) {
+        if (trackRequest && !options?.force) return trackRequest;
+        const endpoint = getConfigValue('firebaseURL', '').trim();
+        if (!endpoint) return [];
+        trackRequest = timeoutFetch(endpoint, { headers: { Accept: 'application/json' }, cache: 'no-store' }, DEFAULT_TIMEOUT_MS)
+            .then((response) => { if (!response.ok) throw new Error(`Tracker request failed (${response.status})`); return response.json(); })
+            .then(normalizeLivePoints)
+            .catch((error) => { trackRequest = null; throw error; });
+        return trackRequest;
     }
 
     async function fetchLatestLivePoint() {
@@ -87,13 +101,7 @@
 
         for (const endpoint of endpoints) {
             try {
-                const response = await timeoutFetch(endpoint, { headers: { Accept: 'application/json' } }, DEFAULT_TIMEOUT_MS);
-                if (!response.ok) {
-                    continue;
-                }
-
-                const payload = await response.json();
-                const points = normalizeLivePoints(payload);
+                const points = await fetchLiveTrack();
                 const point = points.at(-1) || normalizeLivePoint(payload);
                 if (point) {
                     localStorage.setItem('horizon-last-live-point', JSON.stringify(point));
@@ -111,6 +119,8 @@
         DEFAULT_TIMEOUT_MS,
         normalizeLivePoint,
         normalizeLivePoints,
+        normalizeTrackPayload: normalizeLivePoints,
+        fetchLiveTrack,
         fetchLatestLivePoint
     };
 })();

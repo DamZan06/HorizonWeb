@@ -41,12 +41,14 @@
         const secondsNode = document.getElementById('countdownSeconds');
         const messageNode = document.getElementById('countdownMessage');
         const countdownNode = document.getElementById('homeCountdown');
+        const startDateNode = document.getElementById('countdownStartDate');
 
         if (!target || !daysNode || !hoursNode || !minutesNode || !secondsNode || !messageNode || !countdownNode) {
             return;
         }
 
         const now = Date.now();
+        if (startDateNode) startDateNode.textContent = new Intl.DateTimeFormat(document.documentElement.lang || 'en', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Zurich' }).format(target);
         const remainingMs = target - now;
 
         if (remainingMs <= 0) {
@@ -68,7 +70,7 @@
         countdownNode.classList.remove('is-finished');
     }
 
-    function updateHomeState() {
+    function updateHomeState(points) {
         const config = window.HorizonConfig || {};
         const state = window.HorizonStatus?.getExpeditionState({ now: Date.now(), startDate: config.startDateIso });
         const labels = { 'not-started': ['Not started', 'Waiting for departure. The planned route is ready.'], offline: ['Tracker offline', 'No recent valid position is available.'], live: ['Live', 'The expedition is underway.'], finished: ['Finished', 'HORIZON has reached Chancy.'] };
@@ -76,7 +78,8 @@
         const label = document.getElementById('homeStatusLabel'), text = document.getElementById('homeStatusText');
         if (label) label.textContent = copy[0];
         if (text) text.textContent = copy[1];
-        const values = { homeDistance: '0 km', homeRemaining: `${config.expectedDistanceKm || 500} km`, homeCompletion: '0%', homeTime: '0 h', homeGain: '0 m', homeSteps: '0', homeEta: 'Not available' };
+        const summary = window.HorizonStats?.summarize(points || [], config.expectedDistanceKm || 500);
+        const values = summary && points?.length ? { homeDistance: `${summary.coveredKm.toFixed(1)} km`, homeRemaining: `${summary.remainingKm.toFixed(1)} km`, homeCompletion: `${summary.completion.toFixed(1)}%`, homeTime: `${summary.elapsedHours.toFixed(1)} h`, homeGain: `${Math.round(summary.elevationGainM)} m`, homeSteps: Math.round(summary.coveredKm * 1300).toLocaleString(), homeEta: 'Not available' } : { homeDistance: '0 km', homeRemaining: `${config.expectedDistanceKm || 500} km`, homeCompletion: '0%', homeTime: '0 h', homeGain: '0 m', homeSteps: '0', homeEta: 'Not available' };
         Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
     }
 
@@ -88,6 +91,7 @@
 
         updateCountdown();
         updateHomeState();
+        window.HorizonFirebase?.fetchLiveTrack?.().then(updateHomeState).catch(() => {});
         homeState.timerId = window.setInterval(updateCountdown, 1000);
     }
 

@@ -23,6 +23,30 @@
         }
     }
 
+    function renderTrack(points, mapApi) {
+        const summary = window.HorizonStats?.summarize(points, window.HorizonConfig?.expectedDistanceKm || 500);
+        const latest = points.at(-1);
+        if (!summary || !latest) return;
+        mapApi.setActualTrack(points);
+        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: 'Latest recorded position' });
+        const values = {
+            distance: `${summary.coveredKm.toFixed(1)} km`, remaining: `${summary.remainingKm.toFixed(1)} km`,
+            completion: `${summary.completion.toFixed(1)}%`, completionText: `${summary.completion.toFixed(1)}%`,
+            speed: Number.isFinite(summary.currentSpeed) ? `${summary.currentSpeed.toFixed(1)} km/h` : 'Not available',
+            altitude: Number.isFinite(latest.altitude) ? `${Math.round(latest.altitude)} m` : 'Not available',
+            lastUpdate: new Intl.DateTimeFormat(document.documentElement.lang || 'en', { dateStyle: 'medium', timeStyle: 'short' }).format(latest.timestamp),
+            time: `${summary.elapsedHours.toFixed(1)} h`, elevation: `${Math.round(summary.elevationGainM)} m`,
+            steps: Math.round(summary.coveredKm * 1300).toLocaleString(document.documentElement.lang || 'en')
+        };
+        Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
+        const progress = document.getElementById('progressBar'); if (progress) progress.style.width = `${summary.completion}%`;
+        const state = window.HorizonStatus?.getExpeditionState({ latestPointTimestamp: latest.timestamp });
+        const statusCopy = { live: 'LIVE', offline: 'SIGNAL DELAYED', 'not-started': 'NOT STARTED', finished: 'FINISHED' };
+        const statusNode = document.querySelector('.live-status span:last-child'); if (statusNode) statusNode.textContent = `${statusCopy[state] || 'SIGNAL DELAYED'} · ${points.length.toLocaleString()} points`;
+        const dot = document.querySelector('.live-status .status-dot'); if (dot) dot.className = `status-dot ${state === 'live' ? 'status-moving' : 'status-not-started'}`;
+        setMapStatus(`Map ready — ${points.length.toLocaleString()} recorded points`);
+    }
+
     function initLivePage() {
         if (window.HorizonLivePage && window.HorizonLivePage.initialized) {
             return;
@@ -53,19 +77,12 @@
         }) : Promise.resolve(false);
 
         const livePromise = Promise.resolve().then(async () => {
-            if (!window.HorizonFirebase || typeof window.HorizonFirebase.fetchLatestLivePoint !== 'function') {
+            if (!window.HorizonFirebase || typeof window.HorizonFirebase.fetchLiveTrack !== 'function') {
                 return null;
             }
-
-            const point = await window.HorizonFirebase.fetchLatestLivePoint();
-            if (point && point.latitude != null && point.longitude != null) {
-                const state = window.HorizonStatus?.getExpeditionState({ latestPointTimestamp: point.timestamp });
-                if (state === 'live') mapApi.setLivePosition([point.latitude, point.longitude], { animate: true, label: 'Live position' });
-                if (window.HorizonUI && typeof window.HorizonUI.setStatus === 'function') {
-                    window.HorizonUI.setStatus('Live position updated');
-                }
-            }
-            return point;
+            const points = await window.HorizonFirebase.fetchLiveTrack();
+            renderTrack(points, mapApi);
+            return points.at(-1) || null;
         }).catch((error) => {
             console.warn('Live point load failed:', error);
             setMapStatus('LIVE DATA TEMPORARILY UNAVAILABLE');
@@ -89,13 +106,8 @@
         document.addEventListener('fullscreenchange', () => setTimeout(() => map.invalidateSize(), 50));
 
         const refreshLoop = function () {
-            window.HorizonFirebase && typeof window.HorizonFirebase.fetchLatestLivePoint === 'function' && window.HorizonFirebase.fetchLatestLivePoint().then((point) => {
-                if (point && point.latitude != null && point.longitude != null) {
-                    mapApi.setLivePosition([point.latitude, point.longitude], { animate: true, label: 'Live position' });
-                    if (window.HorizonUI && typeof window.HorizonUI.setStatus === 'function') {
-                        window.HorizonUI.setStatus('Live position refreshed');
-                    }
-                }
+            window.HorizonFirebase && typeof window.HorizonFirebase.fetchLiveTrack === 'function' && window.HorizonFirebase.fetchLiveTrack({ force: true }).then((points) => {
+                renderTrack(points, mapApi);
             }).catch(() => {
                 setMapStatus('LIVE DATA TEMPORARILY UNAVAILABLE');
             });
@@ -106,6 +118,7 @@
             init: initLivePage,
             map,
             refreshLoop,
+            renderTrack,
             refreshTimer: window.setInterval(refreshLoop, 20000)
         };
     }

@@ -20,4 +20,6 @@ const firebase = context.window.HorizonFirebase;
 check('malformed point rejected', firebase.normalizeLivePoint({lat:'bad',lng:8,timestamp:1}) === null);
 check('out-of-range point rejected', firebase.normalizeLivePoint({lat:100,lng:8,timestamp:1}) === null);
 check('points sort and deduplicate', firebase.normalizeLivePoints([{lat:1,lng:2,timestamp:2},{lat:1,lng:2,timestamp:2},{lat:1,lng:3,timestamp:1}]).length === 2);
-check('legacy tracker payload normalizes', firebase.normalizeLivePoint({coordinate:{lat:46.5,lon:8.2},orario:'2026-08-31T04:00:00Z',altitudine:{metri:900},velocita:{km_h:5}}).speed === 5);
+const imported = firebase.normalizeLivePoint({coordinate:{lat:46.5,lon:8.2},orario:'2026-08-31T04:00:00Z',altitudine:{metri:900},velocita:{km_h:5},frequenza_cardiaca:{bpm:123},distanza:{km:42.5}});
+check('real Firebase tracker payload normalizes', imported.speed === 5 && imported.heartRate === 123 && imported.cumulativeDistanceKm === 42.5);
+check('recorded cumulative distance drives progress', stats.summarize([{...imported,cumulativeDistanceKm:42.5}],500).coveredKm === 42.5);

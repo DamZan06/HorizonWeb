@@ -40,6 +40,7 @@
         document.querySelectorAll('.chart-fullscreen-btn').forEach((button) => button.addEventListener('click', async () => {
             const card = button.closest('.metric-card'); if (!document.fullscreenElement) await card.requestFullscreen(); else await document.exitFullscreen();
         }));
+        window.HorizonFirebase?.fetchLiveTrack?.().then((points) => { dashboardState.points = points; updateSummary(points); renderCharts(points); }).catch(() => {});
 
         const chartCanvas = document.getElementById('chartSpeed');
         if (chartCanvas && window.Chart && dashboardState.points?.length) {
@@ -71,6 +72,16 @@
                 });
             }
         }
+    }
+
+    function renderCharts(points) {
+        if (!window.Chart || !points.length) return;
+        document.querySelectorAll('.empty-state').forEach((node) => node.remove());
+        const sample = points.filter((_, index) => index % Math.max(1, Math.floor(points.length / 300)) === 0);
+        const labels = sample.map((point) => new Date(point.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        let gain=0; const gains=sample.map((point,index)=>{ if(index){const delta=(point.altitude??0)-(sample[index-1].altitude??0);if(delta>0&&delta<1000)gain+=delta;}return gain; });
+        const definitions = [['chartSpeed','Speed',sample.map(p=>p.speed),'#e8953f'],['chartAltitude','Altitude',sample.map(p=>p.altitude),'#d9b36c'],['chartHeartRate','Heart rate',sample.map(p=>p.heartRate),'#c36a4a'],['chartElevation','Cumulative elevation',gains,'#8ca89f']];
+        definitions.forEach(([id,label,data,color]) => { const canvas=document.getElementById(id); if (!canvas) return; new window.Chart(canvas,{type:'line',data:{labels,datasets:[{label,data,borderColor:color,borderWidth:2,pointRadius:0,tension:.15}]},options:{responsive:true,maintainAspectRatio:false,animation:false}}); });
     }
 
     window.HorizonDashboard = {

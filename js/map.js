@@ -4,6 +4,7 @@
     let markerLayer = null;
     let liveMarker = null;
     let userMarker = null;
+    let trackLayer = null;
     let hasAutoFit = false;
 
     function ensureMapContainer() {
@@ -87,9 +88,10 @@
 
         const route = window.L.geoJSON(geojson, {
             style: {
-                color: '#f5b96b',
-                weight: 4,
-                opacity: 0.95
+                color: '#eadfc7',
+                weight: 3,
+                opacity: 0.72,
+                dashArray: '9 8'
             }
         });
 
@@ -98,7 +100,8 @@
         const latlngs = layers.flatMap((layer) => layer.getLatLngs ? layer.getLatLngs().flat(Infinity) : []).filter((p) => p && Number.isFinite(p.lat));
         if (latlngs.length) {
             window.L.circleMarker(latlngs[0], { radius: 7, color: '#e8953f', fillOpacity: 1 }).bindTooltip('Piz Chavalatsch — start').addTo(routeLayer);
-            window.L.circleMarker(latlngs.at(-1), { radius: 7, color: '#f1ede3', fillOpacity: 1 }).bindTooltip('Chancy — finish').addTo(routeLayer);
+            const flagIcon = window.L.divIcon({ className: 'horizon-finish-icon', html: '<span class="finish-pole"></span><span class="finish-fabric" aria-hidden="true"></span>', iconSize: [38, 42], iconAnchor: [4, 40] });
+            window.L.marker(latlngs.at(-1), { icon: flagIcon, title: 'Chancy — finish' }).bindTooltip('Chancy — finish · west').addTo(routeLayer);
         }
 
         if (!hasAutoFit && route.getBounds && route.getBounds().isValid()) {
@@ -155,6 +158,15 @@
         return liveMarker;
     }
 
+    function setActualTrack(points) {
+        if (!map || !window.L) return null;
+        if (trackLayer) trackLayer.remove();
+        const coords = (points || []).map((point) => [Number(point.latitude), Number(point.longitude)]).filter((point) => point.every(Number.isFinite));
+        if (coords.length < 2) return null;
+        trackLayer = window.L.polyline(coords, { color: '#e8953f', weight: 5, opacity: .96, lineCap: 'round' }).addTo(map);
+        return trackLayer;
+    }
+
     function setUserPosition(coords) {
         if (!map || !window.L) {
             return null;
@@ -194,6 +206,7 @@
         addRoute,
         loadRoute,
         setLivePosition,
+        setActualTrack,
         setUserPosition,
         fitInitialView,
         centerLive,

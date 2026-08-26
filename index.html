@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="css/home.css?v=20260826a">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/logo_horizon_homepage.png?v=20260826a">
     <link rel="icon" type="image/png" href="assets/logo_horizon_homepage.png?v=20260826a">
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=20260715r">
+    <link rel="apple-touch-icon" href="assets/logo_horizon_homepage.png?v=20260827a">
 </head>
 
 <body data-page="home">
@@ -71,6 +71,8 @@
     <main id="main" class="page page-home">
         <section id="homeCountdown" class="countdown-card countdown-top" aria-live="polite" aria-labelledby="countdownTitle">
             <p class="countdown-eyebrow">HORIZON 2026</p>
+            <p class="countdown-start-label" id="countdownTitle">START</p>
+            <p class="countdown-start-date" id="countdownStartDate"></p>
             <div class="countdown-grid">
                 <article><span>Days</span><strong id="countdownDays">--</strong></article>
                 <article><span>Hours</span><strong id="countdownHours">--</strong></article>
@@ -209,9 +211,7 @@
             <h2>The two people behind HORIZON</h2>
             <div class="people-grid">
                 <article class="person-card">
-                    <div class="person-portrait portrait-one" aria-label="Portrait of Damiano Zanoni">
-                        <span>01</span>
-                    </div>
+                    <figure class="person-portrait"><img src="assets/people/DamZan.jpg" alt="Damiano Zanoni"></figure>
                     <div class="person-copy">
                         <h3>Damiano Zanoni</h3>
                         <p class="person-role">ENDURANCE · MOUNTAINS · ALWAYS FURTHER</p>
@@ -227,9 +227,7 @@
                 </article>
 
                 <article class="person-card">
-                    <div class="person-portrait portrait-two" aria-label="Portrait of Nicolas Mooser">
-                        <span>02</span>
-                    </div>
+                    <figure class="person-portrait"><img src="assets/people/NicMos.jpeg" alt="Nicolas Mooser"></figure>
                     <div class="person-copy">
                         <h3>Nicolas Mooser <span class="person-nickname">“NicMos”</span></h3>
                         <p class="person-role">ADVENTURE · CHAOS · QUESTIONABLE IDEAS</p>
@@ -359,6 +357,8 @@
     <script src="js/i18n.js?v=20260824a"></script>
     <script src="js/ui/navigation.js?v=20260824a"></script>
     <script src="js/status.js?v=20260824a"></script>
+    <script src="js/firebase.js?v=20260827a"></script>
+    <script src="js/stats.js?v=20260827a"></script>
     <script src="js/app.js?v=20260824a"></script>
     <script src="js/pages/home.js?v=20260826a"></script>
 </body>

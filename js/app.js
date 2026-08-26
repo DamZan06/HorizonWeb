@@ -2,6 +2,17 @@
     const app = window.HorizonApp || {};
 
     function setupLanguageControls() {
+        const topbar = document.querySelector('.topbar');
+        const nav = document.querySelector('.main-nav');
+        const options = '<option value="en">English</option><option value="it">Italiano</option><option value="de">Deutsch</option><option value="fr">Français</option>';
+        if (topbar && !topbar.querySelector('.lang-switcher-desktop')) {
+            const wrap = document.createElement('div'); wrap.className = 'lang-switcher lang-switcher-desktop';
+            wrap.innerHTML = `<label class="lang-switcher-label">Language</label><select class="lang-switcher-select" aria-label="Language">${options}</select>`; topbar.appendChild(wrap);
+        }
+        if (nav && !nav.querySelector('.lang-switcher-mobile')) {
+            const wrap = document.createElement('div'); wrap.className = 'lang-switcher lang-switcher-mobile';
+            wrap.innerHTML = `<label class="lang-switcher-label">Language</label><select class="lang-switcher-select" aria-label="Language">${options}</select>`; nav.appendChild(wrap);
+        }
         const preferred = localStorage.getItem('horizon-language') || document.documentElement.lang || 'en';
         if (typeof window.HorizonI18n?.applyLanguagePreference === 'function') {
             window.HorizonI18n.applyLanguagePreference(preferred);
