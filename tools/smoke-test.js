@@ -30,9 +30,9 @@ function run() {
   const replay = read('replay.html');
   const dashboard = read('dashboard.html');
 
-  expect('app init stays guarded and handles bootstrap responsibilities', app.includes('if (app._initialized)') && app.includes('renderNavigation') && app.includes('app.startHomeRefreshScheduler'));
+  expect('app init stays guarded and handles bootstrap responsibilities', app.includes('if (app._initialized)') && app.includes('renderNavigation') && app.includes('setupMobileNavigation'));
   expect('config holds the expedition start date in one place', config.includes('startDateIso') && config.includes('2026-08-31T04:00:00+02:00'));
-  expect('single-owner home refresh is guarded', app.includes('homeRefreshTimerId') && app.includes('if (app.homeRefreshTimerId)'));
+  expect('home does not use a redundant global refresh scheduler', !app.includes('homeRefreshTimerId'));
   expect('map module is implemented', mapScript.includes('createMap') && mapScript.includes('loadRoute'));
   expect('firebase module is implemented', firebaseScript.includes('fetchLatestLivePoint') && firebaseScript.includes('normalizeLivePoint'));
   expect('navigation module defines a canonical list', navScript.includes('NAV_ITEMS') && navScript.includes('Project') && navScript.includes('Journey'));

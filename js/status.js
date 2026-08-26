@@ -1,4 +1,25 @@
 (function () {
+    function parseTime(value) {
+        const time = value instanceof Date ? value.getTime() : new Date(value).getTime();
+        return Number.isFinite(time) ? time : null;
+    }
+
+    function getExpeditionState(input) {
+        const options = input || {};
+        const config = window.HorizonConfig || {};
+        const now = parseTime(options.now == null ? Date.now() : options.now) || Date.now();
+        const start = parseTime(options.startDate || config.startDateIso);
+        const latest = parseTime(options.latestPointTimestamp);
+        const forced = String(options.forcedAdminState || '').trim().toLowerCase();
+        const validForced = ['not-started', 'live', 'delayed', 'resting', 'finished', 'offline'];
+        if (validForced.includes(forced)) return forced;
+        if (options.finished === true) return 'finished';
+        if (start && now < start) return 'not-started';
+        if (!latest) return 'offline';
+        if (latest > now + 300000) return 'offline';
+        const staleAfter = Number(config.staleDataThresholdMs) || 180000;
+        return now - latest <= staleAfter ? 'live' : 'offline';
+    }
     function normalizeHomeStatus(status) {
         const value = String(status ?? '').trim().toLowerCase();
         if (!value) return 'not-started';
@@ -34,6 +55,7 @@
     }
 
     const horizonStatus = Object.assign(window.HorizonStatus || {}, {
+        getExpeditionState,
         normalizeHomeStatus,
         bindAdminLiveStatusForm
     });

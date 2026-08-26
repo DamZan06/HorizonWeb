@@ -12,10 +12,22 @@
     }
 
     function setupMobileNavigation() {
-        const toggle = document.querySelector('.topbar-menu-toggle');
+        const topbar = document.querySelector('.topbar');
+        let toggle = document.querySelector('.topbar-menu-toggle');
         const nav = document.querySelector('.main-nav');
-        const overlay = document.querySelector('.mobile-nav-overlay');
-        if (!toggle || !nav) return;
+        let overlay = document.querySelector('.mobile-nav-overlay');
+        if (!nav || !topbar) return;
+        if (!nav.id) nav.id = 'mainNav';
+        if (!toggle) {
+            toggle = document.createElement('button');
+            toggle.type = 'button'; toggle.className = 'topbar-menu-toggle'; toggle.textContent = 'Menu';
+            toggle.setAttribute('aria-expanded', 'false'); toggle.setAttribute('aria-controls', nav.id);
+            topbar.insertBefore(toggle, nav);
+        }
+        if (!overlay) {
+            overlay = document.createElement('div'); overlay.className = 'mobile-nav-overlay'; overlay.hidden = true;
+            document.body.prepend(overlay);
+        }
 
         if (toggle.dataset.bound === 'true') {
             return;
@@ -53,17 +65,6 @@
         });
     }
 
-    app.startHomeRefreshScheduler = function () {
-        if (app.homeRefreshTimerId) {
-            return;
-        }
-        app.homeRefreshTimerId = window.setInterval(async () => {
-            if (document.body && document.body.dataset.page === 'home' && typeof app?.init === 'function') {
-                await app.init();
-            }
-        }, 8000);
-    };
-
     app.init = function () {
         if (app._initialized) {
             return;
@@ -79,9 +80,12 @@
             statusController.bindAdminLiveStatusForm();
         }
 
+        if (document.body && document.body.dataset && document.body.dataset.page === 'home' && window.HorizonHome && typeof window.HorizonHome.initHomePage === 'function') {
+            window.HorizonHome.initHomePage();
+        }
+
         setupLanguageControls();
         setupMobileNavigation();
-        app.startHomeRefreshScheduler();
     };
 
     window.HorizonApp = app;

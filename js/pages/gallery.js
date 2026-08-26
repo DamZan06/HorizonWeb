@@ -4,6 +4,7 @@
         items: [],
         activeIndex: 0,
         map: null
+        ,lastFocus: null
     };
 
     function markStatus(message) {
@@ -19,19 +20,7 @@
             return [];
         }
 
-        const fallbackItems = [
-            {
-                id: 'gallery-default-1',
-                title: 'HORIZON night',
-                location: 'Piz Chavalatsch',
-                description: 'Night departure',
-                image: 'assets/gallery/Night_1.jpg',
-                lat: 46.595,
-                lng: 9.853
-            }
-        ];
-
-        return fallbackItems;
+        return [];
     }
 
     function renderGallery(items) {
@@ -42,7 +31,7 @@
 
         grid.innerHTML = '';
         if (!items.length) {
-            grid.innerHTML = '<p class="gallery-empty">Waiting for geolocated images...</p>';
+            grid.innerHTML = '<p class="empty-state">Field photographs and places will appear here during the journey.</p>';
             return;
         }
 
@@ -82,6 +71,7 @@
         }
 
         galleryState.activeIndex = index;
+        galleryState.lastFocus = document.activeElement;
         modalImage.src = item.image;
         modalImage.alt = item.title;
         modalTitle.textContent = item.title;
@@ -89,12 +79,14 @@
         modalDescription.textContent = item.description || 'HORIZON gallery entry.';
         modal.setAttribute('data-active-index', String(index));
         modal.classList.add('is-open');
+        modal.querySelector('.modal-close')?.focus();
     }
 
     function closeGalleryModal() {
         const modal = document.querySelector('.modal-backdrop');
         if (modal) {
             modal.classList.remove('is-open');
+            galleryState.lastFocus?.focus();
         }
     }
 
@@ -106,11 +98,14 @@
 
         const closeButton = modal.querySelector('.modal-close');
         if (closeButton) {
+            closeButton.type = 'button';
             closeButton.addEventListener('click', closeGalleryModal);
         }
 
         const prevButton = document.getElementById('modalPrev');
         const nextButton = document.getElementById('modalNext');
+        if (prevButton) prevButton.type = 'button';
+        if (nextButton) nextButton.type = 'button';
 
         if (prevButton) {
             prevButton.addEventListener('click', () => {
@@ -131,6 +126,28 @@
                 closeGalleryModal();
             }
         });
+        document.addEventListener('keydown', (event) => {
+            if (!modal.classList.contains('is-open')) return;
+            if (event.key === 'Escape') closeGalleryModal();
+            if (event.key === 'ArrowLeft' && items.length) openGalleryModal(items, (galleryState.activeIndex - 1 + items.length) % items.length);
+            if (event.key === 'ArrowRight' && items.length) openGalleryModal(items, (galleryState.activeIndex + 1) % items.length);
+        });
+    }
+
+    function initPhotoMap(items) {
+        const container = document.getElementById('map');
+        if (!container || !window.L) { markStatus('Photo map unavailable.'); return; }
+        const map = window.L.map(container).setView([46.8, 8.2], 7);
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+        const group = window.L.markerClusterGroup ? window.L.markerClusterGroup() : window.L.layerGroup();
+        items.filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng)).forEach((item, index) => {
+            const marker = window.L.marker([item.lat, item.lng], { title: item.title });
+            marker.on('click', () => openGalleryModal(items, index)); group.addLayer(marker);
+        });
+        group.addTo(map); galleryState.map = map;
+        const fullscreen = document.getElementById('galleryPhotoMapFullscreenBtn');
+        fullscreen?.addEventListener('click', async () => { const wrap = container.closest('.map-wrap'); if (!document.fullscreenElement) await wrap.requestFullscreen(); else await document.exitFullscreen(); });
+        document.addEventListener('fullscreenchange', () => setTimeout(() => map.invalidateSize(), 50));
     }
 
     function initGalleryPage() {
@@ -143,7 +160,8 @@
         galleryState.items = items;
         renderGallery(items);
         bindModalControls(items);
-        markStatus(items.length ? 'Geolocated images ready.' : 'Waiting for geolocated images...');
+        initPhotoMap(items);
+        markStatus(items.length ? 'Geolocated images ready.' : 'No geolocated field photographs yet.');
     }
 
     window.HorizonGallery = {

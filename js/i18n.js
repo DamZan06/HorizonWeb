@@ -12,7 +12,7 @@
                 lastUpdate: 'Last update',
                 routeStart: 'Start',
                 routeFinish: 'Finish'
-            }
+            }, dynamic: { liveTrackingActive: 'Expedition not started. The planned route is visible; live position will appear after departure.' }
         },
         it: {
             app: {
@@ -26,7 +26,7 @@
                 lastUpdate: 'Ultimo aggiornamento',
                 routeStart: 'Partenza',
                 routeFinish: 'Arrivo'
-            }
+            }, dynamic: { liveTrackingActive: 'Spedizione non ancora iniziata. Il percorso previsto è visibile; la posizione live apparirà dopo la partenza.' }
         },
         de: {
             app: {
@@ -40,7 +40,7 @@
                 lastUpdate: 'Letzte Aktualisierung',
                 routeStart: 'Start',
                 routeFinish: 'Ziel'
-            }
+            }, dynamic: { liveTrackingActive: 'Die Expedition hat noch nicht begonnen. Die geplante Route ist sichtbar; die Live-Position erscheint nach dem Start.' }
         },
         fr: {
             app: {
@@ -54,7 +54,7 @@
                 lastUpdate: 'Dernière mise à jour',
                 routeStart: 'Départ',
                 routeFinish: 'Arrivée'
-            }
+            }, dynamic: { liveTrackingActive: "L’expédition n’a pas encore commencé. L’itinéraire prévu est visible; la position en direct apparaîtra après le départ." }
         }
     };
 
@@ -80,8 +80,18 @@
                 link.textContent = label;
             }
         });
+        document.querySelectorAll('[data-i18n]').forEach((node) => {
+            const value = t(node.dataset.i18n, normalized);
+            if (value) node.textContent = value;
+        });
 
         return normalized;
+    }
+
+    function t(path, language) {
+        const lang = resolveLanguage(language || document.documentElement.lang);
+        const value = String(path || '').split('.').reduce((current, key) => current && current[key], catalog[lang]);
+        return typeof value === 'string' ? value : '';
     }
 
     function hydrateLanguageControls() {
@@ -105,6 +115,7 @@
         resolveLanguage,
         applyLanguagePreference,
         hydrateLanguageControls
+        ,t
     };
 
     window.HorizonI18n = horizonI18n;

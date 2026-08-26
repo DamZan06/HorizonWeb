@@ -15,50 +15,25 @@
         }
     }
 
-    function ensureRoutePoints() {
-        if (replayState.routePoints.length) {
-            return replayState.routePoints;
-        }
-
-        replayState.routePoints = [
-            [46.595, 9.853],
-            [46.6, 9.8],
-            [46.7, 9.6],
-            [46.9, 9.4],
-            [47.1, 9.2],
-            [47.3, 9.0],
-            [47.5, 8.8]
-        ];
-
-        return replayState.routePoints;
-    }
+    function ensureRoutePoints() { return replayState.routePoints; }
 
     function buildMarker() {
+        if (replayState.map) return replayState.map;
         const mapContainer = document.getElementById('map');
         if (!mapContainer || !window.L) {
             return null;
         }
 
-        if (!window.HorizonMap || typeof window.HorizonMap.createMap !== 'function') {
-            return null;
-        }
-
-        const map = window.HorizonMap.createMap({
-            center: [46.6, 10.4],
-            zoom: 8
-        });
+        const map = window.L.map(mapContainer).setView([46.8, 8.2], 7);
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
 
         if (!map) {
             return null;
         }
 
-        if (!window.HorizonMap.loadRoute) {
-            return map;
-        }
-
-        window.HorizonMap.loadRoute('data/route/horizon-route.geojson').catch(() => {
-            setStatus('Replay route unavailable');
-        });
+        const routePath = (window.HorizonConfig && window.HorizonConfig.routeGeoJsonUrl) || 'data/route/horizon-route.geojson';
+        fetch(routePath).then((response) => { if (!response.ok) throw new Error('route'); return response.json(); }).then((data) => { const layer = window.L.geoJSON(data, { style: { color: '#e8953f', weight: 4 } }).addTo(map); map.fitBounds(layer.getBounds(), { padding: [20,20] }); }).catch(() => setStatus('Planned route unavailable.'));
+        replayState.map = map;
 
         return map;
     }
@@ -79,15 +54,16 @@
         const map = buildMarker();
         const point = points[replayState.currentIndex] || points[0];
 
-        if (map && point && window.HorizonMap && typeof window.HorizonMap.setLivePosition === 'function') {
-            window.HorizonMap.setLivePosition(point, { animate: true, label: 'Replay position' });
-            map.setView(point, Math.max(map.getZoom(), 8));
+        if (map && point) {
+            if (!replayState.marker) replayState.marker = window.L.marker(point).addTo(map);
+            else replayState.marker.setLatLng(point);
         }
 
-        setStatus(replayState.isPlaying ? 'Playing replay' : 'Replay ready');
+        setStatus(points.length ? (replayState.isPlaying ? 'Playing replay' : 'Replay ready') : 'Replay will become available once journey data has been recorded.');
     }
 
     function startReplay() {
+        if (!replayState.routePoints.length) return;
         if (replayState.timer) {
             window.clearInterval(replayState.timer);
         }
@@ -96,7 +72,8 @@
         setStatus('Playing replay');
         replayState.timer = window.setInterval(() => {
             const points = ensureRoutePoints();
-            replayState.currentIndex = (replayState.currentIndex + 1) % points.length;
+            if (replayState.currentIndex >= points.length - 1) { pauseReplay(); setStatus('Replay complete'); return; }
+            replayState.currentIndex += 1;
             renderReplayFrame();
         }, replayState.speed);
     }
@@ -151,7 +128,9 @@
         }
 
         updateReplayUi();
-        renderReplayFrame();
+        buildMarker();
+        [playButton, pauseButton, resetButton, speedInput].forEach((control) => { if (control) control.disabled = !replayState.routePoints.length; });
+        setStatus('Replay will become available once journey data has been recorded.');
     }
 
     window.HorizonReplay = {

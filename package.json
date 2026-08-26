@@ -5,6 +5,12 @@
   "description": "HorizonWeb static site local environment",
   "scripts": {
     "serve": "node tools/serve.js",
-    "test": "node tools/smoke-test.js"
+    "test": "node tools/js-syntax-check.js && node tools/unit-test.js && node tools/smoke-test.js",
+    "test:e2e": "playwright test tests/e2e.spec.js",
+    "start": "node tools/serve.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "playwright": "^1.62.1"
   }
 }

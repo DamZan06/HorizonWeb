@@ -10,23 +10,21 @@
         }
     }
 
-    function updateSummary() {
-        updateMetric('metricDistance', '120 km');
-        updateMetric('metricRemaining', '380 km');
-        updateMetric('metricCompletion', '24%');
-        updateMetric('metricSpeed', '6.1 km/h');
-        updateMetric('metricAvgMovingSpeed', '7.4 km/h');
-        updateMetric('metricAvgTotalSpeed', '4.9 km/h');
-        updateMetric('metricMaxSpeed', '12.8 km/h');
-        updateMetric('metricAltitude', '1,420 m');
-        updateMetric('metricElevation', '3,280 m');
-        updateMetric('metricTime', '08:42:19');
-        updateMetric('metricMovingTime', '06:30:00');
-        updateMetric('metricHeartRate', '142 bpm');
-        updateMetric('metricHeartRateAvg', '132 bpm');
-        updateMetric('metricCalories', '4,420 kcal');
-        updateMetric('metricWaterLost', '2.6 L');
-        updateMetric('metricEta', '12 days');
+    function updateSummary(points) {
+        const summary = window.HorizonStats?.summarize(points || [], window.HorizonConfig?.expectedDistanceKm || 500) || {};
+        const available = (value, suffix, digits) => Number.isFinite(value) ? `${value.toFixed(digits ?? 1)}${suffix}` : 'Not available';
+        updateMetric('metricDistance', available(summary.coveredKm, ' km'));
+        updateMetric('metricRemaining', available(summary.remainingKm, ' km'));
+        updateMetric('metricCompletion', available(summary.completion, '%'));
+        updateMetric('metricSpeed', available(summary.currentSpeed, ' km/h'));
+        updateMetric('metricAvgMovingSpeed', available(summary.averageSpeed, ' km/h'));
+        updateMetric('metricAvgTotalSpeed', available(summary.averageSpeed, ' km/h'));
+        updateMetric('metricMaxSpeed', available(summary.maxSpeed, ' km/h'));
+        updateMetric('metricAltitude', points?.length && Number.isFinite(points.at(-1).altitude) ? `${Math.round(points.at(-1).altitude)} m` : 'Not available');
+        updateMetric('metricElevation', available(summary.elevationGainM, ' m', 0));
+        updateMetric('metricTime', available(summary.elapsedHours, ' h'));
+        updateMetric('metricMovingTime', points?.length > 1 ? available(summary.elapsedHours, ' h') : 'Not available');
+        ['metricHeartRate','metricHeartRateAvg','metricCalories','metricWaterLost','metricEta'].forEach((id) => updateMetric(id, 'Not available'));
     }
 
     function initDashboardPage() {
@@ -35,10 +33,16 @@
         }
         dashboardState.initialized = true;
 
-        updateSummary();
+        updateSummary([]);
+        document.querySelectorAll('.chart-card-head').forEach((head) => {
+            const message = document.createElement('p'); message.className = 'empty-state'; message.textContent = 'Telemetry will appear once tracking begins.'; head.after(message);
+        });
+        document.querySelectorAll('.chart-fullscreen-btn').forEach((button) => button.addEventListener('click', async () => {
+            const card = button.closest('.metric-card'); if (!document.fullscreenElement) await card.requestFullscreen(); else await document.exitFullscreen();
+        }));
 
         const chartCanvas = document.getElementById('chartSpeed');
-        if (chartCanvas && window.Chart) {
+        if (chartCanvas && window.Chart && dashboardState.points?.length) {
             const ctx = chartCanvas.getContext('2d');
             if (ctx) {
                 new window.Chart(ctx, {

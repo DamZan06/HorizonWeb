@@ -37,20 +37,20 @@
                 <h1>Relive the route.</h1>
                 <p>Play the full crossing, pause it, accelerate the timeline and revisit the most significant moments.</p>
             </div>
-            <div class="replay-controls" style="display:grid;gap:16px;">
-                <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <div class="replay-controls">
+                <div class="replay-button-row">
                     <button id="replayPlay" class="button primary">Play</button>
                     <button id="replayPause" class="button ghost">Pause</button>
                     <button id="replayReset" class="button secondary">Reset</button>
                 </div>
-                <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+                <div class="replay-speed-row">
                     <label for="replaySpeed">Speed:</label>
                     <input id="replaySpeed" type="range" min="20" max="500" step="20" value="80">
                     <span id="replaySpeedLabel">80 ms</span>
                     <span id="replayStatus">Replay ready</span>
                 </div>
             </div>
-            <div class="map-wrap" style="min-height:560px;">
+            <div class="map-wrap">
                 <div id="map"></div>
             </div>
         </section>
@@ -59,7 +59,6 @@
         <p>HORIZON © 2026 · Across Switzerland. East to west.</p>
     </footer>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
     <script src="js/config.js?v=20260824a"></script>
     <script src="js/i18n.js?v=20260824a"></script>
     <script src="js/ui/navigation.js?v=20260824a"></script>

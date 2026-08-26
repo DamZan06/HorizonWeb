@@ -1,1285 +1,1758 @@
-You are performing a focused corrective refactor on the current HORIZON repository.
+# HORIZON — COMPLETE WEBSITE AUDIT, REFACTOR, BUG FIXING AND RELEASE VALIDATION
 
-DO NOT redesign the website visually.
+You are working on the complete HORIZON website repository.
 
-The previous refactor was only partially completed.
+Live production website:
 
-There are now several concrete architectural problems that must be fixed before any more features are added.
+https://damzan06.github.io/HorizonWeb/
 
-The absolute priorities are:
+Repository:
 
-1. FIX THE NAVIGATION FOR REAL.
-2. FIX THE LIVE MAP AND ITS LOADING PERFORMANCE.
-3. COMPLETE THE PARTIALLY EMPTY MODULAR ARCHITECTURE.
-4. REMOVE UNUSED DEPENDENCIES.
-5. VERIFY THE DEPLOYED GITHUB PAGES VERSION AFTER CHANGES.
+https://github.com/DamZan06/HorizonWeb
 
----
+Your task is NOT to fix one isolated bug.
 
-# 1. IMPORTANT — THE NAVIGATION WAS NOT ACTUALLY CHANGED
+Your task is to perform a **complete end-to-end audit, repair, refactor and validation of the entire website** until the project behaves like a stable production website.
 
-The current public website and repository still use:
+## ABSOLUTE COMPLETION RULE
 
-HOME
-LIVE
-THE CHALLENGE
-ROUTE
-JOURNEY
-REPLAY
-ABOUT
+Do **not** declare the task finished after making code changes.
 
-This is the old structure.
+Do **not** declare the task finished because the code “looks correct”.
 
-Do not leave it like this.
+Do **not** declare the task finished because one page works.
 
-Replace the GLOBAL navigation everywhere with exactly:
+Do **not** stop after fixing the bugs explicitly mentioned in this prompt.
 
-HOME
-LIVE
-PROJECT
-JOURNEY
-REPLAY
+You may declare the work finished ONLY when:
 
-That means:
+1. every public page has been tested;
+2. every interactive function has been tested;
+3. every map has been tested;
+4. every timer/countdown has been tested;
+5. every data-driven statistic has been tested;
+6. every language switcher has been tested;
+7. every navigation link has been tested;
+8. desktop and mobile layouts have been tested;
+9. browser console errors have been eliminated;
+10. broken network requests and 404s have been eliminated;
+11. all automated tests pass;
+12. the website still works after a fresh reload;
+13. failure/empty-data states behave correctly;
+14. no feature remains permanently stuck on placeholders such as `--`, `Loading…`, `Calculating…`, etc. unless there is legitimately no available data;
+15. no legacy/dead code is required for the new implementation to function.
 
-Home:
-`index.html`
+If something fails during testing, fix it and run the tests again.
 
-Live:
-`live.html`
+Repeat:
 
-Project:
-`project.html`
+**AUDIT → FIX → TEST → FIND REMAINING PROBLEMS → FIX → TEST AGAIN**
 
-Journey:
-use the current canonical Journey page
-
-Replay:
-`replay.html`
-
-Remove global navbar entries:
-
-THE CHALLENGE
-ROUTE
-ABOUT
-
-Those belong inside Project.
+until the complete website passes.
 
 ---
 
-# 2. PROJECT PAGE INTERNAL NAVIGATION
+# 1. FIRST: UNDERSTAND THE ENTIRE PROJECT
 
-Inside `project.html`, optionally create a small secondary anchor navigation:
+Before editing anything, inspect the complete repository.
 
-OVERVIEW
-TEAM
-WHY HORIZON
-ROUTE
-CHALLENGE
-HOW IT WORKS
+Inspect at minimum:
 
-This is not part of the global navbar.
+* every `.html` file;
+* every `.js` file;
+* every `.css` file;
+* `package.json`;
+* `firebase-config.js`;
+* route GPX/GeoJSON files;
+* `assets/`;
+* `data/`;
+* `tools/`;
+* navigation;
+* Firebase/live tracking integration;
+* translations;
+* status logic;
+* map logic;
+* chart logic;
+* gallery logic;
+* replay logic;
+* admin functions;
+* progress/timeline/diary functions.
+
+Do not assume a file is still used just because it exists.
+
+Determine:
+
+* which files are current;
+* which files are legacy;
+* which functions are duplicated;
+* which HTML files load obsolete scripts;
+* which scripts are never loaded;
+* which assets have incorrect paths;
+* which DOM elements expect controllers that do not exist;
+* which controllers are implemented but never imported.
+
+Create a dependency map internally before making large changes.
 
 ---
 
-# 3. CHANGE THE NAVBAR IN EVERY PAGE
+# 2. IMPORTANT KNOWN BUG — HOMEPAGE COUNTDOWN
 
-Search every HTML file.
+The homepage currently displays:
 
-The navbar must NOT be manually left different between pages.
+* Days `--`
+* Hours `--`
+* Minutes `--`
+* Seconds `--`
+* `Calculating remaining time...`
 
-Update at least:
+and stays like this.
 
-index.html
-live.html
-project.html
-gallery/journey page
-replay.html
+THIS IS A BUG.
 
-Also inspect:
-
-dashboard.html
-diary.html
-progress.html
-timeline.html
-admin.html
-
-if they contain the public header.
-
-The final public navbar must be consistent.
-
----
-
-# 4. CENTRALIZE NAVIGATION DEFINITION
-
-Do not manually maintain the navigation structure independently in every HTML page.
-
-Create something like:
-
-`js/ui/navigation.js`
-
-Define the navigation once:
+The expedition start configuration currently contains approximately:
 
 ```js
-const NAV_ITEMS = [
-    { key: 'home', href: 'index.html' },
-    { key: 'live', href: 'live.html' },
-    { key: 'project', href: 'project.html' },
-    { key: 'journey', href: 'gallery.html' },
-    { key: 'replay', href: 'replay.html' }
-];
+startDateIso: '2026-08-31T04:00:00+02:00'
 ```
 
-The exact implementation may differ.
+The countdown therefore does not require any external API.
 
-The important requirement is:
+Implement a reliable countdown controller.
 
-ONE canonical navigation definition.
+The countdown must:
 
----
+* use the configured `startDateIso`;
+* calculate the difference using `Date.now()`;
+* respect the explicit timezone contained in the ISO timestamp;
+* update immediately when the page initializes;
+* update once per second;
+* correctly calculate days;
+* correctly calculate remaining hours;
+* correctly calculate minutes;
+* correctly calculate seconds;
+* never show negative values;
+* work after changing language;
+* not reset when translations are applied;
+* cleanly transition when the countdown reaches zero.
 
-# 5. ACTIVE PAGE
-
-Determine the active page from:
-
-`body[data-page]`
-
-or pathname.
-
-Automatically set:
-
-`aria-current="page"`
-
-Do not hard-code it inconsistently across HTML files.
-
----
-
-# 6. MOBILE NAVIGATION
-
-Mobile menu must contain only:
-
-HOME
-LIVE
-PROJECT
-JOURNEY
-REPLAY
-LANGUAGE
-
-No:
-
-THE CHALLENGE
-ROUTE
-ABOUT
-
-Keep the existing accessible open/close behavior.
-
----
-
-# 7. CRITICAL MAP ARCHITECTURE PROBLEM
-
-The repository currently contains:
-
-`js/map.js`
-
-but it is EMPTY.
-
-It also contains:
-
-`js/firebase.js`
-
-but it is EMPTY.
-
-And:
-
-`js/ui.js`
-
-is EMPTY.
-
-This is not an acceptable final architecture.
-
-Do not create placeholder modules and then continue using legacy logic elsewhere.
-
-Implement the modules or delete them.
-
----
-
-# 8. LIVE.HTML CURRENT SCRIPT PROBLEM
-
-The Live page currently loads:
-
-Leaflet
-leaflet-gpx
-Chart.js
-config.js
-i18n.js
-status.js
-app.js
-script.js
-
-But it does NOT explicitly load:
-
-map.js
-firebase.js
-
-This means the modular architecture is incomplete.
-
-Fix this.
-
----
-
-# 9. TARGET LIVE PAGE ARCHITECTURE
-
-Use a clean dependency flow.
-
-Recommended:
-
-config.js
-↓
-firebase.js
-gpx.js
-↓
-map.js
-stats.js
-↓
-live.js
-
-Global:
-
-i18n.js
-navigation.js
-
-Conceptually:
+Before departure:
 
 ```text
-live.html
-
-→ config
-→ i18n
-→ navigation
-→ firebase service
-→ GPX service
-→ map
-→ stats
-→ live page controller
+05 DAYS
+18 HOURS
+23 MINUTES
+14 SECONDS
 ```
 
-Do not initialize Live functionality through a generic old bootstrap.
+or the equivalent layout currently used by the website.
 
----
+After departure, replace the countdown state with a meaningful expedition state such as:
 
-# 10. CREATE A PAGE-SPECIFIC LIVE CONTROLLER
+`HORIZON IS UNDERWAY`
 
-Create:
+or use the existing translated equivalent.
 
-`js/pages/live.js`
+Do not permanently leave:
 
-or equivalent.
+`Calculating remaining time...`
 
-Its only responsibility is coordinating the Live page.
+That text may only exist momentarily before JavaScript initializes.
 
-Example responsibility:
+Create a dedicated controller if necessary, for example:
 
-1. initialize Leaflet
-2. display map immediately
-3. load static route
-4. fetch last known live position
-5. update map marker
-6. update statistics
-7. start ONE live refresh loop
-
-Do not put:
-
-translations
-navigation
-gallery
-replay
-admin
-
-inside this file.
-
----
-
-# 11. THE MAP MUST APPEAR IMMEDIATELY
-
-This is extremely important.
-
-Currently the map feels like it takes forever to appear.
-
-The visual map must NOT wait for:
-
-Firebase
-GPX parsing
-statistics
-weather
-live position
-replay data
-
-before displaying.
-
-Correct loading order:
-
-### STEP 1 — IMMEDIATE
-
-Create Leaflet map.
-
-Add base tile layer.
-
-User should see a usable map almost immediately.
-
-### STEP 2
-
-Load the HORIZON route.
-
-### STEP 3
-
-Load live position.
-
-### STEP 4
-
-Load secondary statistics/weather/etc.
-
-The base map must not be blocked by expedition data.
-
----
-
-# 12. DO NOT BLOCK MAP INITIALIZATION ON FIREBASE
-
-Bad pattern:
-
-```js
-await fetchFirebase();
-await loadGpx();
-initializeMap();
+```text
+js/pages/home.js
 ```
 
-Do NOT do this.
+Do NOT bury this feature inside a giant legacy runtime file.
 
-Better:
-
-```js
-initializeMap();
-
-Promise.allSettled([
-    loadRoute(),
-    loadLivePosition(),
-    loadStats()
-]);
-```
-
-Use graceful independent loading.
-
-A failed Firebase request must not prevent the map from appearing.
+Test the calculation using mocked dates both before and after departure.
 
 ---
 
-# 13. DO NOT BLOCK MAP ON GPX
+# 3. CRITICAL BUG — LIVE MAP
 
-Likewise:
-
-the map itself should exist before GPX parsing completes.
-
-Show base tiles immediately.
-
-Then add route when ready.
-
----
-
-# 14. REPLACE LEAFLET-GPX IF IT IS THE BOTTLENECK
-
-Audit actual route size.
-
-If `Horizon.gpx` contains thousands or tens of thousands of GPX points, parsing the complete XML with `leaflet-gpx` every page load may be unnecessarily expensive.
-
-For the public Live map, create a preprocessed route file.
-
-Recommended:
-
-`data/horizon-route.geojson`
-
-or:
-
-`data/horizon-route.json`
-
-generated once from the GPX.
-
-The GPX remains the authoritative source.
-
-But browser runtime should not repeatedly parse a huge XML file if a lightweight representation is sufficient.
-
----
-
-# 15. GPX REMAINS SOURCE OF TRUTH
-
-Do NOT manually simplify the HORIZON route.
-
-Create a preprocessing utility in:
-
-`tools/`
-
-For example:
-
-`tools/build-route.js`
-
-or Python equivalent.
-
-It should:
-
-read:
-`Horizon.gpx`
-
-produce:
-`horizon-route.geojson`
-
-Preserve the real geometry.
-
-If simplification is necessary for performance, use a documented geometric simplification algorithm with a very low tolerance.
-
-Do not visually alter the route.
-
----
-
-# 16. CREATE TWO ROUTE REPRESENTATIONS IF USEFUL
-
-Recommended:
-
-FULL route:
-for detailed map / replay
-
-LIGHT route:
-for homepage overview and initial live-map rendering
-
-For example:
-
-`horizon-route-full.geojson`
-
-`horizon-route-lite.geojson`
-
-The lite route should preserve all meaningful geographic bends.
-
-Do not reduce it to an artistic approximation.
-
----
-
-# 17. MAP PERFORMANCE TARGET
-
-On a normal broadband connection:
-
-the empty/base Leaflet map should become visible essentially immediately after page layout.
-
-Route rendering should follow quickly.
-
-Live position may appear later.
-
-The visitor should NEVER stare at a blank map container waiting for Firebase.
-
----
-
-# 18. ADD A REAL MAP LOADING STATE
-
-Inside the map container initially show:
+The Live page currently displays:
 
 `LOADING MAP…`
 
-But remove it as soon as Leaflet and the base tile layer are initialized.
+and the map does not reliably load.
 
-Separate state for route:
+Investigate the complete cause.
 
-`Loading route…`
+A known inconsistency currently exists:
 
-if needed.
+`js/pages/live.js` tries to load:
 
-Separate state for live signal:
+```text
+data/route/horizon-route.geojson
+```
 
-`Connecting to live position…`
+while the repository currently contains:
 
-Do not use one giant loading state for everything.
+```text
+data/horizon-route.geojson
+```
 
----
+Fix this properly.
 
-# 19. REMOVE CHART.JS FROM LIVE.HTML IF UNUSED
+DO NOT simply hardcode another random path.
 
-The current Live page loads:
-
-`https://cdn.jsdelivr.net/npm/chart.js`
-
-Audit whether live.html actually creates a chart.
-
-If not:
-
-REMOVE CHART.JS FROM LIVE.HTML.
-
-Do not load several hundred KB of JavaScript for no reason.
-
-Only load Chart.js on pages that genuinely use charts.
-
----
-
-# 20. PIN LEAFLET VERSION
-
-The Live page currently uses unversioned:
-
-`https://unpkg.com/leaflet/dist/leaflet.css`
-
-and:
-
-`https://unpkg.com/leaflet/dist/leaflet.js`
-
-Pin an explicit known-working version.
-
-For example use a stable tested Leaflet version consistently for CSS and JS.
-
-Do not use `/leaflet/dist/...` without a version.
-
----
-
-# 21. CONSIDER HOSTING LEAFLET LOCALLY
-
-Because HORIZON needs to remain reliable during a real expedition, consider storing the required Leaflet production assets inside the repository.
-
-This eliminates a third-party CDN as a critical dependency.
-
-If local hosting is chosen:
-
-keep only the minified production Leaflet JS/CSS and necessary images.
-
-Do not commit an entire node_modules directory.
-
----
-
-# 22. REMOVE LEAFLET-GPX IF PREPROCESSING ROUTE
-
-If the route is converted to GeoJSON ahead of time:
-
-remove:
-
-`leaflet-gpx`
-
-from the Live page.
-
-Leaflet can render GeoJSON directly.
-
-This removes another dependency and XML parser.
-
----
-
-# 23. TILE PROVIDER
-
-Audit the current tile provider.
-
-Choose one reliable tile layer.
-
-Do not create several tile layers immediately if only one is visible.
-
-Additional terrain/satellite layers should be initialized lazily only when the user selects them.
-
-Base map startup should require only ONE tile layer.
-
----
-
-# 24. MAP TILE LOADING EXPERIENCE
-
-Add listeners for:
-
-`loading`
-
-`load`
-
-`tileerror`
-
-Do not leave a permanently blank map if tiles fail.
-
-If individual tiles fail:
-
-keep the route and UI available.
-
-Show a subtle message:
-
-`Map background temporarily unavailable.`
-
----
-
-# 25. FIT ROUTE ONLY ONCE
-
-Do not repeatedly call:
-
-`fitBounds()`
-
-every time live data updates.
-
-Initial behavior:
-
-if live data exists:
-choose appropriate initial viewport.
-
-Otherwise:
-fit the HORIZON route.
-
-After the user manually moves/zooms the map:
-
-do not automatically steal control from them every update.
-
----
-
-# 26. LIVE MARKER UPDATE
-
-Create the live marker once.
-
-On subsequent updates:
-
-use:
-
-`marker.setLatLng(...)`
-
-Do NOT:
-
-remove marker
-create marker
-re-add layers
-re-render entire route
-
-every refresh.
-
----
-
-# 27. ROUTE LAYER UPDATE
-
-The planned route is static.
-
-Load it ONCE.
-
-Do not fetch or parse it every 8 seconds.
-
----
-
-# 28. COMPLETED ROUTE
-
-If completed/remaining route visualization is needed:
-
-do not rebuild the entire GPX layer unnecessarily on every GPS update.
-
-Use efficient precomputed route indexing or split the polyline only when progress materially changes.
-
----
-
-# 29. FIREBASE SERVICE
-
-Implement:
-
-`js/services/firebase.js`
-
-or use the existing `js/firebase.js`.
-
-It should own:
-
-Firebase endpoint
-fetch logic
-timeout
-errors
-normalization
-latest point retrieval
-
-The map must not know Firebase URLs.
-
-The map receives normalized coordinates.
-
----
-
-# 30. NETWORK TIMEOUT
-
-Do not allow live-data requests to hang indefinitely.
-
-Use:
-
-`AbortController`
-
-with a sensible timeout.
-
-For example approximately:
-
-5–8 seconds
-
-depending on expected Firebase behavior.
-
-If live data times out:
-
-use last known valid value.
-
-Do not block the rest of the UI.
-
----
-
-# 31. CACHE STATIC ROUTE
-
-The route is static.
-
-Allow normal browser caching.
-
-Do not append constantly changing query parameters to the route file.
-
-Use versioning only when the route genuinely changes.
-
----
-
-# 32. CACHE LAST KNOWN LIVE POSITION
-
-Store the latest valid live point locally.
+There must be ONE canonical route path stored in configuration.
 
 For example:
 
-`localStorage`
-
-or session memory.
-
-On reload:
-
-show the last known position immediately with a label:
-
-`LAST KNOWN POSITION`
-
-Then replace it when fresh data arrives.
-
-This makes the Live page feel significantly faster during poor connections.
-
-Do not present cached data as fresh/live.
-
----
-
-# 33. PRIORITIZE ABOVE-THE-FOLD ASSETS
-
-The Live page needs:
-
-navigation
-basic CSS
-Leaflet
-map container
-
-before secondary content.
-
-Do not block first map paint with:
-
-weather
-charts
-gallery
-translations not required immediately
-admin code
-
----
-
-# 34. DO NOT LOAD WEATHER BEFORE MAP
-
-Weather is secondary.
-
-Load it after:
-
-map
-route
-live point
-
-or lazily when its section becomes relevant.
-
----
-
-# 35. MAP MODULE RESPONSIBILITY
-
-`map.js` should implement ONLY map behavior.
-
-It may contain:
-
-createMap
-addBaseLayer
-addRoute
-setLivePosition
-setUserPosition
-fitInitialView
-toggleFullscreen
-destroyMap
-
-It should NOT contain:
-
-Firebase fetch
-translations
-navigation
-admin
-general DOM content
-weather
-
----
-
-# 36. MAP CONTROLS MODULE
-
-If map controls grow larger, separate:
-
-`map-controls.js`
-
-Responsibilities:
-
-my location
-center live
-fullscreen
-tooltips / accessibility labels
-
----
-
-# 37. GEOLOCATION MUST BE ON DEMAND
-
-Do not call browser geolocation on page load.
-
-Only call it after:
-
-MY LOCATION
-
-is pressed.
-
-This avoids unnecessary permissions and startup delay.
-
----
-
-# 38. MAP FULLSCREEN
-
-When entering or leaving fullscreen:
-
-call:
-
-`map.invalidateSize()`
-
-after layout is stable.
-
-Do not recreate the map.
-
----
-
-# 39. RESIZE
-
-Use a lightweight ResizeObserver if needed.
-
-Do not repeatedly call `invalidateSize()` in a high-frequency resize loop.
-
-Debounce if necessary.
-
----
-
-# 40. CURRENT LIVE.HTML HAS UNUSED OR MISALIGNED ARCHITECTURE
-
-Audit these current files:
-
-`js/map.js`
-`js/firebase.js`
-`js/ui.js`
-`js/charts.js`
-`js/stats.js`
-`js/weather.js`
-
-Some are empty or not actually loaded.
-
-For every file choose exactly ONE:
-
-A. implement and use it
-
-or
-
-B. delete it.
-
-No empty architectural placeholder files.
-
----
-
-# 41. REMOVE GENERIC script.js BOOTSTRAP IF NO LONGER NEEDED
-
-Current root `script.js` is only a small compatibility bootstrap.
-
-Once page-specific initialization works properly:
-
-determine whether it is still needed.
-
-Prefer:
-
-explicit page scripts
-
-instead of:
-
-poll every 25ms until some runtime global appears.
-
-Do not retain compatibility code forever without reason.
-
----
-
-# 42. DO NOT POLL FOR INITIALIZATION
-
-Avoid patterns such as:
-
 ```js
-setInterval(..., 25)
+routeGeoJsonUrl: 'data/horizon-route.geojson'
 ```
 
-waiting for a global object to appear.
+Then all maps use that value.
 
-Script ordering should be explicit.
+Search the entire repository for:
 
-If dependencies are loaded correctly, initialization should be deterministic.
+```text
+Horizon.gpx
+horizon.gpx
+horizon-route.geojson
+data/route/
+data/Horizon.gpx
+```
+
+and eliminate inconsistent paths.
+
+The Live map must successfully display:
+
+* Leaflet base tiles;
+* the complete HORIZON route;
+* correct geographic orientation;
+* route start;
+* route finish;
+* live position when real data exists;
+* useful empty state before departure;
+* visitor position when permission is granted;
+* center-on-user control;
+* center-on-live-position control;
+* fullscreen control.
+
+If live GPS data does not yet exist because HORIZON has not started, THAT MUST NOT BREAK THE MAP.
+
+The planned route must still display.
+
+Correct behavior before departure:
+
+```text
+Map visible
+Planned route visible
+Status: Expedition not started / waiting for live position
+No fake live marker
+```
+
+Incorrect behavior:
+
+```text
+LOADING MAP…
+forever
+```
+
+Also make sure that failures are not hidden.
+
+The current architecture must not do something like:
+
+```js
+Promise.allSettled(...).finally(() => setMapStatus('Map ready'))
+```
+
+if the route actually failed.
+
+The UI must distinguish:
+
+* map ready;
+* route unavailable;
+* tile service unavailable;
+* live data unavailable;
+* geolocation denied.
 
 ---
 
-# 43. USE DEFER OR MODULES
+# 4. REMOVE LEGACY SCRIPT REFERENCES
 
-Prefer either:
+Audit every HTML file for obsolete JavaScript references.
 
-`defer`
-
-with clear dependency ordering
-
-or proper:
-
-`type="module"`
-
-imports.
-
-A good architecture would use ES modules if compatible with the static GitHub Pages deployment.
-
-Example:
+There are currently pages that still reference:
 
 ```html
-<script type="module" src="js/pages/live.js"></script>
+<script src="script.js"></script>
 ```
 
-Then:
+while the architecture is being moved to:
 
-```js
-import { config } from '../core/config.js';
-import { createMap } from '../features/map/map.js';
+```text
+js/app.js
+js/config.js
+js/map.js
+js/firebase.js
+js/pages/*
+js/ui/*
 ```
 
-This is cleaner than large numbers of `window.Horizon...` globals.
+Determine whether `script.js` is legacy.
 
-If converting to modules would risk functionality, do it incrementally.
+If the new architecture replaces it:
 
----
+REMOVE EVERY REFERENCE TO IT.
 
-# 44. NAVBAR IMPLEMENTATION MUST BE VISIBLE IN SOURCE
+Do not keep compatibility files “just in case”.
 
-This requirement is important because the previous task claimed to simplify navigation but the HTML remained unchanged.
+Also fix `package.json`.
 
-After refactor, verify that public `index.html` and `live.html` no longer contain:
+The current test script must NOT keep checking only:
 
-`The challenge`
+```text
+script.js
+```
 
-`Route`
-
-`About`
-
-inside `.main-nav`.
-
-They must contain:
-
-Home
-Live
-Project
-Journey
-Replay
-
-This is a PASS/FAIL requirement.
+when the application actually consists of many JavaScript modules.
 
 ---
 
-# 45. VERIFY GITHUB PAGES AFTER PUSH
+# 5. AUTOMATED JAVASCRIPT VALIDATION
 
-After implementation:
+Create a script that syntax-checks EVERY JavaScript file.
 
-check the actual deployed URLs:
-
-`https://damzan06.github.io/HorizonWeb/`
-
-and
-
-`https://damzan06.github.io/HorizonWeb/live.html`
-
-Do not only inspect local files.
-
-Verify that the public page contains the new navbar.
-
----
-
-# 46. CACHE BUSTING
-
-The repository currently uses old-looking asset version strings such as:
-
-`style.css?v=20260725d`
-
-and script versions from different dates.
-
-Standardize this.
-
-Do not manually invent unrelated cache versions per script indefinitely.
-
-Use one deploy version constant or update versions consistently when files change.
-
-Alternatively use GitHub Pages caching behavior appropriately without excessive query strings.
-
----
-
-# 47. PERFORMANCE MEASUREMENT
-
-Use Chrome DevTools Network on `live.html`.
-
-Measure:
-
-HTML
-CSS
-Leaflet JS
-Leaflet CSS
-GPX / GeoJSON
-Firebase
-tiles
-other JS
-
-Report:
-
-number of requests
-transferred KB/MB
-DOMContentLoaded
-Load
-largest slow requests
-
-Do not simply say:
-
-"performance improved."
-
-Provide actual measurements.
-
----
-
-# 48. MAP PERFORMANCE MEASUREMENT
-
-Measure separately:
-
-T0:
-navigation begins
-
-T1:
-map container painted
-
-T2:
-Leaflet base map initialized
-
-T3:
-first tile visible
-
-T4:
-route visible
-
-T5:
-live marker visible
-
-The key goal is:
-
-T2 and T3 should NOT depend on T4 or T5.
-
----
-
-# 49. SIMULATE SLOW NETWORK
-
-Test Live page using Chrome DevTools:
-
-Fast 3G / Slow 4G
-
-Verify:
-
-navbar appears quickly
-stats skeleton appears
-map container appears
-base map does not wait for Firebase
-route loads independently
-site remains usable
-
-This is particularly important because followers may open HORIZON using mobile data.
-
----
-
-# 50. TEST FIREBASE FAILURE
-
-Temporarily simulate Firebase failure.
-
-The page must still display:
-
-navbar
-base map
-planned HORIZON route
-static project information
-
-Only live point/statistics should degrade.
-
-Show:
-
-`LIVE DATA TEMPORARILY UNAVAILABLE`
-
-Do not show an endless spinner.
-
----
-
-# 51. TEST GPX/ROUTE FAILURE
-
-Simulate route file failure.
-
-The page must still display:
-
-base map
-live position if available
-statistics
-
-Show:
-
-`PLANNED ROUTE COULD NOT BE LOADED`
-
-Do not break the whole page.
-
----
-
-# 52. TEST TILE FAILURE
-
-Simulate tile server failure.
-
-The route and live marker should still remain technically available against a neutral map background where possible.
-
-Do not crash.
-
----
-
-# 53. REMOVE UNUSED FILES AFTER REFACTOR
-
-Do not leave:
-
-empty map.js
-empty firebase.js
-empty ui.js
-
-or old compatibility files.
-
-A clean repository is part of this task.
-
----
-
-# 54. TARGET PUBLIC JS STRUCTURE
-
-A good final structure would be approximately:
+For example, create an appropriate Node test utility that recursively scans:
 
 ```text
 js/
-  core/
-    config.js
-    state.js
-
-  services/
-    firebase.js
-    route.js
-    storage.js
-
-  map/
-    map.js
-    controls.js
-
-  ui/
-    navigation.js
-    i18n.js
-    formatting.js
-
-  pages/
-    home.js
-    live.js
-    project.js
-    journey.js
-    replay.js
+tools/
 ```
 
-Do not follow this mechanically if another clean structure fits better.
+and validates all `.js` files.
 
-But there must be clear ownership.
+`npm test` must fail if any application JavaScript contains a syntax error.
 
----
-
-# 55. PERFORMANCE PRIORITY ORDER
-
-Fix performance in this order:
-
-1. map startup dependency chain
-2. unnecessary external scripts
-3. GPX parsing
-4. live-data fetch strategy
-5. tile loading
-6. duplicate initialization
-7. secondary UI
-
-Do NOT start by minifying 2 KB JavaScript files while a huge GPX/parser/network chain blocks the map.
+Do not manually list every JavaScript file if a recursive solution is reasonable.
 
 ---
 
-# 56. MAP UX TARGET
+# 6. ADD REAL BROWSER END-TO-END TESTING
 
-When a visitor opens Live:
+The current smoke tests are not sufficient for this website.
 
-within the first moment they should see:
+Introduce browser-level testing, preferably **Playwright**, if suitable for this static GitHub Pages project.
 
-HORIZON header
-current state
-stats placeholder
-map surface
+The purpose is NOT to overengineer the website.
 
-Then progressively:
+The purpose is to prevent future refactors from silently breaking maps, timers, controls and navigation again.
 
-map tiles
-planned route
-last/current position
-stats
+Add an E2E test suite.
 
-The interface should progressively enhance.
+It should launch the local server and test the real pages in Chromium.
 
-It must not appear frozen.
+At minimum test:
 
----
+```text
+index.html
+live.html
+project.html
+gallery.html
+replay.html
+dashboard.html
+progress.html
+diary.html
+timeline.html
+```
 
-# 57. FINAL PASS/FAIL CHECKLIST
+and admin functionality where safely testable.
 
-The task is NOT complete unless:
+Tests must detect:
 
-* navbar shows exactly HOME / LIVE / PROJECT / JOURNEY / REPLAY
-* public GitHub Pages shows the new navbar
-* map.js is implemented or removed
-* firebase.js is implemented or removed
-* ui.js is implemented or removed
-* Live no longer loads unused Chart.js
-* Leaflet has a pinned version
-* map appears before Firebase response
-* route loads only once
-* live marker updates without recreating map
-* GPX parsing is optimized/preprocessed if needed
-* Firebase failure does not block map
-* no empty architectural placeholder files remain
-* no 25ms initialization polling remains unless rigorously justified
-* public Live page is tested on throttled mobile network
+* uncaught JavaScript errors;
+* console errors;
+* failed local resource requests;
+* 404 scripts;
+* 404 CSS;
+* 404 images;
+* missing route data;
+* controls that do nothing;
+* permanent loading states.
 
 ---
 
-# FINAL REPORT
+# 7. HOMEPAGE COMPLETE FUNCTIONAL TEST
 
-After implementation give me:
+Test everything on `index.html`.
 
-1. OLD navbar
-2. NEW navbar
-3. files changed for navigation
-4. reason previous navbar change did not happen
-5. old map initialization sequence
-6. new map initialization sequence
-7. map.js final responsibility
-8. firebase.js final responsibility
-9. whether GPX is parsed at runtime
-10. route file size before/after
-11. Chart.js removed from Live: yes/no
-12. Leaflet version
-13. external dependencies remaining
-14. time to first map tile
-15. time to route visible
-16. time to live marker visible
-17. total Live network transfer
-18. empty files removed
-19. legacy compatibility code removed
-20. remaining bottlenecks
+Verify:
 
-Do NOT report completion without checking the deployed GitHub Pages website.
+### Navigation
+
+* logo → Home
+* Home
+* Live
+* Project
+* Journey
+* Replay
+* mobile hamburger
+* mobile overlay
+* Escape closes mobile navigation
+* clicking a link closes mobile navigation
+
+### Languages
+
+Test:
+
+* English
+* Italian
+* German
+* French
+
+Switch languages repeatedly.
+
+Refresh the page.
+
+The selected language must persist using the configured storage key.
+
+No section should remain accidentally in another language.
+
+### Countdown
+
+Test it thoroughly as defined earlier.
+
+### Hero
+
+Verify both CTA links work.
+
+### Live status
+
+Before departure it must NOT claim that HORIZON is live.
+
+The website currently knows the configured departure date.
+
+Use the same shared expedition-state calculation everywhere.
+
+### Statistics
+
+Before departure, display deliberate zero/empty states.
+
+Do not show misleading information.
+
+Example:
+
+```text
+Distance: 0 km
+Remaining: 500 km
+Completed: 0%
+Elapsed: 0 h
+Elevation: 0 m
+Steps: 0
+ETA: —
+```
+
+or an equally clear presentation.
+
+Avoid arbitrary `--` when a value can logically be determined.
+
+### Content
+
+Remove unnecessary repetition.
+
+The homepage currently repeats several concepts multiple times:
+
+* east → west;
+* 500 km;
+* 10,000 m;
+* moving toward the horizon;
+* endurance;
+* the challenge.
+
+Keep the cinematic storytelling, but make the page tighter.
+
+Do NOT remove the strong HORIZON identity.
+
+---
+
+# 8. CORRECT ROUTE ORIENTATION
+
+HORIZON goes:
+
+```text
+PIZ CHAVALATSCH → CHANCY
+EAST → WEST
+RIGHT → LEFT on a normal north-up map
+```
+
+Check every graphical representation of the route.
+
+Do not accidentally render Piz Chavalatsch on the left and Chancy on the right.
+
+The geographic map must always remain:
+
+```text
+north = top
+east = right
+west = left
+```
+
+Never mirror the route for aesthetic reasons.
+
+---
+
+# 9. LIVE PAGE COMPLETE FUNCTIONAL TEST
+
+Test `live.html`.
+
+Verify:
+
+* page initialization;
+* navigation;
+* language switcher;
+* current status;
+* Firebase request;
+* latest live point;
+* route GeoJSON;
+* map;
+* route geometry;
+* current marker;
+* distance;
+* remaining distance;
+* completion;
+* speed;
+* altitude;
+* last update;
+* progress bar;
+* elapsed time;
+* elevation gain;
+* steps;
+* visitor distance.
+
+Test controls:
+
+* center visitor;
+* center live position;
+* fullscreen;
+* exit fullscreen;
+* browser resize after fullscreen;
+* denied geolocation;
+* unsupported geolocation.
+
+Test BEFORE expedition data exists.
+
+Test WITH mock live data.
+
+Test stale live data.
+
+Test malformed live data.
+
+Test Firebase unavailable.
+
+The page must never pretend:
+
+`LIVE · Updated 1 min ago`
+
+when no recent valid point actually exists.
+
+Use the same centralized state logic everywhere.
+
+---
+
+# 10. FIREBASE / LIVE TRACKING
+
+Audit `js/firebase.js` completely.
+
+Validate:
+
+* URL;
+* expected payload format;
+* latest point selection;
+* timestamp parsing;
+* latitude;
+* longitude;
+* altitude;
+* speed;
+* heart rate if available;
+* handling of missing fields;
+* ordering;
+* duplicate points;
+* empty database;
+* network failures;
+* stale data.
+
+Do not let malformed historical points crash current rendering.
+
+All data parsing should be isolated from presentation.
+
+---
+
+# 11. CENTRAL EXPEDITION STATE
+
+Create ONE function responsible for determining the expedition state.
+
+For example:
+
+```text
+not-started
+live
+delayed
+resting
+finished
+offline
+```
+
+Do NOT independently infer this state in five different files.
+
+Possible input:
+
+```js
+getExpeditionState({
+  now,
+  startDate,
+  latestPointTimestamp,
+  forcedAdminState
+})
+```
+
+Home, Live, Dashboard and other pages must consume the same state.
+
+This prevents contradictions such as:
+
+Homepage:
+
+`Not started`
+
+while Live says:
+
+`LIVE · Updated 1 min ago`
+
+at exactly the same time.
+
+---
+
+# 12. DASHBOARD — MAKE IT ACTUALLY WORK
+
+`dashboard.html` already contains UI for:
+
+* distance covered;
+* distance remaining;
+* completion;
+* current speed;
+* average moving speed;
+* average total speed;
+* maximum speed;
+* altitude;
+* elevation;
+* total time;
+* moving time;
+* heart rate;
+* average heart rate;
+* calories;
+* estimated water loss;
+* ETA.
+
+It also contains charts for:
+
+* speed;
+* altitude;
+* heart rate;
+* cumulative elevation.
+
+At the moment the page does not correctly connect all of the required controllers.
+
+Create:
+
+```text
+js/pages/dashboard.js
+```
+
+or another clean equivalent.
+
+Load the correct dependencies.
+
+Use:
+
+```text
+js/firebase.js
+js/stats.js
+js/charts.js
+```
+
+where appropriate.
+
+Do not duplicate calculations inside dashboard.js if they belong in stats.js.
+
+Test every metric.
+
+If a metric cannot currently be calculated because data does not contain what is needed, explicitly display:
+
+```text
+Not available
+```
+
+or an equivalent translated state.
+
+Do NOT invent values.
+
+### Charts
+
+Verify:
+
+* Chart.js loads;
+* canvases are found;
+* datasets populate;
+* no chart is initialized twice;
+* X-axis distance mode works;
+* X-axis time mode works;
+* fullscreen buttons work;
+* exiting fullscreen works;
+* charts resize correctly;
+* empty datasets show a proper empty state.
+
+---
+
+# 13. GALLERY / JOURNEY — MAKE EVERY FEATURE REAL
+
+Audit `gallery.html`.
+
+The page currently contains UI for:
+
+* gallery grid;
+* photo map;
+* fullscreen map;
+* image modal;
+* previous image;
+* next image;
+* close modal;
+* title;
+* location;
+* description.
+
+Make ALL of it functional.
+
+Create a page controller:
+
+```text
+js/pages/gallery.js
+```
+
+if appropriate.
+
+Implement:
+
+* loading images;
+* rendering cards;
+* geolocated image markers;
+* marker clustering;
+* clicking a photo;
+* clicking a marker;
+* modal opening;
+* modal closing;
+* previous;
+* next;
+* keyboard arrows;
+* Escape;
+* appropriate focus behavior;
+* fullscreen map.
+
+Replace the current fullscreen button text:
+
+```text
+?
+```
+
+with a proper accessible icon consistent with the Live map.
+
+Replace simplistic:
+
+```text
+X
+《
+》
+```
+
+where appropriate with accessible SVG icons.
+
+Ensure every button has:
+
+* `type="button"`;
+* accessible label;
+* keyboard support;
+* visible focus state.
+
+If there are no journey photos yet, display a polished empty state.
+
+It must not look broken.
+
+---
+
+# 14. REPLAY — IMPLEMENT THE CONTROLS
+
+`replay.html` contains:
+
+* Play;
+* Pause;
+* Reset;
+* speed slider;
+* status;
+* map.
+
+Make them actually work.
+
+Create:
+
+```text
+js/pages/replay.js
+```
+
+if necessary.
+
+The replay should:
+
+1. load the actual recorded points;
+2. initialize the route/map;
+3. start at the first real point;
+4. advance chronologically;
+5. move a marker;
+6. update status;
+7. pause reliably;
+8. resume reliably;
+9. reset reliably;
+10. change playback speed without corrupting state;
+11. stop at the final point.
+
+Prevent multiple timers from being created when Play is clicked repeatedly.
+
+Before recorded journey data exists, do NOT show controls pretending a replay is ready.
+
+Instead show a clear state:
+
+```text
+Replay will become available once journey data has been recorded.
+```
+
+Disable controls when no replay exists.
+
+---
+
+# 15. PROJECT PAGE
+
+Review `project.html`.
+
+The project is no longer framed as a solo challenge.
+
+HORIZON is completed by TWO people travelling together.
+
+Remove old language such as:
+
+```text
+personal test
+personal challenge
+```
+
+when it implies only one participant.
+
+Make the narrative consistent with:
+
+```text
+two people
+one route
+east to west
+shared endurance
+shared decisions
+shared journey
+```
+
+Keep the tone serious and premium.
+
+Avoid overdramatic generic motivational language.
+
+---
+
+# 16. DIARY
+
+Test `diary.html`.
+
+Verify:
+
+* data source;
+* loading;
+* chronological order;
+* date formatting;
+* language;
+* empty state;
+* photos;
+* text;
+* links;
+* mobile layout.
+
+If the diary and gallery overlap conceptually, establish clear responsibilities.
+
+Example:
+
+```text
+Journey / Gallery = photographs and places
+Diary = written chronological field notes
+```
+
+Do not keep redundant pages without clear purpose.
+
+---
+
+# 17. TIMELINE
+
+Test `timeline.html`.
+
+Every timeline element must either:
+
+* load real content;
+* show a deliberate empty state;
+* or be removed if obsolete.
+
+Do not leave half-implemented pages accessible publicly.
+
+---
+
+# 18. PROGRESS PAGE
+
+Test `progress.html`.
+
+If it contains badges/milestones:
+
+* define how they are unlocked;
+* centralize milestone configuration;
+* derive unlocked state from real distance/elevation/data;
+* handle zero-data state correctly;
+* test boundary conditions.
+
+Example:
+
+```text
+49.99 km → 50 km badge locked
+50.00 km → unlocked
+```
+
+Do not hardcode state independently in HTML.
+
+---
+
+# 19. ADMIN PAGE
+
+Audit `admin.html`.
+
+Check:
+
+* authentication/session behavior;
+* forced expedition status;
+* forms;
+* localStorage;
+* Firebase write operations if any;
+* empty values;
+* validation;
+* user feedback;
+* accidental public exposure of sensitive credentials.
+
+IMPORTANT:
+
+Never put secret Firebase admin credentials or private API keys in client-side JavaScript.
+
+If the page only changes browser-local state, make that obvious.
+
+Make sure admin controls cannot accidentally make public visitors see fake expedition status unless this is intentionally backed by shared storage/database.
+
+---
+
+# 20. NAVIGATION — ONE SOURCE OF TRUTH
+
+There must be ONE canonical public navigation configuration.
+
+Do not manually maintain a different navbar inside every HTML page.
+
+The visible main public navigation should remain simple.
+
+Recommended:
+
+```text
+HOME
+LIVE
+PROJECT
+JOURNEY
+REPLAY
+```
+
+Advanced telemetry can be linked from Live instead of making the navbar overcrowded.
+
+Progress can similarly be linked contextually if appropriate.
+
+The navigation component must correctly set:
+
+```html
+aria-current="page"
+```
+
+for the current page.
+
+Test desktop and mobile.
+
+---
+
+# 21. LANGUAGE SYSTEM — ONE IMPLEMENTATION
+
+There are currently signs of duplicated translation logic between the newer `i18n.js` architecture and legacy runtime code.
+
+Consolidate this.
+
+Use ONE translation catalog.
+
+Use ONE language persistence mechanism.
+
+Prefer:
+
+```html
+data-i18n="..."
+```
+
+for static content and:
+
+```js
+t('...')
+```
+
+for dynamic content.
+
+Do not use:
+
+* one translation system in Home;
+* another in Live;
+* DOM-selector-specific translation hacks;
+* a third translation dictionary inside legacy runtime.
+
+All four supported languages must work:
+
+```text
+English
+Italian
+German
+French
+```
+
+Test every public page in every language.
+
+No mixed-language page.
+
+No broken accents.
+
+No untranslated placeholder UI.
+
+---
+
+# 22. CSS REFACTOR
+
+The repository currently contains both the legacy monolithic stylesheet and the newer CSS structure.
+
+Complete the migration.
+
+Target structure:
+
+```text
+css/
+├── tokens.css
+├── global.css
+├── home.css
+├── live.css
+├── dashboard.css
+├── gallery.css
+├── replay.css
+├── project.css
+└── ...
+```
+
+Do not create page CSS files if a page needs only a few global styles.
+
+Avoid unnecessary fragmentation.
+
+### `tokens.css`
+
+Centralize reusable design values:
+
+```css
+--color-*
+--font-*
+--space-*
+--radius-*
+--shadow-*
+--transition-*
+--content-width-*
+--navbar-*
+--breakpoint-* where useful
+```
+
+Do not repeatedly hardcode the same colors, spacing and radii throughout the project.
+
+### Remove inline style attributes
+
+Replace things such as:
+
+```html
+style="display:grid;gap:16px;"
+style="min-height:560px;"
+```
+
+with meaningful CSS classes.
+
+### Delete legacy stylesheet
+
+ONLY after all pages have been visually verified with the new CSS structure:
+
+remove `style.css`.
+
+Before deleting it, search for every class still dependent on it.
+
+---
+
+# 23. UI/UX QUALITY PASS
+
+After functionality is fixed, audit the UI.
+
+The visual direction should remain:
+
+* dark;
+* premium;
+* Alpine;
+* expedition-focused;
+* minimal;
+* cinematic;
+* warm ivory/gold accent;
+* strong typography;
+* restrained.
+
+Do NOT redesign HORIZON into a generic SaaS dashboard.
+
+However, improve weak UI.
+
+### Avoid excessive cards
+
+Currently too many sections are presented as similarly styled rectangular cards.
+
+Create stronger visual hierarchy.
+
+The most visually important areas should be:
+
+1. hero;
+2. route/live map;
+3. people/journey.
+
+Secondary information can be visually quieter.
+
+### Reduce excessive homepage repetition
+
+Shorten copy where the same message appears repeatedly.
+
+Every section should answer a different question.
+
+Recommended narrative:
+
+```text
+HERO
+What is happening?
+
+LIVE STATUS
+What is happening right now?
+
+THE CHALLENGE
+What is HORIZON?
+
+THE SCALE
+How large is it?
+
+THE PEOPLE
+Who is doing it?
+
+THE ROUTE
+Where does it go?
+
+WHAT MAKES IT HARD
+Why is it difficult?
+
+FIELD NOTES
+What is happening during the journey?
+
+FINAL CTA
+Follow it live.
+```
+
+Do not repeat essentially identical motivational paragraphs.
+
+---
+
+# 24. RESPONSIVE TESTING
+
+Test at least:
+
+```text
+375 × 667
+390 × 844
+430 × 932
+768 × 1024
+1024 × 768
+1366 × 768
+1440 × 900
+1920 × 1080
+```
+
+Verify:
+
+* navbar;
+* hero;
+* countdown;
+* cards;
+* long German/French strings;
+* maps;
+* map buttons;
+* fullscreen;
+* charts;
+* gallery;
+* modal;
+* replay controls;
+* footer.
+
+No horizontal scrolling.
+
+No overlapping content.
+
+No clipped buttons.
+
+No tiny unreadable labels.
+
+---
+
+# 25. ACCESSIBILITY PASS
+
+Check:
+
+* semantic headings;
+* one sensible `h1` per page;
+* button labels;
+* links;
+* skip link;
+* form labels;
+* language select;
+* `aria-expanded`;
+* `aria-current`;
+* focus indicators;
+* modal focus;
+* Escape behavior;
+* keyboard-only navigation;
+* contrast;
+* images and alt text;
+* status updates.
+
+Do not abuse `aria-live`.
+
+For example a second-by-second countdown should not cause a screen reader to announce four changing numbers every second.
+
+---
+
+# 26. PERFORMANCE
+
+Measure obvious performance problems.
+
+Especially maps.
+
+The Live page should not unnecessarily load:
+
+* GPX parser if using GeoJSON;
+* MarkerCluster if not needed;
+* Chart.js when there are no charts;
+* gallery libraries on Live;
+* legacy runtime code.
+
+Only load page-specific dependencies on pages that need them.
+
+Prefer the prebuilt:
+
+```text
+horizon-route.geojson
+```
+
+for rendering rather than parsing the GPX client-side on every visit.
+
+The GPX remains the geographic source file, while GeoJSON can be the optimized web artifact.
+
+Make sure GeoJSON is generated from GPX and not manually edited inconsistently.
+
+If appropriate:
+
+```text
+npm run build:route
+```
+
+should regenerate it.
+
+---
+
+# 27. REMOVE `runtime.js` LEGACY MONOLITH
+
+`js/runtime.js` is currently far too large and duplicates responsibilities now present elsewhere.
+
+Do NOT leave the website dependent on two parallel architectures.
+
+Extract useful functionality into clearly scoped modules.
+
+Suggested architecture:
+
+```text
+js/
+├── app.js
+├── config.js
+├── i18n.js
+├── firebase.js
+├── stats.js
+├── status.js
+├── map.js
+├── charts.js
+│
+├── ui/
+│   └── navigation.js
+│
+└── pages/
+    ├── home.js
+    ├── live.js
+    ├── dashboard.js
+    ├── gallery.js
+    ├── replay.js
+    ├── diary.js
+    ├── progress.js
+    └── admin.js
+```
+
+This is a guide, not an obligation.
+
+Do not create pointless 10-line files just to follow this structure.
+
+Main principle:
+
+**one responsibility → one obvious module.**
+
+When all needed functionality has been migrated and tested:
+
+DELETE `runtime.js`.
+
+---
+
+# 28. DATA AND ASSET ORGANIZATION
+
+Clean the repository.
+
+`data/` should contain actual application data.
+
+Images should not live beside GPX/GeoJSON files.
+
+Recommended:
+
+```text
+assets/
+├── people/
+├── journey/
+├── backgrounds/
+├── icons/
+├── favicons/
+└── social/
+```
+
+and:
+
+```text
+data/
+├── Horizon.gpx
+├── horizon-route.geojson
+└── other structured data
+```
+
+or:
+
+```text
+data/route/
+```
+
+IF YOU CHOOSE `data/route/`, then actually move the files there and update EVERY reference.
+
+Do not create paths in JavaScript pointing to folders that do not exist.
+
+---
+
+# 29. CENTRAL CONFIGURATION
+
+Keep stable project values centralized.
+
+Examples:
+
+```js
+projectName
+expeditionYear
+startDateIso
+startLocation
+finishLocation
+expectedDistanceKm
+expectedElevationM
+routeGeoJsonUrl
+routeGpxUrl
+firebaseURL
+staleDataThresholdMs
+supportedLanguages
+defaultLanguage
+languageStorageKey
+```
+
+Do not rewrite:
+
+```text
+500
+10000
+Piz Chavalatsch
+Chancy
+31 August
+```
+
+in application logic in multiple places.
+
+Textual storytelling may mention them, but calculations must use configuration.
+
+Do not put transient runtime state inside config.
+
+---
+
+# 30. NETWORK ERROR AUDIT
+
+Using browser developer tools / Playwright request listeners, verify that normal page loads do NOT produce unnecessary:
+
+```text
+404
+403
+500
+CORS errors
+failed script requests
+failed stylesheet requests
+failed route requests
+```
+
+A page is NOT considered passing while its console/network panel contains expected-looking but unresolved errors.
+
+Fix the root cause.
+
+---
+
+# 31. JAVASCRIPT CONSOLE AUDIT
+
+Every page must be tested with console collection enabled.
+
+Fail the test on:
+
+```text
+console.error
+pageerror
+uncaught exception
+unhandled promise rejection
+```
+
+Review `console.warn` as well.
+
+Do not simply suppress console messages.
+
+Fix the underlying problem.
+
+---
+
+# 32. EMPTY STATE TESTING
+
+HORIZON has not necessarily started yet.
+
+Therefore empty data is a NORMAL application state, not an exception.
+
+Every data page needs a designed empty state.
+
+Examples:
+
+### Live
+
+```text
+Expedition not started.
+The planned route is shown below.
+Live position will appear after departure.
+```
+
+### Dashboard
+
+```text
+Telemetry will appear once tracking begins.
+```
+
+### Gallery
+
+```text
+Field notes will appear during the journey.
+```
+
+### Replay
+
+```text
+Replay becomes available after recorded tracking data exists.
+```
+
+The site should still look complete and intentional before the expedition starts.
+
+---
+
+# 33. TEST WITH MOCK DATA
+
+A major requirement:
+
+Do NOT wait for the real expedition to test live functionality.
+
+Create mock fixtures representing:
+
+### State A — no data
+
+```text
+No Firebase points
+Before start date
+```
+
+### State B — first point
+
+One valid GPS point.
+
+### State C — active journey
+
+Multiple valid points containing:
+
+* timestamps;
+* latitude;
+* longitude;
+* altitude;
+* speed;
+* HR when available.
+
+### State D — stale tracker
+
+Latest point older than the stale threshold.
+
+### State E — malformed point
+
+Missing or invalid coordinate.
+
+### State F — finished journey
+
+Last point at/near finish or explicitly completed state.
+
+Run UI logic against these fixtures.
+
+---
+
+# 34. TEST CALCULATIONS
+
+Unit test critical pure calculations.
+
+At minimum:
+
+### Countdown
+
+* before start;
+* exactly at start;
+* after start.
+
+### Distance remaining
+
+```text
+remaining = total - completed
+```
+
+Clamp between `0` and total.
+
+### Completion
+
+Clamp between:
+
+```text
+0%
+100%
+```
+
+### Elevation
+
+Reject impossible/invalid points where necessary.
+
+### Moving speed
+
+Correctly distinguish zero/missing movement.
+
+### ETA
+
+Do not calculate nonsensical ETA from:
+
+* zero speed;
+* one point;
+* stale data;
+* invalid data.
+
+### Status
+
+Test all expedition states.
+
+---
+
+# 35. FINAL TEST MATRIX
+
+Before declaring completion, explicitly run this matrix:
+
+| Page      | Desktop | Mobile | Navigation | Language | Main function | Empty state | Errors |
+| --------- | ------- | ------ | ---------- | -------- | ------------- | ----------- | ------ |
+| Home      | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
+| Live      | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
+| Project   | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
+| Journey   | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
+| Replay    | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
+| Dashboard | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
+| Progress  | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
+| Diary     | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
+| Timeline  | PASS    | PASS   | PASS       | PASS     | PASS          | PASS        | 0      |
+
+Do not write PASS unless it was actually tested.
+
+---
+
+# 36. FINAL CLEANUP
+
+Before finishing, search the entire repository for:
+
+```text
+TODO
+FIXME
+TEMP
+temporary
+placeholder
+Calculating
+LOADING
+script.js
+runtime.js
+data/route/
+console.log
+style="
+href="#"
+?
+```
+
+Review every result.
+
+Not every occurrence is necessarily wrong, but none should remain unexplained.
+
+Also find:
+
+* unused files;
+* unused functions;
+* unused CSS selectors;
+* duplicate constants;
+* obsolete event handlers;
+* libraries loaded on pages where they are not needed.
+
+Remove dead code.
+
+---
+
+# 37. FINAL ACCEPTANCE TEST
+
+Perform one final clean test from scratch.
+
+1. Stop the development server.
+2. Start it again.
+3. Open a new browser context.
+4. Clear localStorage/sessionStorage.
+5. Load Home.
+6. Verify countdown.
+7. Navigate using the actual navbar.
+8. Open Live.
+9. Verify the map.
+10. Verify planned route.
+11. Test live empty state.
+12. Test mock live data.
+13. Open Project.
+14. Open Journey.
+15. Test gallery/modal/map.
+16. Open Replay.
+17. Test replay or correct unavailable state.
+18. Open Dashboard.
+19. Test metrics/charts.
+20. Test Progress.
+21. Test Diary.
+22. Test Timeline.
+23. Switch EN → IT → DE → FR.
+24. Refresh pages.
+25. Test mobile.
+26. Review console.
+27. Review failed network requests.
+28. Run all automated tests.
+
+ONLY IF ALL OF THIS PASSES may you finish.
+
+---
+
+# 38. WHAT YOU MUST REPORT WHEN FINISHED
+
+Do not give me a vague response such as:
+
+> “I fixed several issues and improved the architecture.”
+
+Instead provide:
+
+## FIXED
+
+Exact bugs repaired.
+
+## REFACTORED
+
+Files/modules moved or reorganized.
+
+## REMOVED
+
+Legacy/dead files removed.
+
+## TESTS ADDED
+
+List of automated tests.
+
+## MANUAL/E2E VALIDATION
+
+Pages and functionality verified.
+
+## REMAINING LIMITATIONS
+
+Only list genuinely unavoidable limitations caused by external services.
+
+For each limitation explain why it cannot be fixed in this repository.
+
+## FINAL RESULT
+
+Only write:
+
+**ALL ACCEPTANCE TESTS PASS**
+
+if they actually do.
+
+Otherwise continue working.
+
+---
+
+# MOST IMPORTANT INSTRUCTION
+
+Do not optimize for finishing quickly.
+
+Optimize for leaving me with a website where I no longer have to manually discover that:
+
+* the countdown does not count;
+* the map does not load;
+* a button does nothing;
+* a chart is empty because its controller was never imported;
+* an old script path produces a 404;
+* one page says “Live” while another says “Not started”;
+* a refactor silently disconnected a feature.
+
+Treat this as a production release.
+
+**Do not stop after editing. Test the result. If something is broken, keep fixing it. Only declare completion once the entire HORIZON website has passed the complete validation process.**

@@ -94,6 +94,12 @@
         });
 
         route.addTo(routeLayer);
+        const layers = route.getLayers ? route.getLayers() : [];
+        const latlngs = layers.flatMap((layer) => layer.getLatLngs ? layer.getLatLngs().flat(Infinity) : []).filter((p) => p && Number.isFinite(p.lat));
+        if (latlngs.length) {
+            window.L.circleMarker(latlngs[0], { radius: 7, color: '#e8953f', fillOpacity: 1 }).bindTooltip('Piz Chavalatsch — start').addTo(routeLayer);
+            window.L.circleMarker(latlngs.at(-1), { radius: 7, color: '#f1ede3', fillOpacity: 1 }).bindTooltip('Chancy — finish').addTo(routeLayer);
+        }
 
         if (!hasAutoFit && route.getBounds && route.getBounds().isValid()) {
             map.fitBounds(route.getBounds(), { padding: [24, 24] });
@@ -104,7 +110,8 @@
     }
 
     function loadRoute(routePath) {
-        if (!routePath) {
+        const targetPath = routePath || (window.HorizonConfig && window.HorizonConfig.routeGeoJsonUrl) || 'data/route/horizon-route.geojson';
+        if (!targetPath) {
             return Promise.resolve(null);
         }
 
@@ -112,7 +119,7 @@
             window.HorizonUI.setStatus('Loading route…');
         }
 
-        return fetch(routePath, { headers: { Accept: 'application/json' } }).then((response) => {
+        return fetch(targetPath, { headers: { Accept: 'application/json' } }).then((response) => {
             if (!response.ok) {
                 throw new Error('Route fetch failed');
             }
@@ -179,6 +186,9 @@
         }
     }
 
+    function centerLive() { if (map && liveMarker) map.setView(liveMarker.getLatLng(), Math.max(map.getZoom(), 10)); return Boolean(liveMarker); }
+    function centerUser() { if (map && userMarker) map.setView(userMarker.getLatLng(), Math.max(map.getZoom(), 10)); return Boolean(userMarker); }
+
     window.HorizonMap = {
         createMap,
         addRoute,
@@ -186,6 +196,8 @@
         setLivePosition,
         setUserPosition,
         fitInitialView,
+        centerLive,
+        centerUser,
         getMap: () => map,
         getRouteLayer: () => routeLayer
     };
