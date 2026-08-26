@@ -96,9 +96,9 @@
         const route = window.L.geoJSON(geojson, {
             style: {
                 color: '#eadfc7',
-                weight: 3,
-                opacity: 0.72,
-                dashArray: '8 7', pane:'plannedRoute'
+                weight: 4,
+                opacity: 0.96,
+                dashArray: '10 8', pane:'plannedRoute', className:'horizon-planned-route'
             }
         });
 
@@ -106,7 +106,7 @@
         const layers = route.getLayers ? route.getLayers() : [];
         const latlngs = layers.flatMap((layer) => layer.getLatLngs ? layer.getLatLngs().flat(Infinity) : []).filter((p) => p && Number.isFinite(p.lat));
         if (latlngs.length) {
-            startMarker=window.L.circleMarker(latlngs[0],{pane:'routeMarkers',radius:7,color:'#efe3c4',weight:3,fillColor:'#07100f',fillOpacity:1,className:'horizon-start-marker'}).bindTooltip('Start').addTo(routeLayer);
+            startMarker=window.L.circleMarker(latlngs[0],{pane:'routeMarkers',radius:9,color:'#ffffff',weight:3,fillColor:'#173f36',fillOpacity:1,className:'horizon-start-marker'}).bindTooltip('Start',{permanent:true,direction:'right',offset:[10,0],className:'horizon-map-label'}).addTo(routeLayer);
             const flagIcon=window.L.icon({iconUrl:'assets/icons/finish-flag.gif',iconSize:[52,52],iconAnchor:[7,50],popupAnchor:[18,-44],className:'horizon-finish-icon'});
             finishMarker=window.L.marker(latlngs.at(-1),{pane:'routeMarkers',icon:flagIcon,title:'Finish'}).bindTooltip('Finish').addTo(routeLayer);
         }
@@ -147,7 +147,7 @@
 
         const position = Array.isArray(coords) && coords.length >= 2 ? [coords[0], coords[1]] : [coords.latitude, coords.longitude];
         if (!liveMarker) {
-            const icon=window.L.divIcon({className:'horizon-current-icon',html:'<span></span>',iconSize:[24,24],iconAnchor:[12,12]});
+            const icon=window.L.divIcon({className:'horizon-current-icon',html:'<span></span>',iconSize:[34,34],iconAnchor:[17,17]});
             liveMarker = window.L.marker(position, { pane:'currentPosition',icon,
                 title: options && options.label ? options.label : 'Live position',
                 riseOnHover: true
@@ -157,6 +157,7 @@
         }
 
         liveMarker.bindPopup(options && options.label ? options.label : 'Live position');
+        liveMarker.bindTooltip('Athlete',{permanent:true,direction:'right',offset:[16,0],className:'horizon-map-label horizon-athlete-label'});
 
         if (options && options.animate && !hasAutoFit) {
             map.setView(position, Math.max(map.getZoom(), 9));
@@ -171,7 +172,7 @@
         const coords = (points || []).map((point) => [Number(point.latitude), Number(point.longitude)]).filter((point) => point.every(Number.isFinite));
         if (coords.length < 2) return null;
         if (trackLayer) trackLayer.setLatLngs(coords);
-        else trackLayer = window.L.polyline(coords,{pane:'actualTrack',color:'#e8953f',weight:5,opacity:1,lineCap:'round'}).addTo(map);
+        else trackLayer = window.L.polyline(coords,{pane:'actualTrack',color:'#ff9d2e',weight:7,opacity:1,lineCap:'round',lineJoin:'round',className:'horizon-actual-track'}).addTo(map);
         return trackLayer;
     }
 
@@ -183,11 +184,12 @@
         const position = Array.isArray(coords) && coords.length >= 2 ? [coords[0], coords[1]] : [coords.latitude, coords.longitude];
         if (!userMarker) {
             userMarker = window.L.circleMarker(position, {
-                pane:'userPosition',radius: 7,
-                color: '#4dc0ff',
-                fillColor: '#4dc0ff',
-                fillOpacity: 0.9
-            }).addTo(markerLayer);
+                pane:'userPosition',radius: 10,
+                color: '#ffffff', weight:4,
+                fillColor: '#168cff',
+                fillOpacity: 1,
+                className:'horizon-user-marker'
+            }).bindTooltip('You',{permanent:true,direction:'right',offset:[12,0],className:'horizon-map-label horizon-user-label'}).addTo(markerLayer);
         } else {
             userMarker.setLatLng(position);
         }

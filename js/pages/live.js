@@ -46,6 +46,8 @@
         const statusCopy = { live: 'LIVE', offline: 'SIGNAL DELAYED', 'not-started': 'NOT STARTED', finished: 'FINISHED' };
         const statusNode = document.querySelector('.live-status span:last-child'); if (statusNode) statusNode.textContent = `${statusCopy[state] || 'SIGNAL DELAYED'} · ${points.length.toLocaleString()} points`;
         const dot = document.querySelector('.live-status .status-dot'); if (dot) dot.className = `status-dot ${state === 'live' ? 'status-moving' : 'status-not-started'}`;
+        const accessibilityStatus=document.querySelector('.map-accessibility[aria-live]');
+        if(accessibilityStatus) accessibilityStatus.textContent=state==='finished'?'The expedition is complete. The full planned and travelled routes remain visible.':state==='live'?'The athlete is moving. Planned route, travelled track, athlete and visitor positions are visible on the map.':'Tracking data is available but delayed. The planned route, travelled track and latest athlete position remain visible.';
     }
 
     function initLivePage() {

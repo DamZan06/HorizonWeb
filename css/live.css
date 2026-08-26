@@ -171,6 +171,45 @@ body {
   max-width: none;
 }
 
+.leaflet-tile-pane {
+  filter: brightness(.72) saturate(.72) contrast(1.08);
+}
+
+.horizon-planned-route {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, .95));
+}
+
+.horizon-actual-track {
+  filter: drop-shadow(0 0 2px #2b1602) drop-shadow(0 0 5px rgba(255, 157, 46, .8));
+}
+
+.horizon-user-marker {
+  filter: drop-shadow(0 0 6px #168cff);
+}
+
+.horizon-map-label {
+  padding: 3px 7px;
+  color: #fff;
+  background: rgba(4, 10, 13, .94);
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.55);
+  font: 800 11px/1.2 var(--font-sans);
+}
+
+.horizon-map-label::before {
+  display: none;
+}
+
+.horizon-current-icon span {
+  width: 22px;
+  height: 22px;
+  margin: 6px;
+  border: 4px solid #fff;
+  background: #ff8a1f;
+  box-shadow: 0 0 0 7px rgba(255,138,31,.38), 0 0 14px #ff8a1f;
+}
+
 .map-status {
   color: rgba(245, 242, 235, 0.96);
   border: 1px solid rgba(255,255,255,0.1);
