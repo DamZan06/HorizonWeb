@@ -122,6 +122,7 @@
             if (value) node.textContent = value;
         });
         translateTextNodes(normalized);
+        document.dispatchEvent(new CustomEvent('horizon:languagechange', { detail: { language: normalized } }));
 
         return normalized;
     }

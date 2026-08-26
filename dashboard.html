@@ -52,19 +52,15 @@
                 <h1>Expedition dashboard.</h1>
                 <p>Complete sport telemetry with charts for speed, altitude, daily progress and route progression.</p>
             </div>
-            <div class="stats-grid">
-                <article>
-                    <span>Distance covered</span>
-                    <strong id="metricDistance">-- km</strong>
-                </article>
-                <article>
-                    <span>Distance remaining</span>
-                    <strong id="metricRemaining">-- km</strong>
-                </article>
-                <article>
-                    <span>Completion</span>
-                    <strong id="metricCompletion">--%</strong>
-                </article>
+            <div class="dashboard-hero-grid">
+                <article class="dashboard-focus"><span data-dash="covered">Distance covered</span><strong id="metricDistance">-- km</strong></article>
+                <article class="dashboard-focus"><span data-dash="planned">Planned GPX distance</span><strong id="metricPlannedDistance">-- km</strong></article>
+                <article class="dashboard-focus"><span data-dash="remaining">Distance remaining</span><strong id="metricRemaining">-- km</strong></article>
+                <article class="dashboard-focus"><span data-dash="completion">Completion</span><strong id="metricCompletion">--%</strong></article>
+                <article class="dashboard-focus dashboard-eta"><span data-dash="eta">Estimated arrival</span><strong id="metricEta">--</strong><small id="metricEtaBasis"></small></article>
+            </div>
+            <h2 class="metric-group-title" data-dash="performance">Performance</h2>
+            <div class="stats-grid dashboard-metrics">
                 <article>
                     <span>Current speed</span>
                     <strong id="metricSpeed">-- km/h</strong>
@@ -89,6 +85,8 @@
                     <span>Positive elevation gain</span>
                     <strong id="metricElevation">-- m</strong>
                 </article>
+                <article><span data-dash="elevationLoss">Elevation loss</span><strong id="metricElevationLoss">-- m</strong></article>
+                <article><span data-dash="plannedElevation">Planned GPX elevation gain</span><strong id="metricPlannedElevation">-- m</strong></article>
                 <article>
                     <span>Total time</span>
                     <strong id="metricTime">--</strong>
@@ -97,6 +95,9 @@
                     <span>Moving time</span>
                     <strong id="metricMovingTime">--</strong>
                 </article>
+                <article><span data-dash="stoppedTime">Stopped time</span><strong id="metricStoppedTime">--</strong></article>
+                <article><span data-dash="departure">Actual departure</span><strong id="metricActualDeparture">--</strong></article>
+                <article><span data-dash="latest">Latest update</span><strong id="metricLatestUpdate">--</strong></article>
                 <article>
                     <span>Heart rate</span>
                     <strong id="metricHeartRate">-- bpm</strong>
@@ -105,6 +106,8 @@
                     <span>Average heart rate</span>
                     <strong id="metricHeartRateAvg">-- bpm</strong>
                 </article>
+                <article><span data-dash="maxHeartRate">Maximum heart rate</span><strong id="metricHeartRateMax">-- bpm</strong></article>
+                <article><span data-dash="steps">Estimated steps</span><strong id="metricSteps">--</strong></article>
                 <article>
                     <span>Calories burned</span>
                     <strong id="metricCalories">-- kcal</strong>
@@ -113,11 +116,25 @@
                     <span>Water loss</span>
                     <strong id="metricWaterLost">-- L</strong>
                 </article>
-                <article>
-                    <span>Estimated arrival</span>
-                    <strong id="metricEta">--</strong>
-                </article>
             </div>
+            <div class="tracker-strip" aria-live="polite">
+                <div><span data-dash="trackerState">Tracker state</span><strong id="metricTrackingStatus">--</strong></div>
+                <div><span data-dash="signalAge">Signal age</span><strong id="metricSignalAge">--</strong></div>
+                <div><span data-dash="points">Recorded points</span><strong id="metricPointCount">--</strong></div>
+            </div>
+            <details class="technical-details">
+                <summary data-dash="technical">Technical details</summary>
+                <dl>
+                    <div><dt data-dash="firstTimestamp">First timestamp</dt><dd id="techFirstTimestamp">--</dd></div>
+                    <div><dt data-dash="latestTimestamp">Latest timestamp</dt><dd id="techLatestTimestamp">--</dd></div>
+                    <div><dt>Latitude</dt><dd id="techLatitude">--</dd></div>
+                    <div><dt>Longitude</dt><dd id="techLongitude">--</dd></div>
+                    <div><dt data-dash="altitude">Altitude</dt><dd id="techAltitude">--</dd></div>
+                    <div><dt data-dash="firebaseState">Firebase state</dt><dd id="techFirebaseState">--</dd></div>
+                    <div><dt data-dash="gpxPoints">GPX route points</dt><dd id="techGpxPoints">--</dd></div>
+                    <div><dt data-dash="routeBounds">GPX route bounds</dt><dd id="techRouteBounds">--</dd></div>
+                </dl>
+            </details>
         </section>
         <section class="section section-white">
             <div class="section-title chart-header">
