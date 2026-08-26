@@ -70,6 +70,10 @@
         }
         app._initialized = true;
 
+        if (window.HorizonNavigation && typeof window.HorizonNavigation.renderNavigation === 'function') {
+            window.HorizonNavigation.renderNavigation();
+        }
+
         const statusController = window.HorizonStatus;
         if (typeof statusController?.bindAdminLiveStatusForm === 'function') {
             statusController.bindAdminLiveStatusForm();

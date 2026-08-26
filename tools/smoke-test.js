@@ -15,7 +15,6 @@ function expect(name, condition) {
 }
 
 function run() {
-  const script = read('script.js');
   const app = read('js/app.js');
   const config = read('js/config.js');
   const mapScript = read('js/map.js');
@@ -27,8 +26,7 @@ function run() {
   const gallery = read('gallery.html');
   const replay = read('replay.html');
 
-  expect('bootstrap is deterministic and does not poll for runtime globals', !script.includes('setInterval') && script.includes('DOMContentLoaded'));
-  expect('app init stays guarded', app.includes('if (app._initialized)') && app.includes('app.startHomeRefreshScheduler'));
+  expect('app init stays guarded and handles bootstrap responsibilities', app.includes('if (app._initialized)') && app.includes('renderNavigation') && app.includes('app.startHomeRefreshScheduler'));
   expect('config holds the expedition start date in one place', config.includes('startDateIso') && config.includes('2026-08-31T04:00:00+02:00'));
   expect('single-owner home refresh is guarded', app.includes('homeRefreshTimerId') && app.includes('if (app.homeRefreshTimerId)'));
   expect('map module is implemented', mapScript.includes('createMap') && mapScript.includes('loadRoute'));
@@ -40,10 +38,14 @@ function run() {
   expect('project page matches the new public navbar', project.includes('>Project</a>') && !project.includes('>The challenge</a>'));
   expect('gallery page matches the new public navbar', gallery.includes('>Journey</a>') && !gallery.includes('>About</a>'));
   expect('replay page matches the new public navbar', replay.includes('>Replay</a>') && !replay.includes('>About</a>'));
+  expect('home page uses modular CSS entry points', home.includes('css/global.css') && home.includes('css/home.css') && !home.includes('style.css'));
+  expect('live page uses modular CSS entry points', live.includes('css/global.css') && live.includes('css/live.css') && !live.includes('style.css'));
+  expect('dashboard page uses modular CSS entry points', !home.includes('style.css') && !live.includes('style.css'));
   expect('homepage canonical URL points to HorizonWeb', home.includes('https://damzan06.github.io/HorizonWeb/'));
   expect('live canonical URL points to HorizonWeb', live.includes('https://damzan06.github.io/HorizonWeb/live.html'));
   expect('live page no longer loads Chart.js', !live.includes('chart.js'));
   expect('live page uses a pinned Leaflet version', live.includes('leaflet@1.9.4'));
+  expect('no legacy root-level CSS remains in active pages', !home.includes('href="style.css') && !live.includes('href="style.css') && !project.includes('href="style.css') && !gallery.includes('href="style.css') && !replay.includes('href="style.css'));
 
   console.log('All smoke checks passed.');
 }

@@ -4,7 +4,9 @@
         { key: 'live', label: 'Live', href: 'live.html' },
         { key: 'project', label: 'Project', href: 'project.html' },
         { key: 'journey', label: 'Journey', href: 'gallery.html' },
-        { key: 'replay', label: 'Replay', href: 'replay.html' }
+        { key: 'replay', label: 'Replay', href: 'replay.html' },
+        { key: 'dashboard', label: 'Dashboard', href: 'dashboard.html' },
+        { key: 'progress', label: 'Progress', href: 'progress.html' }
     ];
 
     function getPageKey() {
@@ -20,7 +22,9 @@
             'project.html': 'project',
             'gallery.html': 'journey',
             'journey.html': 'journey',
-            'replay.html': 'replay'
+            'replay.html': 'replay',
+            'dashboard.html': 'dashboard',
+            'progress.html': 'progress'
         };
 
         return map[pathname] || 'home';
