@@ -14,11 +14,14 @@
         const validForced = ['not-started', 'live', 'delayed', 'resting', 'finished', 'offline'];
         if (validForced.includes(forced)) return forced;
         if (options.finished === true) return 'finished';
-        if (start && now < start) return 'not-started';
-        if (!latest) return 'offline';
+        const hasPoints = options.hasValidPoints === true || latest !== null;
+        if (!hasPoints) return start && now < start ? 'not-started' : 'offline';
         if (latest > now + 300000) return 'offline';
         const staleAfter = Number(config.staleDataThresholdMs) || 180000;
-        return now - latest <= staleAfter ? 'live' : 'offline';
+        if (now - latest > staleAfter) return 'delayed';
+        const trackerState = String(options.trackerState || '').toLowerCase();
+        if (/stationary|paused|rest|stopped/.test(trackerState)) return 'resting';
+        return 'live';
     }
     function normalizeHomeStatus(status) {
         const value = String(status ?? '').trim().toLowerCase();

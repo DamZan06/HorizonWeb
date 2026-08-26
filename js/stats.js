@@ -12,13 +12,17 @@
         return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
     }
     function routeDistance(points) {
-        return (points || []).slice(1).reduce((sum, point, index) => sum + distanceKm(points[index], point), 0);
+        return (points || []).slice(1).reduce((sum, point, index) => {
+            const previous=points[index], segment=distanceKm(previous,point), elapsed=(Number(point.timestamp)-Number(previous.timestamp))/3600000;
+            if(Number.isFinite(elapsed)&&elapsed>0&&segment/elapsed>80)return sum;
+            return sum+segment;
+        }, 0);
     }
     function elevationGain(points) {
         let gain = 0;
         (points || []).slice(1).forEach((point, index) => {
             const previous = number(points[index].altitude), current = number(point.altitude);
-            if (previous !== null && current !== null && Math.abs(current - previous) < 1000 && current > previous) gain += current - previous;
+            if (previous !== null && current !== null) { const delta=current-previous; if(delta>2&&delta<200)gain+=delta; }
         });
         return gain;
     }

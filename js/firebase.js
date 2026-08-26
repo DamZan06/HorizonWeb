@@ -36,15 +36,20 @@
                 return null;
             }
 
+            const altitudeM = Number.isFinite(Number(value.altitude ?? value.elevation ?? value.altitudine?.metri)) ? Number(value.altitude ?? value.elevation ?? value.altitudine?.metri) : null;
+            const speedKmh = Number.isFinite(Number(value.speed ?? value.velocita?.km_h ?? value.velocita?.kmh)) ? Number(value.speed ?? value.velocita?.km_h ?? value.velocita?.kmh) : null;
+            const heartRateBpm = Number.isFinite(Number(value.heartRate ?? value.hr ?? value.frequenza_cardiaca?.bpm)) ? Number(value.heartRate ?? value.hr ?? value.frequenza_cardiaca?.bpm) : null;
             return {
+                id: value.id ?? timestamp,
                 latitude: lat,
                 longitude: lng,
                 timestamp,
-                altitude: Number.isFinite(Number(value.altitude ?? value.elevation ?? value.altitudine?.metri)) ? Number(value.altitude ?? value.elevation ?? value.altitudine?.metri) : null,
-                speed: Number.isFinite(Number(value.speed ?? value.velocita?.km_h ?? value.velocita?.kmh)) ? Number(value.speed ?? value.velocita?.km_h ?? value.velocita?.kmh) : null,
-                heartRate: Number.isFinite(Number(value.heartRate ?? value.hr ?? value.frequenza_cardiaca?.bpm)) ? Number(value.heartRate ?? value.hr ?? value.frequenza_cardiaca?.bpm) : null,
+                altitudeM, speedKmh, heartRateBpm,
+                altitude: altitudeM, speed: speedKmh, heartRate: heartRateBpm,
                 cumulativeDistanceKm: Number.isFinite(Number(value.distanceKm ?? value.distanza?.km)) ? Number(value.distanceKm ?? value.distanza?.km) : null,
-                trackerState: String(value.status ?? value.stato ?? '').toLowerCase() || null
+                status: String(value.status ?? value.stato ?? '').toLowerCase() || null,
+                trackerState: String(value.status ?? value.stato ?? '').toLowerCase() || null,
+                raw: value
             };
         }
 
@@ -121,6 +126,7 @@
         normalizeLivePoints,
         normalizeTrackPayload: normalizeLivePoints,
         fetchLiveTrack,
+        fetchTrackPoints: fetchLiveTrack,
         fetchLatestLivePoint
     };
 })();

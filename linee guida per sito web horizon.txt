@@ -1,1064 +1,1365 @@
-# HORIZON — COMPLETE VISUAL, FUNCTIONAL AND LANGUAGE RESTORATION
+# HORIZON — FULL NORTHLINE FUNCTIONAL PARITY AUDIT AND PRODUCTION REBUILD
 
-You are working on the complete HORIZON website.
+You are working on:
 
-Live site:
-
+**HORIZON**
 https://damzan06.github.io/HorizonWeb/
 
 Repository:
-
 https://github.com/DamZan06/HorizonWeb
 
-The website is currently cleaner than before, but the latest refactor has removed too much of its visual identity and several features are still incomplete or inconsistent.
+You must also use the previous project:
 
-Your task is to restore HORIZON as a **premium, cinematic, Alpine expedition website**, while preserving the improved code architecture.
+**NorthLine**
+https://damzan06.github.io/northline/
 
-This is NOT a request to redesign everything from scratch.
+Repository:
+https://github.com/DamZan06/northline
 
-Keep the current structure where it is good.
+as a FUNCTIONAL REFERENCE.
 
-Fix what is broken, restore what was lost, improve the styling, and test the complete site.
+---
+
+# PRIMARY OBJECTIVE
+
+HORIZON currently has a cleaner architecture and better project identity than NorthLine, but several working NorthLine functions were lost, simplified or disconnected during the refactor.
+
+Your task is to:
+
+1. inspect BOTH repositories;
+2. identify every useful function NorthLine had;
+3. compare it with the equivalent HORIZON implementation;
+4. restore or improve every missing/broken function;
+5. preserve the cleaner modular architecture of HORIZON;
+6. improve visual consistency across every page;
+7. test the complete application with the real Firebase simulation data;
+8. continue until all acceptance tests pass.
+
+DO NOT simply copy the 4,000+ line NorthLine `script.js`.
+
+NorthLine is the **functional reference**, not the architecture to reproduce.
+
+Extract its proven logic and implement it cleanly inside HORIZON modules.
 
 ---
 
 # ABSOLUTE COMPLETION RULE
 
-DO NOT STOP after editing files.
+Do not stop because code was modified.
 
-DO NOT tell me the task is finished because the code compiles.
+Do not stop because one page looks correct.
 
-DO NOT stop after fixing only the issues explicitly mentioned here.
+Do not stop because automated syntax tests pass.
 
-You may only declare completion when:
+Do not declare completion until:
 
-* every page works;
-* every language works;
-* every visible string is translated;
-* the countdown works;
-* the map loads;
-* Firebase simulation data is visible;
-* the visual identity is restored;
-* participant images are correctly displayed;
-* the correct HORIZON logo is used;
-* the HORIZON background is restored;
-* the finish flag is visible;
-* desktop and mobile layouts are verified;
-* no console errors remain;
-* no failed local asset requests remain;
-* all automated and browser-level tests pass.
+* Firebase track data loads;
+* the site detects that the expedition has started when Firebase contains valid points;
+* the countdown disappears once tracking data exists;
+* the planned GPX route displays;
+* the complete Firebase recorded track displays;
+* total route distance comes from the real GPX;
+* route progress works;
+* remaining distance works;
+* ETA works;
+* finish flag exists;
+* current position works;
+* statistics work;
+* dashboard works;
+* replay works;
+* all public pages work;
+* all four languages work;
+* visual design is consistent across all pages;
+* desktop and mobile are tested;
+* browser console contains no unexplained errors;
+* network panel contains no unexpected failed requests.
 
-If something fails:
+If ANYTHING fails:
 
-FIX IT → TEST AGAIN.
-
-Continue until the complete site works.
+FIX → TEST → RETEST.
 
 ---
 
-# 1. FIRST INSPECT THE CURRENT REPOSITORY
+# 1. PERFORM A NORTHLINE → HORIZON FEATURE DIFF
 
-Before changing anything:
+Before changing code, inspect the complete NorthLine implementation.
 
-* inspect all HTML;
-* inspect all CSS;
-* inspect all JavaScript;
-* inspect `assets/`;
-* inspect `data/`;
-* inspect Firebase integration;
-* inspect current translations;
-* inspect the currently available logo and background images;
-* inspect the participant photos;
-* inspect route files;
-* inspect current map markers.
+Especially inspect:
 
-Do NOT invent new filenames if existing appropriate assets already exist.
+```text
+northline/docs/script.js
+northline/docs/live.html
+northline/docs/dashboard.html
+northline/docs/replay.html
+northline/docs/gallery.html
+northline/docs/progress.html
+```
 
-IMPORTANT:
+Identify the implementation of:
 
-I have intentionally deleted files/images that contained NORTHLINE branding.
+* Firebase point loading;
+* Firebase normalization;
+* sorting;
+* live position;
+* travelled route;
+* GPX loading;
+* GPX fallback parser;
+* GPX total distance;
+* start marker;
+* finish marker;
+* finish flag;
+* route remaining calculations;
+* ETA;
+* elapsed time;
+* moving time;
+* average speed;
+* moving average speed;
+* elevation gain;
+* heart rate;
+* calories;
+* estimated water;
+* replay;
+* gallery map;
+* visitor geolocation;
+* map controls;
+* map layers;
+* countdown hiding;
+* expedition status;
+* translations;
+* dashboard charts;
+* route progress.
+
+For every feature create an internal comparison:
+
+```text
+NORTHLINE
+working implementation
+
+HORIZON
+current implementation
+
+RESULT
+OK / REGRESSION / MISSING / SHOULD BE IMPROVED
+```
+
+Do not assume HORIZON is correct simply because a module exists.
+
+Test the result.
+
+---
+
+# 2. CRITICAL EXPEDITION STATE RULE
+
+THIS RULE OVERRIDES THE CURRENT IMPLEMENTATION.
+
+Current HORIZON logic incorrectly allows the planned start date to override Firebase data.
+
+This is wrong.
+
+The correct priority is:
+
+```text
+1. valid Firebase tracking data exists
+      ↓
+   EXPEDITION HAS STARTED
+
+2. no Firebase data exists
+      ↓
+   use scheduled start date / pre-start state
+```
 
 Therefore:
 
-**DO NOT recreate, restore or reference deleted NorthLine image files.**
+**THE EXISTENCE OF AT LEAST ONE VALID TRACKING POINT MEANS HORIZON HAS STARTED.**
 
-If an old code reference points to a NorthLine asset that no longer exists:
-
-REMOVE THAT REFERENCE.
-
-Replace it with the correct HORIZON asset that currently exists in the repository.
-
-The repository itself is the source of truth for available images.
-
----
-
-# 2. RESTORE HORIZON VISUAL IDENTITY
-
-The current site looks too basic and generic.
-
-It has become overly minimal after the refactor.
-
-HORIZON should feel:
-
-* cinematic;
-* premium;
-* Alpine;
-* serious;
-* expedition-oriented;
-* atmospheric;
-* distinctive;
-* visually connected to the HORIZON poster.
-
-Do NOT turn it into:
-
-* a SaaS dashboard;
-* a corporate website;
-* a plain dark Bootstrap layout;
-* a generic black/white landing page.
-
-The aesthetic should use:
-
-* deep navy;
-* charcoal;
-* warm ivory;
-* antique gold;
-* muted orange sunset accents;
-* subtle Alpine imagery;
-* atmospheric gradients;
-* light grain / texture where tasteful;
-* stronger typography hierarchy.
-
----
-
-# 3. RESTORE THE HERO BACKGROUND IMAGE
-
-The homepage previously had a strong background image.
-
-It is currently missing.
-
-There is an existing HORIZON background image in the repository.
-
-Inspect the current available assets, including:
+Do NOT return:
 
 ```text
-data/Sfondo.png
+not-started
 ```
 
-and any newer/moved equivalent.
+if valid Firebase points already exist.
 
-Use the correct CURRENT HORIZON background asset.
-
-DO NOT use any NorthLine background.
-
-The homepage hero should again have a cinematic Alpine background.
-
-Recommended structure:
-
-```text
-background image
-+
-dark navy overlay
-+
-subtle gradient
-+
-text
-```
-
-The image should remain visible but must not reduce text readability.
-
-Example conceptual CSS:
-
-```css
-background:
-  linear-gradient(
-    180deg,
-    rgba(5, 12, 20, .55),
-    rgba(5, 12, 20, .92)
-  ),
-  url(...);
-```
-
-Do not blindly copy these exact values.
-
-Tune them visually.
-
-The hero must feel large and immersive.
-
----
-
-# 4. CORRECT HORIZON LOGO ONLY
-
-The navigation currently uses an incorrect or outdated logo treatment.
-
-The HORIZON website must use ONLY HORIZON branding.
-
-DO NOT use:
-
-* NorthLine logo;
-* NorthLine mountain graphic;
-* NorthLine favicon;
-* deleted NorthLine image assets.
-
-Inspect the repository and identify the CURRENT correct HORIZON logo/favicon.
-
-Use it consistently for:
-
-* navbar;
-* favicon;
-* mobile header;
-* social metadata where appropriate.
-
-If there are conflicting old favicon/logo files, determine which is the actual HORIZON version from the existing assets and remove obsolete references.
-
-Do NOT generate a new logo unless absolutely necessary.
-
-Use the current HORIZON asset already present.
-
----
-
-# 5. PARTICIPANT SECTION — DESKTOP LAYOUT
-
-The participant images are vertical portraits.
-
-The current layout crops the subject too aggressively because the image is forced into a wide card format.
-
-On DESKTOP:
-
-use a horizontal participant layout.
-
-For each participant:
-
-```text
-IMAGE | TEXT
-```
-
-or alternating:
-
-```text
-Damiano:
-IMAGE | TEXT
-
-Nicolas:
-TEXT | IMAGE
-```
-
-if visually balanced.
-
-Preferred layout:
-
-* image approximately 35–40% width;
-* text approximately 60–65%;
-* image remains portrait;
-* image height around 420–520 px depending on viewport;
-* preserve the subject;
-* avoid aggressive cropping.
-
-Use:
-
-```css
-object-fit: cover;
-```
-
-only if the correct `object-position` preserves the person.
-
-If necessary use:
-
-```css
-object-fit: contain;
-```
-
-or a portrait wrapper with a dark background.
-
-The primary requirement is:
-
-**DO NOT CUT OFF THE SUBJECT OF THE PARTICIPANT PHOTO.**
-
-Use the existing participant images currently present in the repository:
-
-```text
-DamZan.jpg
-NicMos.jpeg
-```
-
-or their current moved equivalents.
-
-On MOBILE:
-
-stack:
-
-```text
-IMAGE
-TEXT
-```
-
-while preserving a reasonable portrait ratio.
-
----
-
-# 6. MAKE THE VISUAL LANGUAGE LESS MONOTONOUS
-
-The current site uses too much:
-
-```text
-white heading
-white paragraph
-dark background
-card
-dark background
-white heading
-```
-
-This feels flat.
-
-Introduce stronger hierarchy.
-
-Use the HORIZON accent colour selectively.
-
-For example:
-
-### Eyebrows / section labels
-
-warm antique gold.
-
-### Important heading words
-
-Use accent colour selectively.
-
-Example:
-
-```html
-<h2>
-  500 kilometres.
-  <span class="accent">One direction.</span>
-</h2>
-```
-
-Do NOT colour every heading.
-
-### Bold emphasis
-
-Use `<strong>` strategically inside paragraphs for:
-
-* 500 km;
-* 10,000 m+;
-* two people;
-* east to west;
-* Piz Chavalatsch;
-* Chancy.
-
-Do not overuse bold.
-
-### Section backgrounds
-
-Introduce subtle variation:
-
-```text
-transparent
-dark navy
-slightly lighter navy
-background image section
-route section
-full-width statement
-```
-
-rather than putting everything inside identical cards.
-
-### Dividers
-
-Use subtle lines / glow / route-like motifs.
-
-The site should feel like an expedition story, not a collection of dashboard widgets.
-
----
-
-# 7. TRANSLATIONS MUST BE COMPLETE
-
-THIS IS A HIGH PRIORITY REQUIREMENT.
-
-If the user chooses:
-
-```text
-Deutsch
-```
-
-then the ENTIRE visible website must be German.
-
-Not:
-
-```text
-Navbar German
-Heading English
-Button English
-Footer English
-Status German
-```
-
-The same applies to:
-
-* English;
-* Italian;
-* German;
-* French.
-
-Audit EVERY visible string.
-
-This includes:
-
-* navbar;
-* page titles;
-* hero;
-* CTA buttons;
-* countdown;
-* statistics labels;
-* map controls;
-* status;
-* accessibility labels;
-* Project page;
-* Journey page;
-* Replay page;
-* Dashboard;
-* Progress;
-* Diary;
-* Timeline;
-* modal labels;
-* empty states;
-* errors;
-* buttons;
-* footer;
-* photo descriptions if static;
-* date labels;
-* countdown labels.
-
-Use ONE translation system.
-
-Prefer:
-
-```html
-data-i18n="..."
-```
-
-for static UI.
-
-Use:
+Refactor:
 
 ```js
-t('...')
+getExpeditionState()
 ```
 
-for dynamic strings.
+accordingly.
 
-DO NOT leave hardcoded English UI inside page HTML.
+Suggested priority:
+
+```text
+finished override
+        ↓
+valid Firebase data
+        ↓
+recent point → live/moving/resting/etc.
+stale point → delayed/offline/resting as appropriate
+        ↓
+NO Firebase points
+        ↓
+before planned date → not-started
+after planned date → waiting-for-signal/offline
+```
+
+The scheduled date must NOT override real tracking evidence.
 
 ---
 
-# 8. LANGUAGE SELECTOR ON EVERY PAGE
+# 3. COUNTDOWN MUST DISAPPEAR WHEN FIREBASE DATA EXISTS
 
-Currently language switching is not consistently available from desktop on all pages.
+NorthLine already implemented this concept.
 
-Fix this.
+Restore it properly.
 
-Every public page must have the SAME desktop language selector in the header.
-
-Every public page must also have language switching inside the mobile navigation.
-
-Pages include at minimum:
+The countdown should be visible ONLY when:
 
 ```text
-index.html
-live.html
-project.html
-gallery.html
-replay.html
-dashboard.html
-progress.html
-diary.html
-timeline.html
+validFirebasePoints.length === 0
+AND
+expedition has not started
 ```
 
-The selected language must persist when navigating.
+The moment the first valid Firebase point exists:
+
+```text
+hide countdown
+```
+
+regardless of whether the planned start date has been reached.
 
 Example:
 
-User:
-
 ```text
-Home → Deutsch
-```
-
-then clicks:
-
-```text
-Live
-```
-
-Live must already be German.
-
-Then:
-
-```text
-Project
-```
-
-Project must still be German.
-
-Use the shared:
-
-```text
-languageStorageKey
-```
-
-configuration.
-
-Also update:
-
-```html
-<html lang="de">
-```
-
-dynamically when German is selected.
-
-Equivalent for:
-
-```text
-en
-it
-fr
-```
-
----
-
-# 9. COUNTDOWN — ADD THE ACTUAL START DATE
-
-Above the countdown, display the expedition start date clearly.
-
-The configured expedition start is:
-
-```text
+planned start:
 31 August 2026
-04:00
+
+Firebase contains valid track on:
+26 August 2026
 ```
 
-using the ISO configuration as the single source of truth.
+Result:
 
-Do NOT hardcode separate dates in every language.
+```text
+HORIZON HAS STARTED
+NO COUNTDOWN
+```
 
-Display something visually like:
+Firebase reality overrides scheduled date.
+
+Do not merely apply `display:none` once.
+
+The component state should be derived from the central expedition state.
+
+---
+
+# 4. COUNTDOWN BEFORE START
+
+When there are no Firebase points and the expedition has not started, show:
 
 ```text
 START
 31 AUGUST 2026 · 04:00
+
+05 DAYS
+12 HOURS
+31 MINUTES
+08 SECONDS
 ```
 
-Localized properly.
+localized using `Intl.DateTimeFormat`.
 
-German:
+Update every second.
 
-```text
-START
-31. AUGUST 2026 · 04:00
-```
-
-Italian:
-
-```text
-PARTENZA
-31 AGOSTO 2026 · 04:00
-```
-
-French:
-
-```text
-DÉPART
-31 AOÛT 2026 · 04:00
-```
-
-English:
-
-```text
-START
-31 AUGUST 2026 · 04:00
-```
-
-Use `Intl.DateTimeFormat` where appropriate.
-
-Then display:
-
-```text
-DAYS
-HOURS
-MINUTES
-SECONDS
-```
-
-below.
-
-This should make it immediately obvious what the countdown refers to.
-
-The countdown must actually work.
+After tracking begins, remove the entire countdown section cleanly so that the hero layout closes the empty space.
 
 ---
 
-# 10. LIVE MAP — MUST LOAD
+# 5. GPX IS THE SINGLE SOURCE OF TRUTH
 
-The map is still a critical requirement.
+THIS IS EXTREMELY IMPORTANT.
 
-The page must never remain indefinitely at:
-
-```text
-LOADING MAP…
-```
-
-Test:
-
-* Leaflet initialization;
-* map element dimensions;
-* route file;
-* tile layer;
-* route parsing;
-* map fitting;
-* markers;
-* Firebase data;
-* page-specific JS load order.
-
-Verify actual network requests.
-
-If any route file produces a 404, fix the canonical path.
-
-Use ONE route URL from config.
-
----
-
-# 11. RETURN THE WAVING FINISH FLAG
-
-Restore the animated finish flag at CHANCY.
-
-The route ending must visually show a small waving flag marker.
-
-Requirements:
-
-* placed at the real finish coordinate;
-* Chancy / west;
-* visible without obscuring the route;
-* stylistically compatible with HORIZON;
-* subtle animation;
-* not cartoonish;
-* accessible title / tooltip.
-
-The animation should resemble a fabric flag gently moving in wind.
-
-For example:
+The file:
 
 ```text
-small pole
-small ivory/gold or Swiss-inspired flag
-subtle CSS wave animation
+data/Horizon.gpx
 ```
 
-Do NOT use an unrelated NorthLine flag asset.
+must be the geographic source of truth for HORIZON.
 
-Prefer CSS/SVG if no appropriate current image exists.
-
-The marker should appear on:
-
-* live route map;
-* other route maps where endpoint markers are shown.
-
-Start marker should remain clearly distinguishable.
-
----
-
-# 12. FIREBASE SIMULATION DATA IS CURRENTLY NOT VISIBLE
-
-There is currently test activity data in Firebase.
-
-It was imported intentionally to simulate a real activity and verify the website.
-
-The data is not being displayed correctly.
-
-You MUST investigate the REAL Firebase payload.
-
-Do NOT guess its structure.
-
-Inspect the response from the configured Firebase endpoint.
-
-Current configuration references:
-
-```text
-/livetrack/points.json
-```
-
-Determine what Firebase actually returns.
-
-Possible structures may include:
+Do NOT use:
 
 ```js
+expectedDistanceKm: 500
+```
+
+as the authoritative distance.
+
+`500` may remain only as a human-readable approximation / emergency fallback.
+
+The application must derive actual route metadata from `Horizon.gpx`.
+
+At minimum derive:
+
+```text
+coordinates
+total route distance
+start coordinate
+finish coordinate
+bounds
+elevation profile if elevation exists
+total planned elevation gain if possible
+```
+
+---
+
+# 6. DO NOT PARSE THE LARGE GPX UNNECESSARILY ON EVERY PAGE LOAD
+
+Use a robust architecture.
+
+Recommended:
+
+```text
+data/Horizon.gpx
+        ↓
+tools/build-route.js
+        ↓
+data/horizon-route.geojson
+data/horizon-route-meta.json
+```
+
+`horizon-route-meta.json` should contain something similar to:
+
+```json
 {
-  id1: {...},
-  id2: {...},
-  id3: {...}
+  "distanceKm": 512.43,
+  "elevationGainM": 10842,
+  "start": {
+    "lat": ...,
+    "lng": ...
+  },
+  "finish": {
+    "lat": ...,
+    "lng": ...
+  },
+  "bounds": ...
 }
 ```
 
-or:
+Do NOT hardcode these derived values manually.
 
-```js
-[
-  {...},
-  {...}
-]
-```
+`npm run build:route` should regenerate BOTH the GeoJSON and metadata from `Horizon.gpx`.
 
-or nested activity objects.
+The GPX remains the authoritative input.
 
-The current parser is too simplistic if it only expects a single direct point.
-
-Implement a robust parser.
+The browser may consume optimized GeoJSON + metadata.
 
 ---
 
-# 13. FIREBASE TRACK DATA NORMALIZATION
+# 7. FIX THE CURRENT BROKEN ROUTE PATHS
 
-Create a proper normalization layer.
+Inspect the ACTUAL repository.
 
-For example:
+There is currently an inconsistency between paths such as:
 
-```js
-normalizeTrackPayload(payload)
+```text
+data/Horizon.gpx
+data/horizon-route.geojson
 ```
 
-that returns:
+and code referring to:
 
-```js
-[
-  {
-    latitude,
-    longitude,
-    timestamp,
-    altitude,
-    speed,
-    heartRate,
-    ...
-  }
-]
+```text
+data/route/Horizon.gpx
+data/route/horizon-route.geojson
 ```
 
-sorted chronologically.
+Remove this ambiguity.
 
-Support the REAL imported structure.
+Choose ONE real directory.
 
-Do not blindly support arbitrary formats that do not exist.
+Recommended unless you intentionally move the files:
 
-Inspect actual data first.
+```text
+data/Horizon.gpx
+data/horizon-route.geojson
+data/horizon-route-meta.json
+```
 
-Validate coordinates.
+Then config becomes the ONLY source for these paths:
 
-Reject invalid entries.
+```js
+routeGpxUrl
+routeGeoJsonUrl
+routeMetaUrl
+```
 
-Sort timestamps.
+NO PAGE may hardcode another path.
 
-Deduplicate points where appropriate.
+Specifically remove code such as:
+
+```js
+mapApi.loadRoute('data/route/horizon-route.geojson')
+```
+
+and use:
+
+```js
+HorizonConfig.routeGeoJsonUrl
+```
 
 ---
 
-# 14. DO NOT ONLY FETCH THE LAST POINT
+# 8. MAP MUST DISPLAY THE COMPLETE PLANNED HORIZON ROUTE
 
-For the simulation and live journey the application needs TWO concepts:
+The Live map must always show the planned HORIZON route even before departure.
 
-### Latest live point
+Load the route generated from:
 
-Used for:
+```text
+Horizon.gpx
+```
 
-* current marker;
-* current speed;
-* altitude;
-* last update.
+Fit bounds to the FULL planned route.
 
-### Full recorded track
+Do not fit initially only to Firebase test data.
 
-Used for:
+Planned route styling:
 
-* travelled path;
-* distance completed;
-* charts;
-* replay;
-* statistics;
-* elevation;
-* route progress.
+```text
+warm ivory / muted antique gold
+moderate opacity
+clearly visible
+```
 
-Implement separate functions if appropriate:
+Actual travelled track:
+
+```text
+stronger HORIZON orange/gold
+solid
+clearly distinct
+```
+
+---
+
+# 9. RESTORE START AND FINISH MARKERS FROM GPX
+
+NorthLine correctly used the first and last GPX coordinate.
+
+Do the same.
+
+Do NOT manually hardcode arbitrary map coordinates if the GPX already contains them.
+
+```text
+first GPX coordinate
+= START
+
+last GPX coordinate
+= FINISH
+```
+
+Start:
+
+```text
+PIZ CHAVALATSCH
+START · EAST
+```
+
+Finish:
+
+```text
+CHANCY
+FINISH · WEST
+```
+
+localized.
+
+---
+
+# 10. RESTORE THE WAVING FINISH FLAG
+
+NorthLine displayed a finish flag at the final GPX coordinate.
+
+HORIZON must restore this feature.
+
+Place the finish flag at:
+
+```text
+last coordinate of Horizon.gpx
+```
+
+not an estimated Chancy coordinate.
+
+Create a HORIZON-compatible finish marker.
+
+If the old NorthLine GIF was deleted because it contained inappropriate branding, DO NOT restore the deleted NorthLine file.
+
+Instead use:
+
+* an existing appropriate HORIZON asset;
+* or a lightweight CSS/SVG animated flag.
+
+Preferred visual:
+
+```text
+thin pole
+small ivory/gold expedition flag
+subtle waving motion
+```
+
+It should look premium, not cartoonish.
+
+Respect:
+
+```css
+prefers-reduced-motion
+```
+
+The flag must be visible on:
+
+* Live map;
+* Replay map;
+* other route maps where appropriate.
+
+---
+
+# 11. FIREBASE — LOAD THE COMPLETE TRACK
+
+Current HORIZON logic focuses too heavily on:
 
 ```js
-fetchLiveTrack()
 fetchLatestLivePoint()
 ```
 
-Do not attempt to build the complete site around only one GPS point.
+This is insufficient.
+
+NorthLine loaded the complete Firebase point collection.
+
+HORIZON must do the same.
+
+Implement:
+
+```js
+fetchTrackPoints()
+```
+
+which returns the complete normalized chronological track.
+
+Then implement:
+
+```js
+fetchLatestLivePoint()
+```
+
+as:
+
+```text
+last valid point from fetchTrackPoints()
+```
+
+rather than creating two unrelated parsers.
 
 ---
 
-# 15. SHOW THE RECORDED ACTIVITY ON THE MAP
+# 12. INSPECT THE REAL CURRENT FIREBASE PAYLOAD
 
-The Firebase simulation track should become visible as a second line.
+There are currently simulation/activity data in Firebase.
 
-The map should distinguish:
+Use them.
 
-```text
-PLANNED HORIZON ROUTE
-```
+Do not invent a schema.
 
-and:
+Fetch the REAL configured endpoint and inspect the structure.
 
-```text
-ACTUAL RECORDED TRACK
-```
+Current HORIZON configuration must also be audited because the repository currently references a NorthLine Firebase backend.
 
-Recommended visual treatment:
+Determine whether that backend is intentionally being reused for the simulation or is an accidental leftover.
 
-Planned route:
+Do NOT change Firebase blindly.
 
-```text
-muted ivory / dashed / slightly transparent
-```
+Establish the intended HORIZON endpoint first.
 
-Actual track:
-
-```text
-strong warm gold / orange / solid
-```
-
-Do not use unrelated bright colours.
-
-Current position should be at the end of the actual track.
+Then normalize the actual data.
 
 ---
 
-# 16. CALCULATE PROGRESS FROM THE ACTUAL TRACK
+# 13. FIREBASE NORMALIZATION MUST PRESERVE ALL USEFUL FIELDS
 
-Using Firebase recorded data, calculate:
+Do not reduce a point to only:
 
-* distance covered;
-* distance remaining;
-* current progress;
-* elapsed time;
-* current altitude;
-* elevation gain;
-* current speed;
-* last update;
-* estimated arrival where meaningful.
+```text
+latitude
+longitude
+timestamp
+```
 
-Do not leave:
+when the source contains more information.
+
+Normalize to something like:
+
+```js
+{
+  id,
+  latitude,
+  longitude,
+  timestamp,
+
+  altitudeM,
+
+  cumulativeDistanceKm,
+
+  speedKmh,
+
+  heartRateBpm,
+
+  status,
+
+  caloriesKcal,
+
+  elevationGainM,
+
+  raw
+}
+```
+
+Only populate properties actually supported by the source data.
+
+Never invent telemetry.
+
+Support field aliases used by the real tracker.
+
+NorthLine already contains useful examples of parsing:
+
+```text
+coordinate
+coordinates
+
+velocita.m_s
+velocita.km_h
+
+heartRateBeatsPerMin
+
+stato
+status
+pointStatus
+
+distanza.metri
+```
+
+Study that implementation.
+
+---
+
+# 14. FIREBASE POINT EXISTENCE = DEPARTURE
+
+After normalization:
+
+```js
+const started = trackPoints.length > 0;
+```
+
+This `started` state must be shared by:
+
+* Home;
+* Live;
+* Dashboard;
+* Replay;
+* status badge;
+* countdown;
+* ETA;
+* statistics.
+
+Do NOT let different pages independently decide whether HORIZON has started.
+
+---
+
+# 15. CREATE A CENTRAL EXPEDITION STORE / SUMMARY
+
+Create ONE central calculation pipeline.
+
+Conceptually:
+
+```text
+GPX metadata
+      +
+Firebase track points
+      +
+current time
+      ↓
+HorizonExpeditionSummary
+```
+
+Example:
+
+```js
+{
+  started,
+  state,
+
+  plannedDistanceKm,
+  plannedElevationGainM,
+
+  coveredDistanceKm,
+  remainingDistanceKm,
+  completionPercent,
+
+  elapsedTimeMs,
+  movingTimeMs,
+
+  currentSpeedKmh,
+  averageSpeedKmh,
+  movingAverageSpeedKmh,
+  maxSpeedKmh,
+
+  currentAltitudeM,
+  actualElevationGainM,
+
+  currentHeartRateBpm,
+  averageHeartRateBpm,
+
+  latestPoint,
+  latestPointTimestamp,
+
+  eta
+}
+```
+
+Home, Live and Dashboard must use this SAME summary.
+
+Do not duplicate formulas between pages.
+
+---
+
+# 16. TOTAL DISTANCE MUST COME FROM GPX
+
+Replace calculations based on:
+
+```js
+expectedDistanceKm || 500
+```
+
+with:
+
+```text
+routeMeta.distanceKm
+```
+
+Example:
+
+If `Horizon.gpx` measures:
+
+```text
+487.63 km
+```
+
+the site must display:
+
+```text
+487.6 km
+```
+
+where exact route data is appropriate.
+
+Marketing copy may still say:
+
+```text
+~500 km
+```
+
+But functional statistics must use the real GPX measurement.
+
+---
+
+# 17. ROUTE PROGRESS
+
+The percentage should be derived from the real route length.
+
+Prefer:
+
+```text
+distance travelled along planned route
+/
+GPX total distance
+```
+
+Do not base progress solely on straight-line distance to Chancy.
+
+If Firebase contains a cumulative Garmin distance that reliably represents travelled distance, compare it against route projection logic and choose the most robust method.
+
+Document the chosen method in code.
+
+Clamp:
+
+```text
+0–100%
+```
+
+---
+
+# 18. DISTANCE REMAINING
+
+Calculate:
+
+```text
+remaining = GPX total distance - progress along planned route
+```
+
+Never:
+
+```text
+500 - travelled
+```
+
+unless GPX metadata failed and 500 is an explicit fallback.
+
+Fallbacks must be logged clearly.
+
+---
+
+# 19. ETA — PORT AND IMPROVE THE NORTHLINE LOGIC
+
+HORIZON currently lacks a complete ETA implementation.
+
+NorthLine used a useful priority:
+
+```text
+moving average speed
+↓
+total average speed
+↓
+current speed
+```
+
+Use a similar principle, but make it more robust.
+
+Do NOT calculate ETA when:
+
+* fewer than enough valid moving points exist;
+* speed is effectively zero;
+* data is stale beyond the permitted threshold;
+* remaining distance is unknown;
+* track parsing failed.
+
+When enough data exists:
+
+```text
+remainingHours =
+remainingDistanceKm / effectiveSpeedKmh
+
+etaTimestamp =
+now + remainingHours
+```
+
+Format ETA as:
+
+```text
+DD.MM.YYYY · HH:MM
+```
+
+localized with `Intl.DateTimeFormat`.
+
+---
+
+# 20. IMPROVE ETA STABILITY
+
+Current speed alone is too unstable.
+
+Prefer a moving average based on a meaningful recent period / recent valid movement.
+
+For example use:
+
+* recent 30–60 minutes;
+* or moving average speed for the current activity;
+
+depending on available data.
+
+Avoid wild ETA changes caused by one stopped point.
+
+If resting:
+
+keep last meaningful ETA if appropriate or display a clearly labelled estimate.
+
+Do not invent false precision.
+
+---
+
+# 21. LIVE MAP — ACTUAL TRACK
+
+Draw the complete Firebase travelled path.
+
+The map must simultaneously show:
+
+```text
+PLANNED ROUTE
+ACTUAL TRACK
+CURRENT POSITION
+START
+FINISH FLAG
+```
+
+Actual track should update whenever Firebase changes.
+
+Do not redraw the entire Leaflet map instance every refresh.
+
+Update the polyline efficiently.
+
+---
+
+# 22. LIVE POSITION
+
+Use the last valid Firebase point.
+
+Use a clear HORIZON marker.
+
+Popup should show useful current data such as:
+
+```text
+Current position
+last update
+altitude
+speed
+```
+
+where available.
+
+Optionally retain the NorthLine idea of a navigation button to the runner if useful.
+
+---
+
+# 23. MAP LAYERS
+
+NorthLine included:
+
+```text
+standard
+satellite
+topographic
+```
+
+HORIZON should retain/improve this useful function.
+
+Provide a compact layer selector.
+
+Do not load all tile layers simultaneously.
+
+Available layers should include:
+
+* standard;
+* satellite;
+* topographic.
+
+Use appropriate providers and attribution.
+
+---
+
+# 24. MAP CONTROLS
+
+Verify all:
+
+```text
+center visitor
+center live position
+fullscreen
+zoom
+map style
+```
+
+Center-live must be disabled or visually unavailable if no live position exists.
+
+Center-user must handle:
+
+```text
+permission denied
+unsupported
+location unavailable
+timeout
+```
+
+with translated feedback.
+
+---
+
+# 25. HOME STATISTICS
+
+Once Firebase contains data, Home should immediately display real summary values.
+
+At minimum:
+
+```text
+distance completed
+remaining
+progress
+elapsed time
+elevation gain
+steps if derivable
+ETA
+```
+
+Do not keep:
 
 ```text
 --
 ```
 
-if the value can be calculated.
-
-If a metric genuinely cannot be calculated:
-
-display a translated unavailable state.
+when a real value can be calculated.
 
 ---
 
-# 17. IMPORTANT — TRACK PROGRESS SHOULD FOLLOW THE ROUTE
+# 26. LIVE STATISTICS
 
-Do not calculate progress only using straight-line distance between Piz Chavalatsch and current location.
-
-Use route progress.
-
-Prefer projecting the current/actual track onto the planned HORIZON route.
-
-Then calculate how far along the planned route the user is.
-
-This is much more meaningful than simple crow-fly distance.
-
----
-
-# 18. STATUS MUST MATCH REAL DATA
-
-Currently the public Live page can show:
-
-```text
-LIVE · Updated 1 min ago
-```
-
-even while the map does not display the corresponding activity.
-
-Fix this.
-
-Status must come from the real track state.
-
-Examples:
-
-### No points
-
-```text
-NOT STARTED
-```
-
-### Recent valid point
-
-```text
-LIVE
-```
-
-### Latest point older than threshold
-
-```text
-SIGNAL DELAYED
-```
-
-### Explicit pause/rest
-
-```text
-RESTING
-```
-
-### Finished
-
-```text
-FINISHED
-```
-
-Use the configured:
-
-```text
-staleDataThresholdMs
-```
-
-where appropriate.
-
----
-
-# 19. HOMEPAGE LIVE PREVIEW
-
-If Firebase contains valid simulation/live data, the homepage statistics should also update.
-
-For example:
+Live must display:
 
 ```text
 distance
 remaining
-progress
-time
-elevation
+completion
+current speed
+altitude
+last update
+route progress
+elapsed time
+elevation gain
+steps
+visitor distance
+```
+
+from the shared summary.
+
+If a metric cannot be calculated:
+
+show a translated unavailable state.
+
+---
+
+# 27. DASHBOARD — RESTORE NORTHLINE FEATURE PARITY
+
+NorthLine exposed:
+
+```text
+distance covered
+distance remaining
+completion
+
+current speed
+moving average speed
+total average speed
+max speed
+
+current altitude
+positive elevation
+
+total time
+moving time
+
+heart rate
+average heart rate
+
+calories
+water estimate
+
 estimated arrival
 ```
 
-The homepage and Live page must consume the same calculated data.
+HORIZON should support these where the Firebase dataset actually provides enough data.
 
-Do NOT implement two different calculation systems.
+Do NOT invent unsupported metrics.
 
----
+If data exists, calculate them.
 
-# 20. HEADER CONSISTENCY
-
-Use one shared header/navigation design across all public pages.
-
-It should contain:
+If it does not:
 
 ```text
-HORIZON LOGO
-HORIZON
-page subtitle where appropriate
-
-HOME
-LIVE
-PROJECT
-JOURNEY
-REPLAY
-
-LANGUAGE SELECTOR
+Not available
 ```
 
-Desktop language switcher must always be visible.
-
-Do not hide language switching only because the user is on another page.
+translated.
 
 ---
 
-# 21. NAVBAR VISUAL IMPROVEMENT
+# 28. DASHBOARD CHARTS
 
-The navbar currently feels functional but generic.
-
-Refine it subtly.
-
-Suggested qualities:
-
-* slight transparency;
-* backdrop blur;
-* thin warm divider;
-* active link accent;
-* smooth hover underline;
-* HORIZON logo clearly visible;
-* compact language selector.
-
-Do not make it oversized.
-
----
-
-# 22. SECTION TYPOGRAPHY
-
-Improve typography hierarchy.
-
-Use approximately:
+Restore/improve:
 
 ```text
-EYEBROW
-small uppercase
-wide letter-spacing
-warm gold
-
-H1
-very large
-ivory
-
-H2
-large
-ivory + optional accent word
-
-BODY
-soft ivory/grey
-comfortable line-height
+speed
+altitude
+heart rate
+cumulative elevation
 ```
 
-Important numbers should be stronger.
+Allow X axis:
+
+```text
+distance
+time
+```
+
+Charts must use the complete Firebase track.
+
+Test fullscreen.
+
+Test resize.
+
+Test empty datasets.
+
+---
+
+# 29. REPLAY
+
+NorthLine replay was based on the actual Firebase track.
+
+HORIZON must consume the same normalized track data.
+
+Implement:
+
+```text
+Play
+Pause
+Reset
+Speed
+```
+
+The replay marker must follow actual chronological points.
+
+Show:
+
+* planned GPX route;
+* finish flag;
+* travelled replay line;
+* replay marker.
+
+Prevent duplicate timers.
+
+---
+
+# 30. BACKGROUND IMAGE — GLOBAL HORIZON IDENTITY
+
+The current HORIZON background is too dark and appears mainly as a Home-specific element.
+
+Use the existing current HORIZON background image as a **global atmospheric background system**.
+
+It should influence ALL public pages:
+
+```text
+Home
+Live
+Project
+Journey
+Replay
+Dashboard
+Progress
+Diary
+Timeline
+```
+
+Do not make every page use the identical crop.
+
+Instead create a global background layer.
 
 For example:
 
 ```text
-500 KM
-10,000 M+
-2 PEOPLE
+fixed / pseudo-element background
+dark overlay
+page-specific positioning
+content surfaces above it
 ```
 
-should feel visually significant.
+The image should actually be visible.
+
+Current problem:
+
+the overlay is so dark that the photograph nearly disappears.
+
+Reduce overlay darkness.
+
+The background should be clearly perceivable while text remains readable.
 
 ---
 
-# 23. PROJECT PAGE LANGUAGE AND CONTENT
+# 31. GLOBAL BACKGROUND TUNING
 
-Project currently contains old solo-oriented language such as:
+Aim for approximately:
 
 ```text
-personal test
-personal challenge
+photograph visible at first glance
+text still highly readable
 ```
 
-Update this.
+Do NOT use:
 
-HORIZON is undertaken by TWO people together.
+```text
+95% black overlay
+```
 
-The Project page should consistently describe:
+that makes adding a background pointless.
 
-* shared challenge;
-* two participants;
-* one route;
-* shared pacing;
-* shared decisions;
-* east-to-west crossing.
+Use layered navy gradients rather than pure black.
 
-Then translate the COMPLETE page into:
+Example concept:
+
+```text
+deep navy translucent overlay
++
+lower-page vignette
++
+existing Alpine image
+```
+
+Test on:
+
+```text
+bright displays
+normal laptops
+mobile
+```
+
+---
+
+# 32. TYPOGRAPHY MUST BE UNIVERSAL
+
+The improved HORIZON typography currently feels strongest on Home.
+
+Make it part of the complete design system.
+
+Use the same typography consistently for:
+
+* navbar brand;
+* navbar links;
+* section headings;
+* page titles;
+* statistics;
+* buttons;
+* map overlays;
+* dashboard;
+* replay;
+* Project;
+* Gallery;
+* footer.
+
+Create global typography tokens/classes.
+
+Do NOT redefine page typography independently in each HTML file.
+
+---
+
+# 33. NAVBAR MUST FEEL LIKE HORIZON
+
+The navbar currently feels more generic than the homepage.
+
+Bring the HORIZON typography into the navbar.
+
+Recommended:
+
+### Brand
+
+strong HORIZON display typography.
+
+### Links
+
+uppercase or carefully spaced small caps consistent with the expedition identity.
+
+### Active link
+
+warm gold/ivory accent.
+
+### Header
+
+dark translucent navy with visible background behind it.
+
+Use subtle:
+
+```text
+backdrop blur
+thin warm border
+```
+
+Do not make it look like a SaaS navigation bar.
+
+---
+
+# 34. GLOBAL DESIGN SYSTEM
+
+Move shared design into:
+
+```text
+css/global.css
+```
+
+and appropriate tokens.
+
+Global design should include:
+
+```text
+body background
+typography
+navbar
+buttons
+section titles
+eyebrows
+stat numbers
+panels
+form controls
+map overlay
+footer
+```
+
+Page CSS should contain only true page-specific layout.
+
+---
+
+# 35. DO NOT MAKE EVERY PAGE A DIFFERENT WEBSITE
+
+The following should clearly belong to ONE visual system:
+
+```text
+Home
+Live
+Project
+Journey
+Replay
+Dashboard
+Progress
+Diary
+Timeline
+```
+
+A visitor switching pages should retain:
+
+* background atmosphere;
+* typography;
+* spacing philosophy;
+* accent colors;
+* header;
+* footer;
+* button design;
+* section heading design.
+
+---
+
+# 36. KEEP CONTENT SURFACES READABLE
+
+Because the Alpine photograph will exist globally, use appropriate surfaces:
+
+```text
+rgba navy panels
+subtle borders
+selective backdrop blur
+```
+
+Do not cover the entire page with solid black rectangles.
+
+Allow the background to appear between sections.
+
+---
+
+# 37. LANGUAGE SYSTEM MUST REMAIN GLOBAL
+
+Every public page must display a language selector on desktop and mobile.
+
+Supported:
 
 ```text
 EN
@@ -1067,479 +1368,654 @@ DE
 FR
 ```
 
+Selected language persists across page navigation.
+
+EVERY visible UI string must follow it.
+
+This includes new functionality introduced during this refactor:
+
+```text
+map layer selector
+finish marker
+ETA
+loading states
+errors
+Firebase statuses
+replay
+dashboard
+map popups
+```
+
 ---
 
-# 24. PHOTO / PARTICIPANT DESIGN
+# 38. STATUS TRANSLATION
 
-Use the real participant photos as meaningful visual content.
+Centralize state translation.
 
-Do not crop them into anonymous squares.
+Internal values remain:
 
-Desktop cards should feel editorial.
+```text
+not-started
+live
+delayed
+resting
+offline
+finished
+```
+
+UI translates them.
+
+Do not store localized strings as application state.
+
+---
+
+# 39. FIREBASE STALENESS
+
+Existence of Firebase data means the expedition HAS STARTED.
+
+But it does not automatically mean it is currently LIVE.
 
 Example:
 
 ```text
-┌─────────────────────────────────────────────┐
-│  PORTRAIT        NAME                      │
-│  PORTRAIT        TAGLINE                   │
-│  PORTRAIT        biography...              │
-│  PORTRAIT        biography...              │
-└─────────────────────────────────────────────┘
+Firebase has points
+latest point 2 hours old
 ```
 
-Use subtle border/texture.
-
-Do not make every element another identical card.
-
----
-
-# 25. ADD MORE VISUAL RHYTHM
-
-Introduce visually distinct sections.
-
-Possible ideas:
-
-* hero with photo;
-* clean countdown;
-* large stats strip;
-* dark narrative section;
-* participants with large portraits;
-* route section with map silhouette;
-* full-width statement;
-* challenge grid;
-* live CTA.
-
-Use whitespace intentionally.
-
-Avoid a repetitive sequence of identical rectangles.
-
----
-
-# 26. DO NOT OVERDESIGN
-
-Even though the current site is too basic, do not overcorrect.
-
-Avoid:
-
-* neon;
-* glowing everything;
-* excessive animations;
-* glassmorphism everywhere;
-* excessive gradients;
-* huge border radii;
-* generic tech-dashboard styling.
-
-HORIZON should remain:
+Correct:
 
 ```text
-serious
-physical
-outdoor
-premium
-Swiss
-cinematic
+started = true
+state = delayed/offline/resting
+countdown = hidden
 ```
 
----
-
-# 27. ACCESSIBILITY MUST REMAIN GOOD
-
-While improving visuals:
-
-* preserve contrast;
-* preserve keyboard navigation;
-* preserve focus states;
-* preserve alt text;
-* preserve semantic headings;
-* preserve reduced-motion support.
-
-For the waving flag:
-
-respect:
-
-```css
-@media (prefers-reduced-motion: reduce)
-```
-
-and disable/reduce animation.
-
----
-
-# 28. TEST ALL FOUR LANGUAGES ON ALL PAGES
-
-Create a test matrix.
-
-For EVERY page:
+Incorrect:
 
 ```text
+not started
+```
+
+This distinction is crucial.
+
+---
+
+# 40. PLANNED START VS ACTUAL START
+
+Track both concepts.
+
+```text
+plannedStartDate
+actualStartTimestamp
+```
+
+`actualStartTimestamp` should be:
+
+```text
+timestamp of first valid Firebase track point
+```
+
+Once available, use it for:
+
+* elapsed expedition time;
+* actual departure display;
+* timeline;
+* stats.
+
+Do not use 31 August 04:00 for elapsed time if real tracking started earlier.
+
+---
+
+# 41. TOTAL ELAPSED TIME
+
+Once started:
+
+```text
+latest valid timestamp - actualStartTimestamp
+```
+
+or current time minus actual start while live.
+
+Be explicit about whether “elapsed time” includes rest.
+
+---
+
+# 42. MOVING TIME
+
+Calculate using movement samples.
+
+NorthLine already had logic around moving points.
+
+Use a sensible speed threshold.
+
+Do not count long stationary gaps as moving time.
+
+---
+
+# 43. DISTANCE TRACKING
+
+If Garmin/Firebase provides cumulative distance, use it where trustworthy.
+
+Also calculate GPS polyline distance as validation.
+
+Detect unreasonable jumps.
+
+Example:
+
+```text
+one point suddenly 70 km away in 20 seconds
+```
+
+must not increase route distance by 70 km.
+
+Implement sanity filters.
+
+---
+
+# 44. ELEVATION GAIN
+
+Use actual recorded altitude if available.
+
+Reject impossible spikes.
+
+Consider small noise filtering so ±1 m GPS jitter does not create massive cumulative elevation.
+
+NorthLine's simplistic positive delta logic can be improved.
+
+---
+
+# 45. GPX PLANNED ELEVATION
+
+Separately derive:
+
+```text
+planned route elevation gain
+```
+
+from Horizon.gpx when elevation samples exist.
+
+Do not confuse:
+
+```text
+planned elevation
+```
+
+with:
+
+```text
+actual elevation completed
+```
+
+---
+
+# 46. MAP PERFORMANCE
+
+Do not regress performance.
+
+Do NOT parse a huge GPX unnecessarily on each page.
+
+Preferred production flow:
+
+```text
+GPX
+↓
+build-route tool
+↓
+optimized GeoJSON + metadata
+↓
+browser
+```
+
+Test load speed.
+
+---
+
+# 47. FIX LIVE.JS ARCHITECTURE
+
+Current `live.js` hardcodes a route path.
+
+Remove that.
+
+It must depend on shared services:
+
+```text
+HorizonRoute
+HorizonTracking
+HorizonExpedition
+HorizonMap
+```
+
+rather than rebuilding data logic itself.
+
+---
+
+# 48. DO NOT HIDE FAILURES WITH “MAP READY”
+
+Current logic must not do:
+
+```js
+Promise.allSettled(...)
+.finally(() => setMapStatus('Map ready'))
+```
+
+when route loading failed.
+
+Map state should accurately distinguish:
+
+```text
+tiles ready
+route loaded
+Firebase loaded
+Firebase unavailable
+route failed
+```
+
+Only show:
+
+```text
+Map ready
+```
+
+when the required base map + planned route successfully initialized.
+
+---
+
+# 49. FINISH FLAG IS PART OF THE MAP ACCEPTANCE TEST
+
+Do not treat the finish flag as decoration.
+
+Automated browser test should verify that a finish marker exists after route initialization.
+
+Likewise verify:
+
+```text
+start marker
+planned polyline
+finish marker
+```
+
+---
+
+# 50. ROUTE DISTANCE TEST
+
+Automated test:
+
+load generated route metadata.
+
+Assert:
+
+```text
+distanceKm > 0
+distanceKm is not simply copied from expectedDistanceKm
+```
+
+Ideally test build output against recalculated GPX distance within a small tolerance.
+
+---
+
+# 51. FIREBASE TEST USING CURRENT SIMULATION DATA
+
+Run the current real Firebase endpoint.
+
+Assert:
+
+```text
+at least one valid point exists
+```
+
+if simulation data is currently present.
+
+Then verify:
+
+```text
+started === true
+countdown hidden
+actual track visible
+current marker visible
+distance > 0
+```
+
+This should be a concrete acceptance test.
+
+---
+
+# 52. ALSO CREATE MOCK TEST FIXTURES
+
+Real Firebase is not reliable enough for the only test suite.
+
+Create fixture scenarios:
+
+```text
+NO_POINTS
+ACTIVE_TRACK
+STALE_TRACK
+FINISHED_TRACK
+MALFORMED_POINTS
+GPS_JUMP
+```
+
+Test the central expedition engine with them.
+
+---
+
+# 53. ETA TESTS
+
+Test:
+
+```text
+no points
+→ no ETA
+
+one point
+→ no meaningful ETA
+
+movement at valid speed
+→ ETA produced
+
+zero speed
+→ no new ETA
+
+stale data
+→ ETA marked stale/unavailable
+
+finish reached
+→ completed
+```
+
+---
+
+# 54. COUNTDOWN TESTS
+
+Test:
+
+```text
+before scheduled start + zero Firebase points
+→ countdown visible
+
+after scheduled start + zero points
+→ countdown hidden / waiting for signal
+
+before scheduled start + Firebase point
+→ countdown hidden
+
+after scheduled start + Firebase point
+→ countdown hidden
+```
+
+The third test is critical.
+
+---
+
+# 55. NORTHLINE FUNCTIONAL PARITY CHECKLIST
+
+Before finishing compare HORIZON against NorthLine and verify at least:
+
+* [ ] countdown
+* [ ] countdown auto-hide
+* [ ] complete Firebase collection
+* [ ] point sorting
+* [ ] current marker
+* [ ] actual path
+* [ ] planned path
+* [ ] GPX distance
+* [ ] start marker
+* [ ] finish flag
+* [ ] remaining distance
+* [ ] completion percentage
+* [ ] ETA
+* [ ] elapsed time
+* [ ] moving time
+* [ ] current speed
+* [ ] moving average
+* [ ] total average
+* [ ] max speed
+* [ ] altitude
+* [ ] elevation
+* [ ] heart rate
+* [ ] map layer selector
+* [ ] center visitor
+* [ ] center live
+* [ ] fullscreen
+* [ ] dashboard
+* [ ] charts
+* [ ] replay
+* [ ] gallery
+* [ ] progress
+* [ ] translations
+
+If NorthLine has a genuinely useful feature missing from this checklist, include it.
+
+---
+
+# 56. DO NOT COPY NORTHLINE BRANDING
+
+NorthLine is ONLY a functional reference.
+
+Do not copy:
+
+* logo;
+* colors;
+* title;
+* images;
+* favicon;
+* project wording.
+
+HORIZON branding remains exclusive.
+
+Any deleted NorthLine visual assets must remain deleted.
+
+---
+
+# 57. DO NOT COPY NORTHLINE'S MONOLITH ARCHITECTURE
+
+NorthLine's giant `script.js` contains useful proven logic but is architecturally inappropriate for HORIZON.
+
+Port logic into clean modules.
+
+A possible final architecture:
+
+```text
+js/
+├── app.js
+├── config.js
+├── i18n.js
+│
+├── data/
+│   ├── route.js
+│   └── tracking.js
+│
+├── domain/
+│   ├── expedition.js
+│   ├── statistics.js
+│   └── eta.js
+│
+├── map/
+│   ├── map.js
+│   ├── markers.js
+│   └── layers.js
+│
+├── ui/
+│   └── navigation.js
+│
+└── pages/
+    ├── home.js
+    ├── live.js
+    ├── dashboard.js
+    ├── gallery.js
+    ├── replay.js
+    └── progress.js
+```
+
+Do not follow this blindly.
+
+Use it only if it improves the current repository.
+
+---
+
+# 58. FINAL BROWSER TEST
+
+Run the complete site locally.
+
+Test at least:
+
+```text
+Home
+Live
+Project
+Journey
+Replay
+Dashboard
+Progress
+Diary
+Timeline
+```
+
+Test:
+
+```text
+desktop
+mobile
 EN
 IT
 DE
 FR
 ```
 
-Check visible text.
+---
 
-There must be zero accidental English strings when German is selected, except proper names such as:
+# 59. VISUAL ACCEPTANCE
+
+Verify:
+
+* global Alpine background visibly present;
+* background not excessively dark;
+* typography consistent;
+* navbar uses same HORIZON visual language;
+* page titles use same design system;
+* buttons consistent;
+* map overlays consistent;
+* no NorthLine branding;
+* finish flag visible;
+* content remains readable.
+
+---
+
+# 60. FUNCTIONAL ACCEPTANCE
+
+With current Firebase simulation data loaded:
 
 ```text
-HORIZON
-Piz Chavalatsch
-Chancy
-Damiano Zanoni
-Nicolas Mooser
+countdown hidden
+started state true
+actual track visible
+current marker visible
+planned Horizon GPX visible
+start marker visible
+finish flag visible
+distance derived correctly
+remaining calculated
+progress calculated
+ETA calculated when possible
+dashboard populated
+replay usable
 ```
-
-The same rule applies to other languages.
 
 ---
 
-# 29. TEST DESKTOP PARTICIPANT LAYOUT
+# 61. FINAL NETWORK AND CONSOLE AUDIT
 
-At least test:
-
-```text
-1366 × 768
-1440 × 900
-1920 × 1080
-```
-
-Verify participant images are not badly cropped.
-
-Check faces/head/body composition.
-
-Use appropriate:
-
-```css
-object-position
-```
-
-per participant if needed.
-
-Do not force both images to use the same crop if the source composition differs.
-
----
-
-# 30. TEST MOBILE PARTICIPANT LAYOUT
-
-Test:
-
-```text
-375 × 667
-390 × 844
-430 × 932
-```
-
-Images should stack above text.
-
-No horizontal overflow.
-
-Do not make portraits excessively tall.
-
----
-
-# 31. IMAGE PATH CLEANUP
-
-Because obsolete NorthLine image files were intentionally deleted:
-
-search the complete repository for:
-
-```text
-northline
-NorthLine
-north-line
-old logo filenames
-deleted image references
-```
-
-For EVERY result:
-
-determine whether it is legitimate.
-
-If it references obsolete visual branding:
-
-REMOVE OR REPLACE IT.
-
-Do not recreate missing old images just to eliminate a 404.
-
-Use the current HORIZON images.
-
----
-
-# 32. SOCIAL PREVIEW
-
-Also inspect:
-
-```text
-og:image
-twitter:image
-preview.png
-social-card.png
-```
-
-Ensure they visually belong to HORIZON.
-
-If any existing social preview still uses NorthLine branding, replace the reference with a current HORIZON asset.
-
-Do not use a deleted NorthLine file.
-
----
-
-# 33. FULL FIREBASE TEST
-
-Use the current simulation data already present in Firebase.
-
-Test:
-
-1. fetch succeeds;
-2. payload is parsed;
-3. track contains points;
-4. points appear on map;
-5. final/latest point appears;
-6. statistics update;
-7. actual route is drawn;
-8. replay can consume the points;
-9. dashboard can consume the points;
-10. stale/live status works.
-
-If the simulation data has unexpected structure:
-
-adapt the parser to the real structure.
-
-Do NOT modify the Firebase data just to make your existing parser pass unless the data itself is clearly malformed.
-
-The website should adapt to the intended data model.
-
----
-
-# 34. DEBUG NETWORK REQUESTS
-
-Inspect browser network.
-
-There should be no unexplained:
+There must be no unexplained:
 
 ```text
 404
 403
-CORS
 500
-failed JSON
-failed image
-failed JS
-failed CSS
+CORS error
+failed GeoJSON
+failed GPX
+failed Firebase
+missing image
+missing CSS
+missing JavaScript
+uncaught exception
+unhandled rejection
 ```
 
-especially for:
+---
+
+# 62. FINAL REPORT
+
+When done report:
+
+## NORTHLINE FUNCTIONS PORTED
+
+List the functions/behaviours reused or improved.
+
+## HORIZON BUGS FIXED
+
+Exact bugs.
+
+## GPX
+
+Report:
 
 ```text
-Firebase
-GeoJSON
-GPX
-background
-logo
-participant images
-Leaflet tiles
+real GPX distance
+planned elevation
+start coordinate
+finish coordinate
 ```
 
----
-
-# 35. TEST THE LIVE MAP AFTER FIREBASE DATA LOADS
-
-The following must be simultaneously visible:
-
-* planned HORIZON route;
-* actual activity track;
-* latest/current position;
-* finish flag at Chancy.
-
-Then test:
-
-* center current position;
-* center visitor position;
-* fullscreen;
-* resize;
-* mobile.
-
----
-
-# 36. UPDATE ROUTE ENDPOINT VISUALS
-
-Use:
-
-### Start
-
-A clear start marker.
-
-### Finish
-
-The waving flag.
-
-Tooltip/popups should use localized content.
-
-Example DE:
-
-```text
-START · OSTEN
-Piz Chavalatsch
-```
-
-```text
-ZIEL · WESTEN
-Chancy
-```
-
-Equivalent in EN/IT/FR.
-
----
-
-# 37. RESTORE BACKGROUND WITHOUT HURTING PERFORMANCE
-
-Optimize background loading.
-
-Use:
-
-* modern compression if possible;
-* reasonable resolution;
-* preload only if necessary;
-* correct sizing;
-* no 10 MB hero background.
-
-Do not remove the background again merely to improve Lighthouse.
-
-Visual identity matters.
-
-Optimize it instead.
-
----
-
-# 38. FINAL VISUAL REVIEW
-
-Before completion compare the final site against these questions:
-
-### Does this feel like HORIZON?
-
-If the logo were removed, could it still visually be recognized as the same expedition brand?
-
-### Is the homepage memorable?
-
-Or is it simply dark cards and white text?
-
-### Are important ideas visually emphasized?
-
-* east to west;
-* 500 km;
-* Piz Chavalatsch;
-* Chancy;
-* two people;
-* live journey.
-
-### Does every section have a reason to exist?
-
-Remove unnecessary repetition.
-
----
-
-# 39. FINAL FUNCTIONAL TEST
-
-After all styling changes:
-
-TEST FUNCTIONALITY AGAIN.
-
-Visual changes must not break:
-
-* countdown;
-* translations;
-* Firebase;
-* map;
-* markers;
-* fullscreen;
-* mobile nav;
-* stats;
-* replay;
-* gallery;
-* dashboard.
-
----
-
-# 40. FINAL ACCEPTANCE CONDITIONS
-
-You may only stop when ALL are true:
-
-* HORIZON logo correct;
-* no NorthLine branding;
-* background restored;
-* participant photos visible and correctly cropped;
-* desktop participant image/text layout improved;
-* site no longer visually monotonous;
-* headings have stronger hierarchy;
-* selective accent colour added;
-* selective bold emphasis added;
-* all pages fully translated;
-* desktop language selector available everywhere;
-* language persists between pages;
-* countdown date visible;
-* countdown works;
-* map loads;
-* route loads;
-* finish flag restored;
-* Firebase imported activity data visible;
-* actual track visible;
-* statistics derived from Firebase;
-* navigation consistent;
-* no broken image references;
-* no console errors;
-* no unexplained failed requests;
-* desktop tested;
-* mobile tested;
-* all automated tests pass.
-
-If ANY item is not true:
-
-DO NOT DECLARE COMPLETION.
-
-Continue fixing.
-
----
-
-# FINAL REPORT FORMAT
-
-When the implementation is truly finished provide:
-
-## VISUAL CHANGES
-
-What was restored/improved.
-
-## BRANDING
-
-Which HORIZON assets are now used.
-
-## TRANSLATIONS
-
-Pages and languages tested.
+derived by the build system.
 
 ## FIREBASE
 
-Actual payload structure discovered and how it is parsed.
+Report:
+
+```text
+endpoint used
+payload structure
+valid points parsed
+first point timestamp
+latest point timestamp
+```
+
+Do NOT expose credentials.
 
 ## MAP
 
-Planned route, actual track, live point and finish flag validation.
+Confirm:
 
-## RESPONSIVE
+```text
+planned route
+actual route
+current marker
+start
+finish flag
+```
 
-Desktop/mobile sizes tested.
+## ETA
+
+Explain what speed basis is used.
+
+## DESIGN
+
+Explain global background/typography/navbar changes.
 
 ## TESTS
 
-Automated and browser tests run.
+List tests actually executed.
 
-## ERRORS
+## REMAINING LIMITATIONS
 
-Console/network errors remaining.
+Only genuine external limitations.
 
-Only write:
+---
 
-**ALL ACCEPTANCE TESTS PASS**
+# FINAL RULE
 
-if every requirement above actually passed.
+The website must no longer merely LOOK like it contains live tracking.
+
+The underlying live-tracking system must actually work.
+
+**NorthLine proved many of these functions were already possible. Use its working behaviour as a baseline, improve the implementation, and do not declare completion until HORIZON achieves full functional parity or better.**

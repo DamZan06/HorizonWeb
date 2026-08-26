@@ -20,5 +20,6 @@
         });
     }
     window.HorizonProgress = { milestones, render };
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => render(0), { once: true }); else render(0);
+    function init(){render(0);window.HorizonExpedition?.loadSummary?.().then((summary)=>render(summary.coveredDistanceKm)).catch(()=>{});}
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
 })();

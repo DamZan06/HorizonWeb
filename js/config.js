@@ -9,6 +9,7 @@
         expectedElevationM: 10000,
         routeGpxUrl: 'data/route/Horizon.gpx',
         routeGeoJsonUrl: 'data/route/horizon-route.geojson',
+        routeMetaUrl: 'data/route/horizon-route-meta.json',
         // Current public tracker backend; visual branding remains exclusively HORIZON.
         firebaseURL: 'https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json',
         contentDatabasePath: 'content',

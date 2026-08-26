@@ -6,6 +6,7 @@
     let userMarker = null;
     let trackLayer = null;
     let hasAutoFit = false;
+    let activeTileLayer = null;
 
     function ensureMapContainer() {
         const container = document.getElementById('map');
@@ -46,12 +47,13 @@
             worldCopyJump: true
         }).setView(defaultCenter, defaultZoom);
 
-        const tileLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
-        });
-
-        tileLayer.addTo(map);
+        const tileLayers = {
+            Standard: window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'&copy; OpenStreetMap contributors' }),
+            Satellite: window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom:19, attribution:'Tiles &copy; Esri' }),
+            Topographic: window.L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom:17, attribution:'Map data &copy; OpenStreetMap, SRTM | Map style &copy; OpenTopoMap' })
+        };
+        activeTileLayer = tileLayers.Standard.addTo(map);
+        window.L.control.layers(tileLayers, null, { position:'topright', collapsed:true }).addTo(map);
 
         map.on('loading', () => {
             if (window.HorizonUI && typeof window.HorizonUI.setStatus === 'function') {
@@ -99,7 +101,7 @@
         const layers = route.getLayers ? route.getLayers() : [];
         const latlngs = layers.flatMap((layer) => layer.getLatLngs ? layer.getLatLngs().flat(Infinity) : []).filter((p) => p && Number.isFinite(p.lat));
         if (latlngs.length) {
-            window.L.circleMarker(latlngs[0], { radius: 7, color: '#e8953f', fillOpacity: 1 }).bindTooltip('Piz Chavalatsch — start').addTo(routeLayer);
+            window.L.circleMarker(latlngs[0], { radius: 7, color: '#e8953f', fillOpacity: 1, className:'horizon-start-marker' }).bindTooltip('Piz Chavalatsch — start · east').addTo(routeLayer);
             const flagIcon = window.L.divIcon({ className: 'horizon-finish-icon', html: '<span class="finish-pole"></span><span class="finish-fabric" aria-hidden="true"></span>', iconSize: [38, 42], iconAnchor: [4, 40] });
             window.L.marker(latlngs.at(-1), { icon: flagIcon, title: 'Chancy — finish' }).bindTooltip('Chancy — finish · west').addTo(routeLayer);
         }
@@ -160,10 +162,10 @@
 
     function setActualTrack(points) {
         if (!map || !window.L) return null;
-        if (trackLayer) trackLayer.remove();
         const coords = (points || []).map((point) => [Number(point.latitude), Number(point.longitude)]).filter((point) => point.every(Number.isFinite));
         if (coords.length < 2) return null;
-        trackLayer = window.L.polyline(coords, { color: '#e8953f', weight: 5, opacity: .96, lineCap: 'round' }).addTo(map);
+        if (trackLayer) trackLayer.setLatLngs(coords);
+        else trackLayer = window.L.polyline(coords, { color: '#e8953f', weight: 5, opacity: .96, lineCap: 'round' }).addTo(map);
         return trackLayer;
     }
 

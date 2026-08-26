@@ -98,9 +98,11 @@ test.describe('HORIZON site smoke E2E', () => {
   test('live map renders Firebase simulation, planned route and finish flag', async ({ page }) => {
     await page.goto('http://localhost:4173/live.html'); await page.waitForTimeout(700);
     await expect(page.locator('#distance')).not.toHaveText('0 km', { timeout: 25000 });
+    await expect(page.locator('#remaining')).toContainText('316.9');
     await expect(page.locator('.map-status')).toContainText('18', { timeout: 25000 });
     await expect(page.locator('.leaflet-overlay-pane path')).toHaveCount(3);
     await expect(page.locator('.horizon-finish-icon')).toBeVisible(); await page.locator('#centerLiveBtn').click();
+    await expect(page.locator('.horizon-start-marker')).toBeVisible(); await expect(page.locator('.leaflet-control-layers')).toBeVisible();
   });
 
   test('gallery modal supports keyboard and focus restoration', async ({ page }) => {
@@ -136,7 +138,7 @@ test.describe('HORIZON site smoke E2E', () => {
 
   test('home and dashboard consume the shared Firebase track', async ({ page }) => {
     await page.goto('http://localhost:4173/index.html'); await expect(page.locator('#homeDistance')).toContainText('203.8', { timeout:25000 });
-    await expect(page.locator('#countdownStartDate')).not.toBeEmpty();
+    await expect(page.locator('#homeCountdown')).toBeHidden(); await expect(page.locator('#homeRemaining')).toContainText('316.9');
     await page.goto('http://localhost:4173/dashboard.html'); await expect(page.locator('#metricDistance')).toContainText('203.8', { timeout:25000 });
     await expect(page.locator('canvas')).toHaveCount(4);
   });

@@ -23,24 +23,24 @@
         }
     }
 
-    function renderTrack(points, mapApi) {
-        const summary = window.HorizonStats?.summarize(points, window.HorizonConfig?.expectedDistanceKm || 500);
-        const latest = points.at(-1);
+    function renderTrack(summary, mapApi) {
+        const points = summary?.points || [], latest = summary?.latestPoint;
         if (!summary || !latest) return;
         mapApi.setActualTrack(points);
-        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: 'Latest recorded position' });
+        const popup = `Current position · ${new Date(latest.timestamp).toLocaleString()} · ${Number.isFinite(latest.altitude) ? Math.round(latest.altitude)+' m' : 'altitude unavailable'} · ${Number.isFinite(latest.speed) ? latest.speed.toFixed(1)+' km/h' : 'speed unavailable'}`;
+        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: popup });
         const values = {
-            distance: `${summary.coveredKm.toFixed(1)} km`, remaining: `${summary.remainingKm.toFixed(1)} km`,
-            completion: `${summary.completion.toFixed(1)}%`, completionText: `${summary.completion.toFixed(1)}%`,
-            speed: Number.isFinite(summary.currentSpeed) ? `${summary.currentSpeed.toFixed(1)} km/h` : 'Not available',
-            altitude: Number.isFinite(latest.altitude) ? `${Math.round(latest.altitude)} m` : 'Not available',
+            distance: `${summary.coveredDistanceKm.toFixed(1)} km`, remaining: `${summary.remainingDistanceKm.toFixed(1)} km`,
+            completion: `${summary.completionPercent.toFixed(1)}%`, completionText: `${summary.completionPercent.toFixed(1)}%`,
+            speed: Number.isFinite(summary.currentSpeedKmh) ? `${summary.currentSpeedKmh.toFixed(1)} km/h` : 'Not available',
+            altitude: Number.isFinite(summary.currentAltitudeM) ? `${Math.round(summary.currentAltitudeM)} m` : 'Not available',
             lastUpdate: new Intl.DateTimeFormat(document.documentElement.lang || 'en', { dateStyle: 'medium', timeStyle: 'short' }).format(latest.timestamp),
-            time: `${summary.elapsedHours.toFixed(1)} h`, elevation: `${Math.round(summary.elevationGainM)} m`,
-            steps: Math.round(summary.coveredKm * 1300).toLocaleString(document.documentElement.lang || 'en')
+            time: `${(summary.elapsedTimeMs/3600000).toFixed(1)} h`, elevation: `${Math.round(summary.actualElevationGainM)} m`,
+            steps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(document.documentElement.lang || 'en')
         };
         Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
-        const progress = document.getElementById('progressBar'); if (progress) progress.style.width = `${summary.completion}%`;
-        const state = window.HorizonStatus?.getExpeditionState({ latestPointTimestamp: latest.timestamp });
+        const progress = document.getElementById('progressBar'); if (progress) progress.style.width = `${summary.completionPercent}%`;
+        const state = summary.state;
         const statusCopy = { live: 'LIVE', offline: 'SIGNAL DELAYED', 'not-started': 'NOT STARTED', finished: 'FINISHED' };
         const statusNode = document.querySelector('.live-status span:last-child'); if (statusNode) statusNode.textContent = `${statusCopy[state] || 'SIGNAL DELAYED'} · ${points.length.toLocaleString()} points`;
         const dot = document.querySelector('.live-status .status-dot'); if (dot) dot.className = `status-dot ${state === 'live' ? 'status-moving' : 'status-not-started'}`;
@@ -77,12 +77,12 @@
         }) : Promise.resolve(false);
 
         const livePromise = Promise.resolve().then(async () => {
-            if (!window.HorizonFirebase || typeof window.HorizonFirebase.fetchLiveTrack !== 'function') {
+            if (!window.HorizonExpedition?.loadSummary) {
                 return null;
             }
-            const points = await window.HorizonFirebase.fetchLiveTrack();
-            renderTrack(points, mapApi);
-            return points.at(-1) || null;
+            const summary = await window.HorizonExpedition.loadSummary();
+            renderTrack(summary, mapApi);
+            return summary.latestPoint;
         }).catch((error) => {
             console.warn('Live point load failed:', error);
             setMapStatus('LIVE DATA TEMPORARILY UNAVAILABLE');
@@ -106,8 +106,8 @@
         document.addEventListener('fullscreenchange', () => setTimeout(() => map.invalidateSize(), 50));
 
         const refreshLoop = function () {
-            window.HorizonFirebase && typeof window.HorizonFirebase.fetchLiveTrack === 'function' && window.HorizonFirebase.fetchLiveTrack({ force: true }).then((points) => {
-                renderTrack(points, mapApi);
+            window.HorizonExpedition?.loadSummary?.({ force:true }).then((summary) => {
+                renderTrack(summary, mapApi);
             }).catch(() => {
                 setMapStatus('LIVE DATA TEMPORARILY UNAVAILABLE');
             });

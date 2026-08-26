@@ -1,0 +1,20 @@
+{
+  "generatedFrom": "Horizon.gpx",
+  "pointCount": 48797,
+  "distanceKm": 520.627,
+  "elevationGainM": 10255,
+  "start": {
+    "lat": 46.6112314904,
+    "lng": 10.4486051187
+  },
+  "finish": {
+    "lat": 46.1320502409,
+    "lng": 5.9563402346
+  },
+  "bounds": {
+    "south": 46.1206747104,
+    "west": 5.9562368329,
+    "north": 46.8498241256,
+    "east": 10.4920959565
+  }
+}
