@@ -149,16 +149,21 @@ body {
 
 .map-status {
   position: absolute;
-  left: 14px;
-  top: 14px;
+  left: 12px;
+  top: 12px;
   z-index: 500;
-  background: rgba(10,15,22,0.78);
-  color: #f5f2eb;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-size: 0.8rem;
+  background: rgba(12, 17, 20, 0.42);
+  color: rgba(245, 242, 235, 0.96);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
   pointer-events: none;
+  max-width: min(52%, 220px);
+  backdrop-filter: blur(2px);
 }
 
 .map-actions {
@@ -168,6 +173,10 @@ body {
   z-index: 500;
   display: flex;
   gap: 10px;
+  background: rgba(10,15,22,0.18);
+  border-radius: 12px;
+  padding: 6px;
+  backdrop-filter: blur(2px);
 }
 
 .geo-button {

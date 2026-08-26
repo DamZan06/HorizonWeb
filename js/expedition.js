@@ -1,9 +1,53 @@
 (function () {
     const valid = (value) => Number.isFinite(Number(value));
+    function estimateCaloriesBurnedKcal(totalDistanceKm, durationSeconds, elevationGainM, heartRateBpm = null) {
+        const distance = Math.max(0, Number(totalDistanceKm) || 0);
+        const movingHours = Math.max(0, Number(durationSeconds) || 0) / 3600;
+        const elevation = Math.max(0, Number(elevationGainM) || 0);
+        const heartRate = Number(heartRateBpm);
+
+        let estimate = distance * 70 + movingHours * 260 + elevation * 0.16;
+
+        if (Number.isFinite(heartRate) && heartRate > 0) {
+            const hrFactor = Math.max(0, (heartRate - 100) / 80);
+            estimate += estimate * (hrFactor * 0.08);
+        }
+
+        return Math.round(estimate);
+    }
+
+    function estimateWaterLostLiters(totalDistanceKm, durationSeconds, elevationGainM, heartRateBpm = null) {
+        const distance = Math.max(0, Number(totalDistanceKm) || 0);
+        const movingHours = Math.max(0, Number(durationSeconds) || 0) / 3600;
+        const elevation = Math.max(0, Number(elevationGainM) || 0);
+        const heartRate = Number(heartRateBpm);
+
+        let estimate = movingHours * 0.55 + distance * 0.035 + elevation * 0.0012;
+
+        if (Number.isFinite(heartRate) && heartRate > 0) {
+            const hrFactor = Math.max(0, (heartRate - 100) / 70);
+            estimate += hrFactor * 0.12;
+        }
+
+        return Number(Math.max(0, estimate).toFixed(1));
+    }
+
     function calculateEta({remainingDistanceKm,recentMovingSpeedKmh,movingAverageSpeedKmh,averageSpeedKmh,latestPointTimestamp,now=Date.now(),pointCount=0,finished=false}) {
         if(finished||pointCount<2||!valid(remainingDistanceKm)||Number(remainingDistanceKm)<=0||!valid(latestPointTimestamp))return {eta:null,basis:null,speedKmh:null};
-        const selected=[['recent',recentMovingSpeedKmh],['moving-average',movingAverageSpeedKmh],['overall-average',averageSpeedKmh]].find(([,speed])=>valid(speed)&&Number(speed)>=.8&&Number(speed)<80);
-        return selected?{eta:Number(now)+Number(remainingDistanceKm)/Number(selected[1])*3600000,basis:selected[0],speedKmh:Number(selected[1])}:{eta:null,basis:null,speedKmh:null};
+
+        const overallSpeed = Number(averageSpeedKmh);
+        const movingSpeed = Number(movingAverageSpeedKmh);
+        const recentSpeed = Number(recentMovingSpeedKmh);
+
+        const selected = valid(overallSpeed) && overallSpeed >= 0.5 && overallSpeed < 80
+            ? ['overall-average', overallSpeed]
+            : valid(movingSpeed) && movingSpeed >= 0.5 && movingSpeed < 80
+                ? ['moving-average', movingSpeed]
+                : valid(recentSpeed) && recentSpeed >= 0.5 && recentSpeed < 80
+                    ? ['recent', recentSpeed]
+                    : null;
+
+        return selected ? { eta: Number(now) + (Number(remainingDistanceKm) / Number(selected[1])) * 3600000, basis: selected[0], speedKmh: Number(selected[1]) } : { eta: null, basis: null, speedKmh: null };
     }
     function calculateSummary({ points = [], routeMeta, now = Date.now() }) {
         const list = points.filter((p)=>valid(p.latitude)&&valid(p.longitude)&&valid(p.timestamp)).slice().sort((a,b)=>a.timestamp-b.timestamp);
@@ -23,8 +67,11 @@
         const etaResult=calculateEta({remainingDistanceKm,recentMovingSpeedKmh,movingAverageSpeedKmh,averageSpeedKmh,latestPointTimestamp:latestPoint?.timestamp,now,pointCount:list.length,finished:completionPercent>=99.9});
         for(let i=1;i<list.length;i++){const delta=Number(list[i].altitude)-Number(list[i-1].altitude);if(valid(delta)&&delta < -2 && delta > -200)elevationLossM+=Math.abs(delta);}
         const heartRates=list.map(p=>Number(p.heartRate)).filter(v=>valid(v)&&v>30&&v<240);
-        return {started:Boolean(list.length),state,plannedDistanceKm,plannedElevationGainM:Number(routeMeta?.elevationGainM)||null,coveredDistanceKm,remainingDistanceKm,completionPercent,actualStartTimestamp:firstPoint?.timestamp||null,elapsedTimeMs,movingTimeMs,stoppedTimeMs:Math.max(0,elapsedTimeMs-movingTimeMs),currentSpeedKmh:valid(latestPoint?.speed)?Number(latestPoint.speed):null,averageSpeedKmh,movingAverageSpeedKmh,recentMovingSpeedKmh,maxSpeedKmh,currentAltitudeM:valid(latestPoint?.altitude)?Number(latestPoint.altitude):null,actualElevationGainM:window.HorizonStats.elevationGain(list),actualElevationLossM:elevationLossM,currentHeartRateBpm:valid(latestPoint?.heartRate)?Number(latestPoint.heartRate):null,averageHeartRateBpm:heartRates.length?heartRates.reduce((a,b)=>a+b,0)/heartRates.length:null,maxHeartRateBpm:heartRates.length?Math.max(...heartRates):null,latestPoint,latestPointTimestamp:latestPoint?.timestamp||null,signalAgeMs:latestPoint?Math.max(0,now-latestPoint.timestamp):null,eta:etaResult.eta,etaBasis:etaResult.basis,etaSpeedKmh:etaResult.speedKmh,routeMeta,points:list};
+        const heartRateBpm = valid(latestPoint?.heartRate) ? Number(latestPoint.heartRate) : null;
+        const caloriesBurned = estimateCaloriesBurnedKcal(coveredDistanceKm, Math.max(0, elapsedTimeMs / 1000), window.HorizonStats.elevationGain(list), heartRateBpm);
+        const waterLostLiters = estimateWaterLostLiters(coveredDistanceKm, Math.max(0, elapsedTimeMs / 1000), window.HorizonStats.elevationGain(list), heartRateBpm);
+        return {started:Boolean(list.length),state,plannedDistanceKm,plannedElevationGainM:Number(routeMeta?.elevationGainM)||null,coveredDistanceKm,remainingDistanceKm,completionPercent,actualStartTimestamp:firstPoint?.timestamp||null,elapsedTimeMs,movingTimeMs,stoppedTimeMs:Math.max(0,elapsedTimeMs-movingTimeMs),currentSpeedKmh:valid(latestPoint?.speed)?Number(latestPoint.speed):null,averageSpeedKmh,movingAverageSpeedKmh,recentMovingSpeedKmh,maxSpeedKmh,currentAltitudeM:valid(latestPoint?.altitude)?Number(latestPoint.altitude):null,actualElevationGainM:window.HorizonStats.elevationGain(list),actualElevationLossM:elevationLossM,currentHeartRateBpm:heartRateBpm,averageHeartRateBpm:heartRates.length?heartRates.reduce((a,b)=>a+b,0)/heartRates.length:null,maxHeartRateBpm:heartRates.length?Math.max(...heartRates):null,latestPoint,latestPointTimestamp:latestPoint?.timestamp||null,signalAgeMs:latestPoint?Math.max(0,now-latestPoint.timestamp):null,eta:etaResult.eta,etaBasis:etaResult.basis,etaSpeedKmh:etaResult.speedKmh,caloriesBurned,waterLostLiters,routeMeta,points:list};
     }
     async function loadSummary(options){const [points,routeMeta]=await Promise.all([window.HorizonFirebase.fetchLiveTrack(options),window.HorizonRoute.fetchMetadata()]);return calculateSummary({points,routeMeta});}
-    window.HorizonExpedition={calculateEta,calculateSummary,loadSummary};
+    window.HorizonExpedition={calculateEta,calculateSummary,estimateCaloriesBurnedKcal,estimateWaterLostLiters,loadSummary};
 })();

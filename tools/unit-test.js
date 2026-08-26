@@ -36,6 +36,9 @@ check('stale track keeps ETA from historical pace', Number.isFinite(engine.calcu
 const resting=[active[0],{...active[1],speed:0}];
 check('resting track keeps ETA from moving history', Number.isFinite(engine.calculateSummary({points:resting,routeMeta,now:170000}).eta));
 check('finished track has no future ETA', engine.calculateSummary({points:[active[0],{...active[1],cumulativeDistanceKm:520}],routeMeta,now:170000}).eta===null);
+check('ETA prefers total average speed instead of moving average', engine.calculateEta({ remainingDistanceKm: 50, recentMovingSpeedKmh: 10, movingAverageSpeedKmh: 100, averageSpeedKmh: 20, latestPointTimestamp: 1000, now: 5000, pointCount: 2 }).basis === 'overall-average');
+check('legacy NorthLine calorie estimate matches original formula', engine.estimateCaloriesBurnedKcal(10, 3600, 500, 120) === 2540);
+check('legacy NorthLine water loss estimate matches original formula', engine.estimateWaterLostLiters(10, 3600, 500, 120) === 1.9);
 const climb=[0,.8,2,2.7,4.2].map((altitude,i)=>({altitude,timestamp:i*10000}));
 const jitter=[100,100.2,99.9,100.3,100.1].map((altitude,i)=>({altitude,timestamp:i*10000}));
 const spike=[100,100.8,280.8,102].map((altitude,i)=>({altitude,timestamp:i*5000}));

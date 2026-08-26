@@ -221,6 +221,10 @@
         centerUser,
         getMap: () => map,
         getRouteLayer: () => routeLayer,
-        getActualTrack:()=>trackLayer,getLiveMarker:()=>liveMarker,getStartMarker:()=>startMarker,getFinishMarker:()=>finishMarker
+        getActualTrack:()=>trackLayer,
+        getLiveMarker:()=>liveMarker,
+        getUserMarker:()=>userMarker,
+        getStartMarker:()=>startMarker,
+        getFinishMarker:()=>finishMarker
     };
 })();
