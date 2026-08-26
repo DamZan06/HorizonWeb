@@ -9,7 +9,7 @@
         expectedElevationM: 10000,
         trackerDataUrl: 'data/route/Horizon.gpx',
         routeDataCandidates: ['data/route/Horizon.gpx', 'data/route/horizon.gpx'],
-        firebaseURL: 'https://horizon-web-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json',
+        firebaseURL: 'https://horizon-web-default-rtdb.europe-west1.firebasedatabase.app/lietrack/points.json',
         contentDatabasePath: 'content',
         defaultCenter: [46.6, 10.4],
         defaultZoom: 12,

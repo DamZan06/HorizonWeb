@@ -4,9 +4,7 @@
         { key: 'live', label: 'Live', href: 'live.html' },
         { key: 'project', label: 'Project', href: 'project.html' },
         { key: 'journey', label: 'Journey', href: 'gallery.html' },
-        { key: 'replay', label: 'Replay', href: 'replay.html' },
-        { key: 'dashboard', label: 'Dashboard', href: 'dashboard.html' },
-        { key: 'progress', label: 'Progress', href: 'progress.html' }
+        { key: 'replay', label: 'Replay', href: 'replay.html' }
     ];
 
     function getPageKey() {
@@ -23,8 +21,8 @@
             'gallery.html': 'journey',
             'journey.html': 'journey',
             'replay.html': 'replay',
-            'dashboard.html': 'dashboard',
-            'progress.html': 'progress'
+            'dashboard.html': 'live',
+            'progress.html': 'live'
         };
 
         return map[pathname] || 'home';
@@ -39,17 +37,6 @@
         const activeKey = getPageKey();
 
         navs.forEach((nav) => {
-            const existingLinks = nav.querySelectorAll('a[href]');
-            if (existingLinks.length && Array.from(existingLinks).every((link) => link.dataset.navKey)) {
-                return;
-            }
-
-            const preservedNodes = Array.from(nav.childNodes).filter((node) => {
-                return node.nodeType === 1 && !node.matches('a[href]');
-            });
-
-            nav.innerHTML = '';
-
             const fragment = document.createDocumentFragment();
             NAV_ITEMS.forEach((item) => {
                 const link = document.createElement('a');
@@ -62,6 +49,11 @@
                 fragment.appendChild(link);
             });
 
+            const preservedNodes = Array.from(nav.childNodes).filter((node) => {
+                return node.nodeType === 1 && !node.matches('a[href]');
+            });
+
+            nav.innerHTML = '';
             nav.appendChild(fragment);
             preservedNodes.forEach((node) => nav.appendChild(node));
         });
