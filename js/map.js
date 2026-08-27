@@ -97,10 +97,10 @@
 
         const route = window.L.geoJSON(geojson, {
             style: {
-                color: '#eadfc7',
-                weight: 4,
-                opacity: 0.96,
-                dashArray: '10 8', pane:'plannedRoute', className:'horizon-planned-route'
+                color: '#00e5ff',
+                weight: 7,
+                opacity: 1,
+                dashArray: '14 10', pane:'plannedRoute', className:'horizon-planned-route'
             }
         });
 
@@ -108,8 +108,9 @@
         const layers = route.getLayers ? route.getLayers() : [];
         const latlngs = layers.flatMap((layer) => layer.getLatLngs ? layer.getLatLngs().flat(Infinity) : []).filter((p) => p && Number.isFinite(p.lat));
         if (latlngs.length) {
-            startMarker=window.L.circleMarker(latlngs[0],{pane:'routeMarkers',radius:9,color:'#ffffff',weight:3,fillColor:'#173f36',fillOpacity:1,className:'horizon-start-marker'}).bindTooltip('Start',{permanent:true,direction:'right',offset:[10,0],className:'horizon-map-label'}).addTo(routeLayer);
-            const flagIcon=window.L.icon({iconUrl:'assets/icons/finish-flag.gif',iconSize:[52,52],iconAnchor:[7,50],popupAnchor:[18,-44],className:'horizon-finish-icon'});
+            const startIcon=window.L.divIcon({className:'horizon-start-icon',html:'<span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 7 8 5-8 5V7Z"/></svg></span>',iconSize:[46,54],iconAnchor:[23,51]});
+            startMarker=window.L.marker(latlngs[0],{pane:'routeMarkers',icon:startIcon,title:'Start'}).bindTooltip('Start').addTo(routeLayer);
+            const flagIcon=window.L.icon({iconUrl:'assets/icons/finish-flag.gif',iconSize:[64,64],iconAnchor:[10,61],popupAnchor:[22,-52],className:'horizon-finish-icon'});
             finishMarker=window.L.marker(latlngs.at(-1),{pane:'routeMarkers',icon:flagIcon,title:'Finish'}).bindTooltip('Finish').addTo(routeLayer);
         }
 
@@ -152,7 +153,7 @@
 
         const position = Array.isArray(coords) && coords.length >= 2 ? [coords[0], coords[1]] : [coords.latitude, coords.longitude];
         if (!liveMarker) {
-            const icon=window.L.divIcon({className:'horizon-current-icon',html:'<span></span>',iconSize:[34,34],iconAnchor:[17,17]});
+            const icon=window.L.divIcon({className:'horizon-current-icon',html:'<span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.5 5.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM9.7 9l2.1-1.2 2.4 1.4 2.3 3.1-1.7 1.1-2-2.6-1.1.7 2.1 2.2-3.5 5.8-1.8-1.1 2.2-3.8-1.8-1.8-1.5 2.5-1.8-1 2.2-3.7A4 4 0 0 1 9.7 9Z"/></svg></span>',iconSize:[46,46],iconAnchor:[23,23]});
             liveMarker = window.L.marker(position, { pane:'currentPosition',icon,
                 title: options && options.label ? options.label : 'Live position',
                 riseOnHover: true
@@ -162,7 +163,7 @@
         }
 
         liveMarker.bindPopup(options && options.label ? options.label : 'Live position');
-        liveMarker.bindTooltip('Athlete',{permanent:true,direction:'right',offset:[16,0],className:'horizon-map-label horizon-athlete-label'});
+        liveMarker.bindTooltip('Athlete');
 
         if (options && options.animate && !hasAutoFit) {
             map.setView(position, Math.max(map.getZoom(), 9));
@@ -177,7 +178,7 @@
         const coords = (points || []).map((point) => [Number(point.latitude), Number(point.longitude)]).filter((point) => point.every(Number.isFinite));
         if (coords.length < 2) return null;
         if (trackLayer) trackLayer.setLatLngs(coords);
-        else trackLayer = window.L.polyline(coords,{pane:'actualTrack',color:'#ff9d2e',weight:7,opacity:1,lineCap:'round',lineJoin:'round',className:'horizon-actual-track'}).addTo(map);
+        else trackLayer = window.L.polyline(coords,{pane:'actualTrack',color:'#ff2d95',weight:9,opacity:1,lineCap:'round',lineJoin:'round',className:'horizon-actual-track'}).addTo(map);
         return trackLayer;
     }
 
@@ -188,13 +189,8 @@
 
         const position = Array.isArray(coords) && coords.length >= 2 ? [coords[0], coords[1]] : [coords.latitude, coords.longitude];
         if (!userMarker) {
-            userMarker = window.L.circleMarker(position, {
-                pane:'userPosition',radius: 10,
-                color: '#ffffff', weight:4,
-                fillColor: '#168cff',
-                fillOpacity: 1,
-                className:'horizon-user-marker'
-            }).bindTooltip('You',{permanent:true,direction:'right',offset:[12,0],className:'horizon-map-label horizon-user-label'}).addTo(markerLayer);
+            const icon=window.L.divIcon({className:'horizon-user-icon',html:'<span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 2h2v3.1A7 7 0 0 1 18.9 11H22v2h-3.1a7 7 0 0 1-5.9 5.9V22h-2v-3.1A7 7 0 0 1 5.1 13H2v-2h3.1A7 7 0 0 1 11 5.1V2Zm1 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"/></svg></span>',iconSize:[44,44],iconAnchor:[22,22]});
+            userMarker = window.L.marker(position,{pane:'userPosition',icon,title:'My position'}).bindTooltip('My position').addTo(markerLayer);
         } else {
             userMarker.setLatLng(position);
         }

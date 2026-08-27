@@ -104,9 +104,10 @@ test.describe('HORIZON site smoke E2E', () => {
     await expect(page.locator('.horizon-actual-track')).toBeVisible();
     expect(await page.locator('.horizon-planned-route').getAttribute('d')).toMatch(/^M.+L/);
     expect(await page.locator('.horizon-actual-track').getAttribute('d')).toMatch(/^M.+L/);
+    expect(await page.locator('.horizon-planned-route').evaluate(path => path.ownerSVGElement.getBoundingClientRect().width)).toBeGreaterThan(0);
+    expect(await page.locator('.horizon-actual-track').evaluate(path => path.ownerSVGElement.getBoundingClientRect().width)).toBeGreaterThan(0);
     await page.locator('img.horizon-finish-icon').scrollIntoViewIfNeeded(); await expect(page.locator('img.horizon-finish-icon')).toBeVisible(); await expect(page.locator('img.horizon-finish-icon')).toHaveAttribute('src',/finish-flag\.gif/); await page.locator('#centerLiveBtn').click();
-    await expect(page.locator('.horizon-start-marker')).toBeVisible(); await expect(page.locator('#mapLayerBtn')).toBeVisible();
-    await page.locator('#fitRouteBtn').click();
+    await expect(page.locator('.horizon-start-icon')).toBeVisible(); await expect(page.locator('#mapLayerBtn')).toBeVisible();
     expect(await page.evaluate(()=>({route:window.HorizonMap.getRouteLayer().getLayers()[0].getLayers()[0].getLatLngs().length,track:Boolean(window.HorizonMap.getActualTrack()),current:Boolean(window.HorizonMap.getLiveMarker()),start:Boolean(window.HorizonMap.getStartMarker()),finish:Boolean(window.HorizonMap.getFinishMarker())}))).toEqual({route:48797,track:true,current:true,start:true,finish:true});
     await page.evaluate(() => { window.__mapLayersBeforeUpdate = {
       route: window.HorizonMap.getRouteLayer().getLayers()[0], track: window.HorizonMap.getActualTrack(),

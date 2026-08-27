@@ -40,7 +40,6 @@
             liveEta: summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang||'en',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(summary.eta) : (summary.state==='finished'?'Completed':'Not available')
         };
         Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
-        const etaBasis=document.getElementById('liveEtaBasis');if(etaBasis)etaBasis.textContent=summary.eta?(summary.state==='live'?'Based on recent and average moving pace':'ETA based on recorded moving pace'):'';
         const progress = document.getElementById('progressBar'); if (progress) progress.style.width = `${summary.completionPercent}%`;
         const state = summary.state;
         const statusCopy = { live: 'LIVE', offline: 'SIGNAL DELAYED', 'not-started': 'NOT STARTED', finished: 'FINISHED' };
@@ -100,7 +99,6 @@
         document.getElementById('centerLiveBtn')?.addEventListener('click', () => { if (!mapApi.centerLive()) setMapStatus('No recent live position available.'); });
         document.getElementById('zoomInBtn')?.addEventListener('click', mapApi.zoomIn);
         document.getElementById('zoomOutBtn')?.addEventListener('click', mapApi.zoomOut);
-        document.getElementById('fitRouteBtn')?.addEventListener('click', mapApi.fitInitialView);
         document.getElementById('mapLayerBtn')?.addEventListener('click', (event) => {
             const layerName = mapApi.cycleTileLayer?.();
             if (layerName) {
