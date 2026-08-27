@@ -206,7 +206,7 @@
 
         const position = Array.isArray(coords) && coords.length >= 2 ? [coords[0], coords[1]] : [coords.latitude, coords.longitude];
         if (!liveMarker) {
-            const icon=window.L.divIcon({className:'horizon-current-icon',html:'<span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.5 5.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM9.7 9l2.1-1.2 2.4 1.4 2.3 3.1-1.7 1.1-2-2.6-1.1.7 2.1 2.2-3.5 5.8-1.8-1.1 2.2-3.8-1.8-1.8-1.5 2.5-1.8-1 2.2-3.7A4 4 0 0 1 9.7 9Z"/></svg></span>',iconSize:[40,40],iconAnchor:[20,20]});
+            const icon=window.L.divIcon({className:'horizon-current-icon',html:'<span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.5 5.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM9.7 9l2.1-1.2 2.4 1.4 2.3 3.1-1.7 1.1-2-2.6-1.1.7 2.1 2.2-3.5 5.8-1.8-1.1 2.2-3.8-1.8-1.8-1.5 2.5-1.8-1 2.2-3.7A4 4 0 0 1 9.7 9Z"/></svg></span>',iconSize:[44,44],iconAnchor:[22,22]});
             liveMarker = window.L.marker(position, { pane:'currentPosition',icon,
                 title: options && options.label ? options.label : 'Live position',
                 riseOnHover: true
@@ -236,7 +236,13 @@
     function setActualTrack(points, options) {
         if (!map || !window.L) return null;
         const coords = (points || []).map((point) => [Number(point.latitude), Number(point.longitude)]).filter((point) => point.every(Number.isFinite));
-        if (coords.length < 2) return null;
+        if (coords.length < 2) {
+            if (trackLayer) {
+                map.removeLayer(trackLayer);
+                trackLayer = null;
+            }
+            return null;
+        }
         if (trackLayer) trackLayer.setLatLngs(coords);
         else trackLayer = window.L.polyline(coords,{pane:'actualTrack',color:TRACK_START_COLOR,weight:6,opacity:0.96,lineCap:'round',lineJoin:'round',className:'horizon-actual-track'}).addTo(map);
         updateTrackAppearance(options?.progressPercent);

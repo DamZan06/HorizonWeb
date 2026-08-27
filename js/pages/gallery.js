@@ -137,14 +137,19 @@
     function initPhotoMap(items) {
         const container = document.getElementById('map');
         if (!container || !window.L) { markStatus('Photo map unavailable.'); return; }
-        const map = window.L.map(container).setView([46.8, 8.2], 7);
-        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+        const mapApi = window.HorizonMap;
+        if (!mapApi?.createMap || !mapApi?.loadRoute) { markStatus('Photo map unavailable.'); return; }
+        const map = mapApi.createMap({ center: [46.6, 10.4], zoom: 7 });
+        mapApi.loadRoute(window.HorizonConfig?.routeGeoJsonUrl).catch(() => markStatus('Planned route unavailable.'));
         const group = window.L.markerClusterGroup ? window.L.markerClusterGroup() : window.L.layerGroup();
         items.filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng)).forEach((item, index) => {
-            const marker = window.L.marker([item.lat, item.lng], { title: item.title });
+            const marker = window.L.marker([item.lat, item.lng], { title: item.title, alt: item.title });
+            marker.bindTooltip(item.title || 'HORIZON field photograph');
             marker.on('click', () => openGalleryModal(items, index)); group.addLayer(marker);
         });
         group.addTo(map); galleryState.map = map;
+        document.getElementById('galleryMapZoomInBtn')?.addEventListener('click', mapApi.zoomIn);
+        document.getElementById('galleryMapZoomOutBtn')?.addEventListener('click', mapApi.zoomOut);
         const fullscreen = document.getElementById('galleryPhotoMapFullscreenBtn');
         fullscreen?.addEventListener('click', async () => { const wrap = container.closest('.map-wrap'); if (!document.fullscreenElement) await wrap.requestFullscreen(); else await document.exitFullscreen(); });
         document.addEventListener('fullscreenchange', () => setTimeout(() => map.invalidateSize(), 50));

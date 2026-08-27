@@ -33,27 +33,26 @@
     </header>
     <main id="main" class="page page-replay">
         <section class="section">
-            <div class="section-title">
-                <p class="eyebrow">Replay</p>
-                <h1>Relive the route.</h1>
-                <p>Play the full crossing, pause it, accelerate the timeline and revisit the most significant moments.</p>
-            </div>
-            <div class="replay-controls">
-                <div class="replay-button-row">
-                    <button id="replayPlay" class="button primary">Play</button>
-                    <button id="replayPause" class="button ghost">Pause</button>
-                    <button id="replayReset" class="button secondary">Reset</button>
-                </div>
-                <div class="replay-speed-row">
-                    <label for="replaySpeed">Speed:</label>
-                    <input id="replaySpeed" type="range" min="20" max="500" step="20" value="80">
-                    <span id="replaySpeedLabel">80 ms</span>
-                    <span id="replayStatus">Replay ready</span>
-                </div>
-            </div>
             <div class="map-wrap">
+                <div id="replayMapStatus" class="map-status" aria-live="polite">Loading replay map...</div>
                 <div id="map"></div>
+                <div class="map-actions" aria-label="Map controls">
+                    <button id="replayPlay" class="map-toggle-btn replay-control-button primary" type="button" title="Start replay" aria-label="Start replay"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7L8 5Z"/></svg></button>
+                    <button id="replayReset" class="map-toggle-btn replay-control-button" type="button" title="Restart replay" aria-label="Restart replay"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L8 6l4 4V7a5 5 0 1 1-4.33 7.5l-1.73 1A7 7 0 1 0 12 5Z"/></svg></button>
+                    <button id="replayMapZoomInBtn" type="button" class="map-toggle-btn" title="Zoom in" aria-label="Zoom in">+</button>
+                    <button id="replayMapZoomOutBtn" type="button" class="map-toggle-btn" title="Zoom out" aria-label="Zoom out">&minus;</button>
+                    <button id="replayMapCenterBtn" type="button" class="map-toggle-btn" title="Center on replay position" aria-label="Center on replay position"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.75a9.25 9.25 0 1 0 9.25 9.25A9.26 9.26 0 0 0 12 2.75Zm0 4.75a4.5 4.5 0 1 1-4.5 4.5A4.5 4.5 0 0 1 12 7.5Zm0 11.75a7.84 7.84 0 0 1-5.85-2.67A8.63 8.63 0 0 1 12 14.5a8.63 8.63 0 0 1 5.85 2.08A7.84 7.84 0 0 1 12 19.25Z"/></svg></button>
+                    <button id="replayMapLayerBtn" type="button" class="map-toggle-btn" title="Change map layer" aria-label="Change map layer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Zm-7.1 8.2L12 15l7.1-3.8L21 12.3l-9 5-9-5 1.9-1.1Zm0 4L12 19l7.1-3.8 1.9 1.1-9 5-9-5 1.9-1.1Z"/></svg></button>
+                    <button id="replayMapFullscreenBtn" type="button" class="map-toggle-btn" title="Open fullscreen map" aria-label="Open fullscreen map">&#x26F6;</button>
+                </div>
+                <div class="replay-map-speed">
+                    <label for="replaySpeed">Speed</label>
+                    <input id="replaySpeed" type="range" min="1" max="16" step="1" value="10">
+                    <output id="replaySpeedLabel" for="replaySpeed">10x</output>
+                </div>
+                <span id="replayStatus" class="replay-status" aria-live="polite">Replay ready</span>
             </div>
+            <p class="map-accessibility" aria-live="polite">Replay route map. Planned route, travelled track, start and finish markers are visible.</p>
         </section>
     </main>
     <footer class="site-footer">
@@ -67,6 +66,7 @@
     <script src="js/status.js?v=20260824a"></script>
     <script src="js/stats.js?v=20260828b"></script>
     <script src="js/route.js?v=20260828a"></script>
+    <script src="js/map.js?v=20260828h"></script>
     <script src="js/expedition.js?v=20260828b"></script>
     <script src="js/app.js?v=20260828c"></script>
     <script src="js/pages/replay.js?v=20260826a"></script>
