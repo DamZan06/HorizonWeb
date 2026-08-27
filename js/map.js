@@ -9,6 +9,9 @@
     let activeTileLayer = null;
     let startMarker = null;
     let finishMarker = null;
+    let plannedRouteBounds = null;
+    let tileLayers = null;
+    let activeTileKey = 'Standard';
 
     function ensureMapContainer() {
         const container = document.getElementById('map');
@@ -44,18 +47,17 @@
         const defaultZoom = (window.HorizonConfig && window.HorizonConfig.defaultZoom) || 7;
 
         map = window.L.map(container, {
-            zoomControl: true,
+            zoomControl: false,
             attributionControl: true,
             worldCopyJump: true
         }).setView(defaultCenter, defaultZoom);
 
-        const tileLayers = {
+        tileLayers = {
             Standard: window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'&copy; OpenStreetMap contributors' }),
             Satellite: window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom:19, attribution:'Tiles &copy; Esri' }),
             Topographic: window.L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom:17, attribution:'Map data &copy; OpenStreetMap, SRTM | Map style &copy; OpenTopoMap' })
         };
         activeTileLayer = tileLayers.Standard.addTo(map);
-        window.L.control.layers(tileLayers, null, { position:'topright', collapsed:true }).addTo(map);
 
         map.on('loading', () => {
             if (window.HorizonUI && typeof window.HorizonUI.setStatus === 'function') {
@@ -112,8 +114,11 @@
         }
 
         if (!hasAutoFit && route.getBounds && route.getBounds().isValid()) {
-            map.fitBounds(route.getBounds(), { padding: [70, 70] });
+            plannedRouteBounds = route.getBounds();
+            map.fitBounds(plannedRouteBounds, { padding: [40, 40] });
             hasAutoFit = true;
+        } else if (route.getBounds && route.getBounds().isValid()) {
+            plannedRouteBounds = route.getBounds();
         }
 
         return route;
@@ -198,18 +203,25 @@
     }
 
     function fitInitialView() {
-        if (!map || !routeLayer) {
+        if (!map || !plannedRouteBounds) {
             return;
         }
-
-        const bounds = routeLayer.getBounds ? routeLayer.getBounds() : null;
-        if (bounds && bounds.isValid && bounds.isValid()) {
-            map.fitBounds(bounds, { padding: [28, 28] });
-        }
+        map.fitBounds(plannedRouteBounds, { padding: [40, 40] });
     }
 
     function centerLive() { if (map && liveMarker) map.setView(liveMarker.getLatLng(), Math.max(map.getZoom(), 10)); return Boolean(liveMarker); }
     function centerUser() { if (map && userMarker) map.setView(userMarker.getLatLng(), Math.max(map.getZoom(), 10)); return Boolean(userMarker); }
+    function zoomIn() { if (map) map.zoomIn(); }
+    function zoomOut() { if (map) map.zoomOut(); }
+    function cycleTileLayer() {
+        if (!map || !tileLayers) return null;
+        const keys = Object.keys(tileLayers);
+        const nextKey = keys[(keys.indexOf(activeTileKey) + 1) % keys.length];
+        if (activeTileLayer) map.removeLayer(activeTileLayer);
+        activeTileKey = nextKey;
+        activeTileLayer = tileLayers[activeTileKey].addTo(map);
+        return activeTileKey;
+    }
 
     window.HorizonMap = {
         createMap,
@@ -221,6 +233,9 @@
         fitInitialView,
         centerLive,
         centerUser,
+        zoomIn,
+        zoomOut,
+        cycleTileLayer,
         getMap: () => map,
         getRouteLayer: () => routeLayer,
         getActualTrack:()=>trackLayer,

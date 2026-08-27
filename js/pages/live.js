@@ -98,6 +98,16 @@
         Object.entries(emptyValues).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
         const progress = document.getElementById('progressBar'); if (progress) progress.style.width = '0%';
         document.getElementById('centerLiveBtn')?.addEventListener('click', () => { if (!mapApi.centerLive()) setMapStatus('No recent live position available.'); });
+        document.getElementById('zoomInBtn')?.addEventListener('click', mapApi.zoomIn);
+        document.getElementById('zoomOutBtn')?.addEventListener('click', mapApi.zoomOut);
+        document.getElementById('fitRouteBtn')?.addEventListener('click', mapApi.fitInitialView);
+        document.getElementById('mapLayerBtn')?.addEventListener('click', (event) => {
+            const layerName = mapApi.cycleTileLayer?.();
+            if (layerName) {
+                event.currentTarget.title = `Map layer: ${layerName}. Click to change`;
+                event.currentTarget.setAttribute('aria-label', event.currentTarget.title);
+            }
+        });
         const requestVisitorPosition = (center = true) => {
             if (!navigator.geolocation) { setMapStatus('Geolocation is not supported by this browser.'); return; }
             navigator.geolocation.getCurrentPosition((position) => { mapApi.setUserPosition([position.coords.latitude, position.coords.longitude]); if (center) mapApi.centerUser(); setMapStatus('Your position is shown on the planned route.'); }, () => setMapStatus('Location permission denied. The planned route remains available.'), { enableHighAccuracy:false, timeout:10000, maximumAge:60000 });

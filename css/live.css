@@ -223,13 +223,14 @@ body {
 
 .map-actions {
   display: flex;
-  gap: 10px;
+  gap: 6px;
 }
 
-.geo-button {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+.map-actions .geo-button {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.12);
   background: rgba(10,15,22,0.8);
   color: #f5f2eb;
@@ -240,9 +241,31 @@ body {
 }
 
 .geo-button svg {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   fill: currentColor;
+}
+
+.map-actions .geo-button:hover,
+.map-actions .geo-button:focus-visible {
+  color: #d6b77a;
+  border-color: #d6b77a;
+}
+
+@media (max-width: 520px) {
+  .map-actions {
+    right: 8px;
+    top: 8px;
+    max-width: calc(100% - 16px);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .map-actions .geo-button {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
 }
 
 .map-accessibility {

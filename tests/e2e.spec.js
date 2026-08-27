@@ -100,10 +100,26 @@ test.describe('HORIZON site smoke E2E', () => {
     await expect(page.locator('#distance')).not.toHaveText('0 km', { timeout: 25000 });
     expect(await page.locator('#remaining').evaluate(n=>parseFloat(n.textContent))).toBeGreaterThan(0);
     await expect(page.locator('.map-status')).toContainText('recorded points', { timeout: 25000 });
-    await expect(page.locator('.leaflet-pane path')).toHaveCount(3);
+    await expect(page.locator('.horizon-planned-route')).toBeVisible();
+    await expect(page.locator('.horizon-actual-track')).toBeVisible();
+    expect(await page.locator('.horizon-planned-route').getAttribute('d')).toMatch(/^M.+L/);
+    expect(await page.locator('.horizon-actual-track').getAttribute('d')).toMatch(/^M.+L/);
     await page.locator('img.horizon-finish-icon').scrollIntoViewIfNeeded(); await expect(page.locator('img.horizon-finish-icon')).toBeVisible(); await expect(page.locator('img.horizon-finish-icon')).toHaveAttribute('src',/finish-flag\.gif/); await page.locator('#centerLiveBtn').click();
-    await expect(page.locator('.horizon-start-marker')).toBeVisible(); await expect(page.locator('.leaflet-control-layers')).toBeVisible();
+    await expect(page.locator('.horizon-start-marker')).toBeVisible(); await expect(page.locator('#mapLayerBtn')).toBeVisible();
+    await page.locator('#fitRouteBtn').click();
     expect(await page.evaluate(()=>({route:window.HorizonMap.getRouteLayer().getLayers()[0].getLayers()[0].getLatLngs().length,track:Boolean(window.HorizonMap.getActualTrack()),current:Boolean(window.HorizonMap.getLiveMarker()),start:Boolean(window.HorizonMap.getStartMarker()),finish:Boolean(window.HorizonMap.getFinishMarker())}))).toEqual({route:48797,track:true,current:true,start:true,finish:true});
+    await page.evaluate(() => { window.__mapLayersBeforeUpdate = {
+      route: window.HorizonMap.getRouteLayer().getLayers()[0], track: window.HorizonMap.getActualTrack(),
+      start: window.HorizonMap.getStartMarker(), finish: window.HorizonMap.getFinishMarker()
+    }; });
+    await page.evaluate(() => window.HorizonLivePage.refreshLoop());
+    await page.waitForTimeout(1000);
+    expect(await page.evaluate(() => ({
+      route: window.HorizonMap.getRouteLayer().getLayers()[0] === window.__mapLayersBeforeUpdate.route,
+      track: window.HorizonMap.getActualTrack() === window.__mapLayersBeforeUpdate.track,
+      start: window.HorizonMap.getStartMarker() === window.__mapLayersBeforeUpdate.start,
+      finish: window.HorizonMap.getFinishMarker() === window.__mapLayersBeforeUpdate.finish
+    }))).toEqual({ route:true, track:true, start:true, finish:true });
   });
 
   test('live requests and renders visitor geolocation automatically', async ({ page, context }) => {
