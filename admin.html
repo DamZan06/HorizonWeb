@@ -64,23 +64,26 @@
                 <button id="adminLogoutBtn" type="button" class="button ghost">Log out</button>
             </div>
 
-            <section class="section-white admin-block">
-                <div class="section-title">
-                    <h2>Live status</h2>
+            <details class="section-white admin-block admin-collapsible">
+                <summary><span>Live status</span><small>Change the expedition status shown publicly</small></summary>
+                <div class="admin-collapsible-content">
+                    <div class="section-title">
+                        <h2>Live status</h2>
                     <p>You can manually force End of day. If Garmin keeps sending MOVING for at least 2 minutes, the status returns automatically to Moving.</p>
+                    </div>
+                    <form id="adminLiveStatusForm" class="admin-form-grid">
+                        <label class="admin-form-full">Status mode
+                            <select name="forcedStatus">
+                                <option value="">Automatic from Garmin/Firebase</option>
+                                <option value="ended">End of day</option>
+                            </select>
+                        </label>
+                        <p id="adminLiveStatusCurrent" class="admin-inline-note admin-form-full">Current status: loading...</p>
+                        <button type="submit" class="button primary">Save live status</button>
+                        <p id="adminLiveStatusNotice" class="admin-feedback admin-form-full"></p>
+                    </form>
                 </div>
-                <form id="adminLiveStatusForm" class="admin-form-grid">
-                    <label class="admin-form-full">Status mode
-                        <select name="forcedStatus">
-                            <option value="">Automatic from Garmin/Firebase</option>
-                            <option value="ended">End of day</option>
-                        </select>
-                    </label>
-                    <p id="adminLiveStatusCurrent" class="admin-inline-note admin-form-full">Current status: loading...</p>
-                    <button type="submit" class="button primary">Save live status</button>
-                    <p id="adminLiveStatusNotice" class="admin-feedback admin-form-full"></p>
-                </form>
-            </section>
+            </details>
 
             <section class="section-white admin-block">
                 <div class="section-title">
@@ -143,7 +146,9 @@ lla cartina per impostare la posizione della foto.</p>                        <d
                 <div data-admin-list="gallery" class="admin-item-list"></div>
             </section>
 
-            <section class="section-white admin-block">
+            <details class="section-white admin-block admin-collapsible">
+                <summary><span>Hidden milestones</span><small>Choose which secret progress badges are visible</small></summary>
+                <div class="admin-collapsible-content">
                 <div class="section-title">
                     <h2>Hidden milestones</h2>
                     <p>Unlock hidden progress manually so they appear only on the public progress page.</p>
@@ -153,9 +158,12 @@ lla cartina per impostare la posizione della foto.</p>                        <d
                     <button type="submit" class="button primary">Save hidden milestones</button>
                     <p id="adminHiddenProgressNotice" class="admin-feedback admin-form-full"></p>
                 </form>
-            </section>
+                </div>
+            </details>
 
-            <section class="section-white admin-block">
+            <details class="section-white admin-block admin-collapsible">
+                <summary><span>Progress cantons</span><small>Manage the manual canton override</small></summary>
+                <div class="admin-collapsible-content">
                 <div class="section-title">
                     <h2>Progress cantons (manual)</h2>
                     <p>Enable manual mode and select the cantons already crossed. If disabled, the Progress page returns to automatic calculation from live points.</p>
@@ -170,7 +178,8 @@ lla cartina per impostare la posizione della foto.</p>                        <d
                     <button type="submit" class="button primary">Save manual cantons</button>
                     <p id="adminCantonOverrideNotice" class="admin-feedback admin-form-full"></p>
                 </form>
-            </section>
+                </div>
+            </details>
         </section>
     </main>
     <script src="firebase-config.js"></script>

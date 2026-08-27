@@ -43,8 +43,8 @@ async function runPageChecks(page, url, expectedTitle) {
 test.describe('HORIZON site smoke E2E', () => {
   test('home page loads without browser errors', async ({ page }) => {
     await runPageChecks(page, 'http://localhost:4173/index.html', 'HORIZON');
-    await expect(page.locator('#countdownDays')).toBeVisible();
-    await expect(page.locator('#countdownHours')).toBeVisible();
+    await expect(page.locator('#homeStatusLabel')).toHaveText(/Not started|Started|Paused|Arrived/);
+    await expect(page.locator('.status-grid .status-pill:not([hidden])')).toHaveCount(1);
   });
 
   test('live page loads and renders the map shell', async ({ page }) => {
