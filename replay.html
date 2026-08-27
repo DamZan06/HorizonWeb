@@ -49,12 +49,17 @@
                     <button id="replayMapLayerBtn" type="button" class="map-toggle-btn" title="Change map layer" aria-label="Change map layer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Zm-7.1 8.2L12 15l7.1-3.8L21 12.3l-9 5-9-5 1.9-1.1Zm0 4L12 19l7.1-3.8 1.9 1.1-9 5-9-5 1.9-1.1Z"/></svg></button>
                     <button id="replayMapFullscreenBtn" type="button" class="map-toggle-btn" title="Open fullscreen map" aria-label="Open fullscreen map">&#x26F6;</button>
                 </div>
-                <div class="replay-map-speed">
-                    <label for="replaySpeed">Speed</label>
-                    <input id="replaySpeed" type="range" min="1" max="16" step="1" value="10">
-                    <output id="replaySpeedLabel" for="replaySpeed">10x</output>
-                </div>
                 <span id="replayStatus" class="replay-status" aria-live="polite">Replay ready</span>
+            </div>
+            <div class="replay-map-speed" aria-label="Replay speed">
+                <span class="replay-map-speed-label">Speed</span>
+                <div class="replay-speed-options" role="group" aria-label="Replay speed presets">
+                    <button class="replay-speed-option" type="button" data-speed="slow">0.5x</button>
+                    <button class="replay-speed-option is-active" type="button" data-speed="normal" aria-pressed="true">1x</button>
+                    <button class="replay-speed-option" type="button" data-speed="fast">2x</button>
+                    <button class="replay-speed-option" type="button" data-speed="very-fast">4x</button>
+                </div>
+                <output id="replaySpeedLabel">1x</output>
             </div>
         </section>
     </main>

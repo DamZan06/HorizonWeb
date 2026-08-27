@@ -1,10 +1,18 @@
 (function () {
+    const replaySpeedPresets = {
+        slow: { label: '0.5x', interval: 220 },
+        normal: { label: '1x', interval: 116 },
+        fast: { label: '2x', interval: 56 },
+        'very-fast': { label: '4x', interval: 20 }
+    };
+
     const replayState = {
         initialized: false,
         isPlaying: false,
         currentIndex: 0,
         timer: null,
         speed: 116,
+        speedPreset: 'normal',
         routePoints: []
     };
 
@@ -50,14 +58,14 @@
     }
 
     function updateReplayUi() {
-        const speedInput = document.getElementById('replaySpeed');
         const speedLabel = document.getElementById('replaySpeedLabel');
-        const speedLevel = Number(speedInput?.value || 6);
-        if (speedInput) {
-            replayState.speed = Math.max(8, 220 - speedLevel * 14);
-        }
+        const activeButton = document.querySelector('.replay-speed-option.is-active');
+        const presetKey = activeButton?.dataset.speed || replayState.speedPreset;
+        const preset = replaySpeedPresets[presetKey] || replaySpeedPresets.normal;
+        replayState.speedPreset = presetKey;
+        replayState.speed = preset.interval;
         if (speedLabel) {
-            speedLabel.textContent = `${speedLevel}x`;
+            speedLabel.textContent = preset.label;
         }
     }
 
@@ -140,24 +148,29 @@
 
         const playButton = document.getElementById('replayPlay');
         const resetButton = document.getElementById('replayReset');
-        const speedInput = document.getElementById('replaySpeed');
+        const speedButtons = Array.from(document.querySelectorAll('.replay-speed-option'));
 
         if (playButton) playButton.addEventListener('click', toggleReplay);
         if (resetButton) {
             resetButton.addEventListener('click', resetReplay);
         }
-        if (speedInput) {
-            speedInput.addEventListener('input', () => {
+        speedButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                speedButtons.forEach((option) => {
+                    const isActive = option === button;
+                    option.classList.toggle('is-active', isActive);
+                    option.setAttribute('aria-pressed', String(isActive));
+                });
                 updateReplayUi();
                 if (replayState.isPlaying) {
                     startReplayTimer();
                 }
             });
-        }
+        });
 
         updateReplayUi();
         buildMarker();
-        const controls = [playButton, resetButton, speedInput];
+        const controls = [playButton, resetButton, ...speedButtons];
         controls.forEach((control) => { if (control) control.disabled = true; });
         setStatus('Loading recorded journey…');
         const routePromise = replayState.routePromise || Promise.resolve();

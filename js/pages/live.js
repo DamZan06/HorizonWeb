@@ -23,12 +23,12 @@
         }
     }
 
-    function renderTrack(summary, mapApi) {
+    function renderTrack(summary, mapApi, options = {}) {
         const points = summary?.points || [], latest = summary?.latestPoint;
         if (!summary || !latest) return;
         mapApi.setActualTrack(points, { progressPercent: summary.completionPercent });
         const popup = `<strong>${window.HorizonStatus?.getStateCopy?.(summary.state)?.[0] || 'Live position'}</strong><br>${new Date(latest.timestamp).toLocaleString()}<br>${Number.isFinite(latest.altitude) ? Math.round(latest.altitude)+' m' : 'Altitude unavailable'} · ${Number.isFinite(latest.speed) ? latest.speed.toFixed(1)+' km/h' : 'Speed unavailable'}<br><a class="runner-directions-btn" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${latest.latitude},${latest.longitude}`)}" target="_blank" rel="noopener noreferrer">Navigate to athlete</a>`;
-        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: popup, progressPercent: summary.completionPercent, follow: true });
+        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: popup, progressPercent: summary.completionPercent, follow: options.follow === true });
         const values = {
             distance: `${summary.coveredDistanceKm.toFixed(1)} km`, remaining: `${summary.remainingDistanceKm.toFixed(1)} km`,
             completion: `${summary.completionPercent.toFixed(1)}%`, completionText: `${summary.completionPercent.toFixed(1)}%`,
@@ -91,7 +91,7 @@
                 return null;
             }
             const summary = await window.HorizonExpedition.loadSummary();
-            renderTrack(summary, mapApi);
+            renderTrack(summary, mapApi, { follow: true });
             return summary;
         }).catch((error) => {
             console.warn('Live point load failed:', error);
