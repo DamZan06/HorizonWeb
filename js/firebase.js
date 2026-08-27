@@ -121,6 +121,34 @@
         return lastKnown;
     }
 
+    async function fetchGalleryItems() {
+        const config = window.HorizonFirebaseConfig || {};
+        const databaseUrl = String(config.databaseURL || '').replace(/\/$/, '');
+        const contentPath = String(getConfigValue('contentDatabasePath', 'content')).replace(/^\/+|\/+$/g, '');
+        if (!databaseUrl || !contentPath || !config.apiKey) {
+            return [];
+        }
+
+        const response = await timeoutFetch(`${databaseUrl}/${contentPath}/gallery.json`, {
+            headers: { Accept: 'application/json' },
+            cache: 'no-store'
+        }, DEFAULT_TIMEOUT_MS);
+        if (!response.ok) {
+            throw new Error(`Gallery request failed (${response.status})`);
+        }
+
+        const payload = await response.json();
+        const items = Array.isArray(payload) ? payload : (payload && typeof payload === 'object' ? Object.values(payload) : []);
+        return items
+            .filter((item) => item && typeof item === 'object' && item.imageUrl)
+            .map((item) => ({
+                ...item,
+                lat: Number(item.lat ?? item.geo?.lat),
+                lng: Number(item.lng ?? item.geo?.lng)
+            }))
+            .sort((first, second) => Number(second.createdAt || 0) - Number(first.createdAt || 0));
+    }
+
     window.HorizonFirebase = {
         DEFAULT_TIMEOUT_MS,
         normalizeLivePoint,
@@ -128,6 +156,7 @@
         normalizeTrackPayload: normalizeLivePoints,
         fetchLiveTrack,
         fetchTrackPoints: fetchLiveTrack,
-        fetchLatestLivePoint
+        fetchLatestLivePoint,
+        fetchGalleryItems
     };
 })();

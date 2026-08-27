@@ -8,19 +8,10 @@
     };
 
     function markStatus(message) {
-        const statusNode = document.getElementById('galleryPhotoMapStatus');
+        const statusNode = document.querySelector('[data-map-status="gallery"]');
         if (statusNode) {
             statusNode.textContent = message;
         }
-    }
-
-    function ensureGalleryItems() {
-        const grid = document.querySelector('.gallery-grid');
-        if (!grid) {
-            return [];
-        }
-
-        return [];
     }
 
     function renderGallery(items) {
@@ -40,7 +31,7 @@
             article.className = 'gallery-card';
             article.innerHTML = `
                 <button type="button" class="gallery-trigger" data-gallery-index="${index}" aria-label="Open ${item.title}">
-                    <img src="${item.image}" alt="${item.title}">
+                    <img src="${item.thumbnailUrl || item.imageUrl}" alt="${item.title || 'HORIZON field photograph'}" loading="lazy" decoding="async">
                     <span class="gallery-meta">${item.location || 'HORIZON'}</span>
                 </button>
             `;
@@ -72,7 +63,7 @@
 
         galleryState.activeIndex = index;
         galleryState.lastFocus = document.activeElement;
-        modalImage.src = item.image;
+        modalImage.src = item.imageUrl || item.thumbnailUrl;
         modalImage.alt = item.title;
         modalTitle.textContent = item.title;
         modalLocation.textContent = item.location || 'HORIZON route';
@@ -155,18 +146,24 @@
         document.addEventListener('fullscreenchange', () => setTimeout(() => map.invalidateSize(), 50));
     }
 
-    function initGalleryPage() {
+    async function initGalleryPage() {
         if (galleryState.initialized) {
             return;
         }
         galleryState.initialized = true;
 
-        const items = ensureGalleryItems();
-        galleryState.items = items;
-        renderGallery(items);
-        bindModalControls(items);
-        initPhotoMap(items);
-        markStatus(items.length ? 'Geolocated images ready.' : 'No geolocated field photographs yet.');
+        try {
+            const items = await window.HorizonFirebase.fetchGalleryItems();
+            galleryState.items = items;
+            renderGallery(items);
+            bindModalControls(items);
+            initPhotoMap(items);
+            markStatus(items.length ? 'Geolocated images ready.' : 'No field photographs yet.');
+        } catch (error) {
+            galleryState.items = [];
+            renderGallery([]);
+            markStatus('Gallery temporarily unavailable.');
+        }
     }
 
     window.HorizonGallery = {
