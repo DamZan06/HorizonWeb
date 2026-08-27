@@ -76,15 +76,15 @@
                 <h1>FOLLOW HORIZON</h1>
                 <p>Follow the expedition across Switzerland in real time.</p>
             </div>
-        </section>
-        <section class="map-layout">
-            <aside class="stats-panel">
+            <div class="map-layout">
+                <aside class="stats-panel">
                 <div class="panel-head">
                     <div>
                         <p class="eyebrow">LIVE STATISTICS</p>
                         <h2>Current status</h2>
                     </div>
                 </div>
+                <div class="live-status" aria-live="polite"><span class="status-dot status-not-started" aria-hidden="true"></span><span id="liveStatusLabel">Not started</span></div>
                 <div class="stats-grid">
                     <article>
                         <span>Distance</span>
@@ -137,8 +137,8 @@
                         <strong id="visitorDistance">0 km</strong>
                     </article>
                 </div>
-            </aside>
-            <div class="map-wrap">
+                </aside>
+                <div class="map-wrap">
                 <div class="map-toolbar">
                     <div class="map-status" aria-live="polite">LOADING MAP…</div>
                     <div class="map-actions" aria-label="Map controls">
@@ -165,11 +165,9 @@
                 <div class="map-surface">
                     <div id="map"></div>
                 </div>
+                </div>
             </div>
         </section>
-        <p class="map-accessibility" aria-live="polite" data-i18n="dynamic.liveTrackingActive">
-            Expedition not started. Planned route visible. Live position pending departure.
-        </p>
         <p class="map-accessibility"><a class="button button-primary" href="dashboard.html">OPEN FULL DASHBOARD</a></p>
     </main>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

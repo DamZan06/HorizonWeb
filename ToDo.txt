@@ -1,0 +1,12 @@
+-Titoli tutti alla stessa distanza dall'alto
+-Eyebrown tutti uguali
+-Larghezza dei campi di testo tutti uguali
+-Nel caso che le statistiche sulla pagina live sono affiancate dalla cartina allora fare la cartina alta quanto il campo con le statistiche.
+-Togliere la parte sotto alla cartina con scritto the Expedition is complete…
+-Foto devono venir caricate e mostrate
+-Nella home dove ce "Live journey" deve venir mostrato in che stato ci troviamo e questo voglio che sia esattamente lo stesso che viene mostrato in alto sopra alle statistiche
+-Se si schiaccia sul atleta voglio che si veda solamente un popup e non due come ora. inoltre aggiungere un button per naviga a, che apre Google Maps con arrivo la posizione dell'atleta.
+-Sul telefono i grafici non stanno all'interno dello schermo.
+-Sul telefono il tasto menu è troppo piccolo per il testo, al contrario il testo è troppo grande per il button. Oppure sostituire con un simbolo
+-Nella pagina dei obbiettivi Chancy si sblocca quando la missione è 100% e non 500km. Se caso fare un obbiettivo a parte per i 500km
+-Nella pagina del replay fare i tasti più piccoli in modo che ci stanno sulla schermata. in generale guardare che tutto sia allineato. per esempio il cursore farlo alla stessa altezza della leggenda (allineato parte sotto)

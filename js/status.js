@@ -34,6 +34,17 @@
         return 'not-started';
     }
 
+    function getStateCopy(state) {
+        return {
+            'not-started': ['Not started', 'Waiting for departure. The planned route is ready.'],
+            delayed: ['Signal delayed', 'Tracking exists, but the latest point is stale.'],
+            resting: ['Resting', 'The expedition has started and is currently stationary.'],
+            offline: ['Tracker offline', 'No recent valid position is available.'],
+            live: ['Live', 'The expedition is underway.'],
+            finished: ['Finished', 'HORIZON has reached Chancy.']
+        }[state] || ['Tracker offline', 'No recent valid position is available.'];
+    }
+
     function bindAdminLiveStatusForm() {
         const form = document.getElementById('adminLiveStatusForm');
         if (!form || form.dataset.bound === 'true') return;
@@ -60,6 +71,7 @@
     const horizonStatus = Object.assign(window.HorizonStatus || {}, {
         getExpeditionState,
         normalizeHomeStatus,
+        getStateCopy,
         bindAdminLiveStatusForm
     });
 

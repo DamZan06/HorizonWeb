@@ -31,7 +31,9 @@
         if (!nav.id) nav.id = 'mainNav';
         if (!toggle) {
             toggle = document.createElement('button');
-            toggle.type = 'button'; toggle.className = 'topbar-menu-toggle'; toggle.textContent = 'Menu';
+            toggle.type = 'button'; toggle.className = 'topbar-menu-toggle';
+            toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/></svg>';
+            toggle.title = 'Open menu';
             toggle.setAttribute('aria-expanded', 'false'); toggle.setAttribute('aria-controls', nav.id);
             topbar.insertBefore(toggle, nav);
         }

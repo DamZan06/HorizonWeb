@@ -230,8 +230,8 @@
             markerCore.style.setProperty('--athlete-color', currentColor);
         }
 
+        liveMarker.unbindTooltip();
         liveMarker.bindPopup(options && options.label ? options.label : 'Live position');
-        liveMarker.bindTooltip('Athlete');
 
         if (options && (options.follow || (options.animate && !hasAutoFit))) {
             centerOnPosition(position, Math.max(map.getZoom(), 9));

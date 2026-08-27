@@ -56,6 +56,29 @@
    HORIZON HERO
    ========================= */
 
+.home-shell {
+    width: 100%;
+    margin: clamp(3.5rem, 8vw, 8rem) 0;
+    padding: 0 clamp(1rem, 3vw, 3rem) 2rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.home-shell > section {
+    margin: clamp(3.5rem, 8vw, 8rem) 0;
+}
+
+.home-shell > .horizon-hero {
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 100%;
+    padding-inline: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
 .horizon-hero {
     position: relative;
     min-height: calc(100vh - var(--navbar-height));
@@ -64,7 +87,7 @@
     align-items: center;
     gap: clamp(2rem, 6vw, 6rem);
 
-    width: calc(100% - 2.5rem);
+    width: 100%;
     margin-inline: auto;
 
     margin-top: 0 !important;
@@ -87,6 +110,14 @@
             rgba(5, 10, 17, 0.92)
         ),
         url("../assets/backgrounds/Sfondo.png") center 48% / cover no-repeat;
+}
+
+.horizon-hero > .countdown-card {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0;
+    padding: 0 0 1.5rem;
+    border: 0;
 }
 
 .hero-description {
@@ -148,6 +179,16 @@
 
 .hero-stat-wide {
     grid-column: 1 / -1;
+}
+
+.status-grid .status-pill[hidden] {
+    display: none;
+}
+
+body[data-page="home"] .eyebrow,
+body[data-page="home"] .story-block > p.eyebrow,
+body[data-page="home"] .section-title > p.eyebrow {
+    color: var(--color-accent) !important;
 }
 
 
@@ -345,10 +386,14 @@ body[data-page="home"] .factors-grid article {
     }
 
     .horizon-hero {
-        width: calc(100% - 1.25rem);
+        width: 100%;
         padding-top: 2rem;
         padding-inline: 1.2rem;
         background-position: 56% center;
+    }
+
+    .home-shell {
+        padding-inline: 1rem;
     }
 
     .countdown-grid article {

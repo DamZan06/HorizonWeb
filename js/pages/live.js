@@ -27,7 +27,7 @@
         const points = summary?.points || [], latest = summary?.latestPoint;
         if (!summary || !latest) return;
         mapApi.setActualTrack(points, { progressPercent: summary.completionPercent });
-        const popup = `Current position · ${new Date(latest.timestamp).toLocaleString()} · ${Number.isFinite(latest.altitude) ? Math.round(latest.altitude)+' m' : 'altitude unavailable'} · ${Number.isFinite(latest.speed) ? latest.speed.toFixed(1)+' km/h' : 'speed unavailable'}`;
+        const popup = `<strong>${window.HorizonStatus?.getStateCopy?.(summary.state)?.[0] || 'Live position'}</strong><br>${new Date(latest.timestamp).toLocaleString()}<br>${Number.isFinite(latest.altitude) ? Math.round(latest.altitude)+' m' : 'Altitude unavailable'} · ${Number.isFinite(latest.speed) ? latest.speed.toFixed(1)+' km/h' : 'Speed unavailable'}<br><a class="runner-directions-btn" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${latest.latitude},${latest.longitude}`)}" target="_blank" rel="noopener noreferrer">Navigate to athlete</a>`;
         mapApi.setLivePosition([latest.latitude, latest.longitude], { label: popup, progressPercent: summary.completionPercent, follow: true });
         const values = {
             distance: `${summary.coveredDistanceKm.toFixed(1)} km`, remaining: `${summary.remainingDistanceKm.toFixed(1)} km`,
@@ -53,11 +53,8 @@
         Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
         const progress = document.getElementById('progressBar'); if (progress) progress.style.width = `${summary.completionPercent}%`;
         const state = summary.state;
-        const statusCopy = { live: 'LIVE', offline: 'SIGNAL DELAYED', 'not-started': 'NOT STARTED', finished: 'FINISHED' };
-        const statusNode = document.querySelector('.live-status span:last-child'); if (statusNode) statusNode.textContent = `${statusCopy[state] || 'SIGNAL DELAYED'} · ${points.length.toLocaleString()} points`;
+        const statusNode = document.getElementById('liveStatusLabel'); if (statusNode) statusNode.textContent = window.HorizonStatus?.getStateCopy?.(state)?.[0] || 'Tracker offline';
         const dot = document.querySelector('.live-status .status-dot'); if (dot) dot.className = `status-dot ${state === 'live' ? 'status-moving' : 'status-not-started'}`;
-        const accessibilityStatus=document.querySelector('.map-accessibility[aria-live]');
-        if(accessibilityStatus) accessibilityStatus.textContent=state==='finished'?'The expedition is complete. The full planned and travelled routes remain visible.':state==='live'?'The athlete is moving. Planned route, travelled track, athlete and visitor positions are visible on the map.':'Tracking data is available but delayed. The planned route, travelled track and latest athlete position remain visible.';
     }
 
     function initLivePage() {

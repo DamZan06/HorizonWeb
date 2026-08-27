@@ -69,20 +69,20 @@
     </div>
 </header>
     <main id="main" class="page page-home">
-        <section id="homeCountdown" class="countdown-card countdown-top" aria-live="polite" aria-labelledby="countdownTitle">
-            <p class="countdown-eyebrow">HORIZON 2026</p>
-            <p class="countdown-start-label" id="countdownTitle">START</p>
-            <p class="countdown-start-date" id="countdownStartDate"></p>
-            <div class="countdown-grid">
-                <article><span>Days</span><strong id="countdownDays">--</strong></article>
-                <article><span>Hours</span><strong id="countdownHours">--</strong></article>
-                <article><span>Minutes</span><strong id="countdownMinutes">--</strong></article>
-                <article><span>Seconds</span><strong id="countdownSeconds">--</strong></article>
-            </div>
-            <p id="countdownMessage" class="countdown-message">Calculating remaining time...</p>
-        </section>
-
+        <div class="home-shell">
         <section class="horizon-hero">
+            <section id="homeCountdown" class="countdown-card countdown-top" aria-live="polite" aria-labelledby="countdownTitle" hidden>
+                <p class="countdown-eyebrow">HORIZON 2026</p>
+                <p class="countdown-start-label" id="countdownTitle">START</p>
+                <p class="countdown-start-date" id="countdownStartDate"></p>
+                <div class="countdown-grid">
+                    <article><span>Days</span><strong id="countdownDays">--</strong></article>
+                    <article><span>Hours</span><strong id="countdownHours">--</strong></article>
+                    <article><span>Minutes</span><strong id="countdownMinutes">--</strong></article>
+                    <article><span>Seconds</span><strong id="countdownSeconds">--</strong></article>
+                </div>
+                <p id="countdownMessage" class="countdown-message">Calculating remaining time...</p>
+            </section>
             <div class="hero-copy">
                 <p class="eyebrow">HORIZON 2026</p>
                 <h1>HORIZON</h1>
@@ -341,6 +341,7 @@
             <div class="final-cta-direction">EAST → WEST</div>
             <a href="live.html" class="button primary">FOLLOW THE JOURNEY</a>
         </section>
+        </div>
     </main>
     <footer class="site-footer">
         <p>

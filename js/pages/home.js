@@ -2,7 +2,8 @@
     const homeState = {
         initialized: false,
         timerId: null,
-        lastRenderedAt: null
+        lastRenderedAt: null,
+        summaryResolved: false
     };
 
     function getCountdownTarget() {
@@ -71,10 +72,14 @@
     }
 
     function updateHomeState(summary) {
+        if (!summary) {
+            const countdownNode = document.getElementById('homeCountdown');
+            if (countdownNode) countdownNode.hidden = true;
+            return;
+        }
         const config = window.HorizonConfig || {};
-        const state = summary?.state || window.HorizonStatus?.getExpeditionState({ now: Date.now(), startDate: config.startDateIso, hasValidPoints:false });
-        const labels = { 'not-started': ['Not started', 'Waiting for departure. The planned route is ready.'], delayed: ['Signal delayed', 'Tracking exists, but the latest point is stale.'], resting: ['Resting', 'The expedition has started and is currently stationary.'], offline: ['Tracker offline', 'No recent valid position is available.'], live: ['Live', 'The expedition is underway.'], finished: ['Finished', 'HORIZON has reached Chancy.'] };
-        const copy = labels[state] || labels.offline;
+        const state = summary.state || window.HorizonStatus?.getExpeditionState({ now: Date.now(), startDate: config.startDateIso, hasValidPoints:false });
+        const copy = window.HorizonStatus?.getStateCopy?.(state) || ['Tracker offline', 'No recent valid position is available.'];
         const etaLabel = document.getElementById('homeEtaLabel');
         if (etaLabel) {
             const labels = document.documentElement.lang === 'it'
@@ -89,9 +94,15 @@
         const label = document.getElementById('homeStatusLabel'), text = document.getElementById('homeStatusText');
         if (label) label.textContent = copy[0];
         if (text) text.textContent = copy[1];
+        const dot = document.getElementById('homeStatusDot');
+        if (dot) dot.className = `status-dot ${state === 'live' ? 'status-moving' : 'status-not-started'}`;
+        const activePill = document.getElementById(`homeState-${state === 'delayed' || state === 'offline' ? 'not-started' : state === 'resting' ? 'paused' : state === 'finished' ? 'completed' : state === 'live' ? 'moving' : 'not-started'}`);
+        document.querySelectorAll('.status-grid .status-pill').forEach((pill) => {
+            pill.hidden = pill !== activePill;
+        });
         const values = summary?.started ? { homeDistance: `${summary.coveredDistanceKm.toFixed(1)} km`, homeRemaining: `${summary.remainingDistanceKm.toFixed(1)} km`, homeCompletion: `${summary.completionPercent.toFixed(1)}%`, homeTime: `${(summary.elapsedTimeMs/3600000).toFixed(1)} h`, homeGain: `${Math.round(summary.actualElevationGainM)} m`, homeSteps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(), homeEta: summary.completedAt ? new Intl.DateTimeFormat(document.documentElement.lang,{dateStyle:'medium',timeStyle:'short'}).format(summary.completedAt) : summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang,{dateStyle:'medium',timeStyle:'short'}).format(summary.eta) : 'Not available' } : { homeDistance: '0 km', homeRemaining: `${summary?.plannedDistanceKm || config.expectedDistanceKm || 500} km`, homeCompletion: '0%', homeTime: '0 h', homeGain: '0 m', homeSteps: '0', homeEta: 'Not available' };
         Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
-        const countdown=document.getElementById('homeCountdown'); if(countdown) countdown.hidden=Boolean(summary?.started)||state!=='not-started';
+        const countdown=document.getElementById('homeCountdown'); if(countdown) countdown.hidden=Boolean(summary.started)||state!=='not-started';
     }
 
     function initHomePage() {
@@ -100,10 +111,18 @@
         }
         homeState.initialized = true;
 
-        updateCountdown();
-        updateHomeState();
-        window.HorizonExpedition?.loadSummary?.().then(updateHomeState).catch(() => {});
-        window.setInterval(()=>window.HorizonExpedition?.loadSummary?.({force:true}).then(updateHomeState).catch(()=>{}),20000);
+        const countdown = document.getElementById('homeCountdown');
+        if (countdown) countdown.hidden = true;
+        window.HorizonExpedition?.loadSummary?.().then((summary) => {
+            homeState.summaryResolved = true;
+            updateHomeState(summary);
+            updateCountdown();
+        }).catch(() => {});
+        window.setInterval(()=>window.HorizonExpedition?.loadSummary?.({force:true}).then((summary)=>{
+            homeState.summaryResolved = true;
+            updateHomeState(summary);
+            updateCountdown();
+        }).catch(()=>{}),20000);
         homeState.timerId = window.setInterval(updateCountdown, 1000);
     }
 

@@ -217,6 +217,7 @@
 
 .metric-card canvas {
     height: 290px !important;
+    max-width: 100%;
 }
 
 
@@ -305,5 +306,15 @@
     .chart-header {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .metric-card {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .metric-card canvas {
+        width: 100% !important;
+        height: 240px !important;
     }
 }
