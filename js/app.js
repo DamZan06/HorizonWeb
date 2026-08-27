@@ -76,6 +76,23 @@
         });
     }
 
+    function setupScrollableBackground() {
+        let frame = null;
+        const update = () => {
+            const range = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+            const progress = Math.max(0, Math.min(1, window.scrollY / range));
+            document.documentElement.style.setProperty('--site-background-y', `${(progress * 100).toFixed(2)}%`);
+            frame = null;
+        };
+        const requestUpdate = () => {
+            if (frame !== null) return;
+            frame = window.requestAnimationFrame(update);
+        };
+        update();
+        window.addEventListener('scroll', requestUpdate, { passive: true });
+        window.addEventListener('resize', requestUpdate, { passive: true });
+    }
+
     app.init = function () {
         if (app._initialized) {
             return;
@@ -97,6 +114,7 @@
 
         setupLanguageControls();
         setupMobileNavigation();
+        setupScrollableBackground();
     };
 
     window.HorizonApp = app;

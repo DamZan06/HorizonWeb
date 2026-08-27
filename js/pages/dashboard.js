@@ -9,6 +9,8 @@ const age=v=>{if(!Number.isFinite(v))return tr().na;let m=Math.floor(v/60000),x=
 function update(s={}){
   S.summary=s;
   const p=s.latestPoint||{},r=s.routeMeta||{};
+  const etaLabel=document.getElementById('metricEtaLabel');
+  if(etaLabel){const labels=L()==='it'?{arrival:'Arrivo',eta:'Arrivo stimato'}:L()==='de'?{arrival:'Ankunft',eta:'Geschätzte Ankunft'}:L()==='fr'?{arrival:'Arrivée',eta:'Arrivée estimée'}:{arrival:'Arrival',eta:'Estimated arrival'};etaLabel.textContent=s.completedAt?labels.arrival:labels.eta}
   const rows=[
     ['metricDistance',av(s.coveredDistanceKm,' km')],
     ['metricPlannedDistance',av(s.plannedDistanceKm,' km')],
@@ -33,7 +35,7 @@ function update(s={}){
     ['metricSteps',Number.isFinite(s.coveredDistanceKm)?'≈ '+new Intl.NumberFormat(L(),{maximumFractionDigits:0}).format(s.coveredDistanceKm*1000/.75):tr().na],
     ['metricCalories',Number.isFinite(s.caloriesBurned)?`${new Intl.NumberFormat(L(),{maximumFractionDigits:0}).format(s.caloriesBurned)} kcal`:tr().na],
     ['metricWaterLost',Number.isFinite(s.waterLostLiters)?`${s.waterLostLiters.toFixed(1)} L`:tr().na],
-    ['metricEta',s.eta?date(s.eta):tr().na],
+    ['metricEta',s.completedAt?date(s.completedAt):s.eta?date(s.eta):tr().na],
     ['metricEtaBasis',s.etaBasis?(s.etaBasis==='recent'?tr().recent:tr().moving):''],
     ['metricTrackingStatus',tr()[s.state]||s.state||tr().prestart],
     ['metricSignalAge',age(s.signalAgeMs)],

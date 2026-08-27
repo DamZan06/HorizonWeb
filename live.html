@@ -21,8 +21,8 @@
     <meta name="twitter:description" content="Follow the HORIZON expedition live across Switzerland in real time.">
     <meta name="twitter:image" content="https://damzan06.github.io/HorizonWeb/assets/preview_link_horizon.png?v=20260827a">
     <link rel="stylesheet" href="css/tokens.css?v=20260828b">
-    <link rel="stylesheet" href="css/global.css?v=20260828b">
-    <link rel="stylesheet" href="css/live.css?v=20260828d">
+    <link rel="stylesheet" href="css/global.css?v=20260828c">
+    <link rel="stylesheet" href="css/live.css?v=20260828h">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/logo_horizon_homepage.png?v=20260827a">
     <link rel="icon" type="image/png" href="assets/logo_horizon_homepage.png?v=20260827a">
@@ -77,10 +77,6 @@
                 <p>Follow the expedition across Switzerland in real time.</p>
             </div>
         </section>
-        <div class="live-status" aria-live="polite">
-            <span class="status-dot status-not-started" aria-hidden="true"></span>
-            <span data-i18n="dynamic.liveTrackingActive">Expedition not started — planned route ready</span>
-        </div>
         <section class="map-layout">
             <aside class="stats-panel">
                 <div class="panel-head">
@@ -123,7 +119,7 @@
                     <div class="progress-bar"><span id="progressBar"></span></div>
                 </div>
                 <div class="detail-grid" id="statsContent">
-                    <article><span>Estimated arrival</span><strong id="liveEta">--</strong></article>
+                    <article><span id="liveEtaLabel">Arrival</span><strong id="liveEta">--</strong></article>
                     <article>
                         <span>Time</span>
                         <strong id="time">--</strong>
@@ -179,7 +175,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/config.js?v=20260824a"></script>
     <script src="js/firebase.js?v=20260824a"></script>
-    <script src="js/map.js?v=20260828c"></script>
+    <script src="js/map.js?v=20260828h"></script>
     <script src="js/ui.js?v=20260824a"></script>
     <script src="js/i18n.js?v=20260824a"></script>
     <script src="js/ui/navigation.js?v=20260824a"></script>
@@ -187,8 +183,8 @@
     <script src="js/stats.js?v=20260828b"></script>
     <script src="js/route.js?v=20260828a"></script>
     <script src="js/expedition.js?v=20260828b"></script>
-    <script src="js/app.js?v=20260824a"></script>
-    <script src="js/pages/live.js?v=20260828c"></script>
+    <script src="js/app.js?v=20260828c"></script>
+    <script src="js/pages/live.js?v=20260828f"></script>
 </body>
 </html>
 

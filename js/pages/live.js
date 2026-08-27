@@ -26,9 +26,9 @@
     function renderTrack(summary, mapApi) {
         const points = summary?.points || [], latest = summary?.latestPoint;
         if (!summary || !latest) return;
-        mapApi.setActualTrack(points);
+        mapApi.setActualTrack(points, { progressPercent: summary.completionPercent });
         const popup = `Current position · ${new Date(latest.timestamp).toLocaleString()} · ${Number.isFinite(latest.altitude) ? Math.round(latest.altitude)+' m' : 'altitude unavailable'} · ${Number.isFinite(latest.speed) ? latest.speed.toFixed(1)+' km/h' : 'speed unavailable'}`;
-        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: popup });
+        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: popup, progressPercent: summary.completionPercent });
         const values = {
             distance: `${summary.coveredDistanceKm.toFixed(1)} km`, remaining: `${summary.remainingDistanceKm.toFixed(1)} km`,
             completion: `${summary.completionPercent.toFixed(1)}%`, completionText: `${summary.completionPercent.toFixed(1)}%`,
@@ -37,8 +37,19 @@
             lastUpdate: new Intl.DateTimeFormat(document.documentElement.lang || 'en', { dateStyle: 'medium', timeStyle: 'short' }).format(latest.timestamp),
             time: `${(summary.elapsedTimeMs/3600000).toFixed(1)} h`, elevation: `${Math.round(summary.actualElevationGainM)} m`,
             steps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(document.documentElement.lang || 'en'),
-            liveEta: summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang||'en',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(summary.eta) : (summary.state==='finished'?'Completed':'Not available')
+            liveEta: summary.completedAt ? new Intl.DateTimeFormat(document.documentElement.lang||'en',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(summary.completedAt) : summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang||'en',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(summary.eta) : 'Not available'
         };
+        const etaLabel = document.getElementById('liveEtaLabel');
+        if (etaLabel) {
+            const labels = document.documentElement.lang === 'it'
+                ? { arrival: 'Arrivo', eta: 'Arrivo stimato' }
+                : document.documentElement.lang === 'de'
+                    ? { arrival: 'Ankunft', eta: 'Geschätzte Ankunft' }
+                    : document.documentElement.lang === 'fr'
+                        ? { arrival: 'Arrivée', eta: 'Arrivée estimée' }
+                        : { arrival: 'Arrival', eta: 'Estimated arrival' };
+            etaLabel.textContent = summary.completedAt ? labels.arrival : labels.eta;
+        }
         Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
         const progress = document.getElementById('progressBar'); if (progress) progress.style.width = `${summary.completionPercent}%`;
         const state = summary.state;

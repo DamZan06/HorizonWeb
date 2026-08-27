@@ -98,7 +98,7 @@ test.describe('HORIZON site smoke E2E', () => {
   test('live map renders Firebase simulation, planned route and finish flag', async ({ page }) => {
     await page.goto('http://localhost:4173/live.html'); await page.waitForTimeout(700);
     await expect(page.locator('#distance')).not.toHaveText('0 km', { timeout: 25000 });
-    expect(await page.locator('#remaining').evaluate(n=>parseFloat(n.textContent))).toBeGreaterThan(0);
+    expect(await page.locator('#remaining').evaluate(n=>parseFloat(n.textContent))).toBeGreaterThanOrEqual(0);
     await expect(page.locator('.map-status')).toContainText('recorded points', { timeout: 25000 });
     await expect(page.locator('.horizon-planned-route')).toBeVisible();
     await expect(page.locator('.horizon-actual-track')).toBeVisible();

@@ -30,6 +30,10 @@ const activeSummary=engine.calculateSummary({points:active,routeMeta,now:170000}
 check('central summary starts from valid points before planned date', activeSummary.started && activeSummary.state === 'live');
 check('central summary uses GPX distance', activeSummary.plannedDistanceKm === 520 && activeSummary.remainingDistanceKm === 519);
 check('moving track produces ETA', Number.isFinite(activeSummary.eta));
+const finishMeta = { ...routeMeta, finish: { lat: 46.1320502409, lng: 5.9563402346 } };
+const nearFinish = { ...active[1], latitude: finishMeta.finish.lat, longitude: finishMeta.finish.lng, cumulativeDistanceKm: 519.9 };
+const nearFinishSummary = engine.calculateSummary({ points: [active[0], nearFinish], routeMeta: finishMeta, now: 170000 });
+check('position within 20 metres marks expedition finished', nearFinishSummary.state === 'finished' && nearFinishSummary.remainingDistanceKm === 0 && nearFinishSummary.completionPercent === 100);
 check('no points produce no ETA', engine.calculateSummary({points:[],routeMeta,now:1}).eta === null);
 check('one point produces no ETA', engine.calculateSummary({points:[active[0]],routeMeta,now:110000}).eta === null);
 check('stale track keeps ETA from historical pace', Number.isFinite(engine.calculateSummary({points:active,routeMeta,now:9999999}).eta));

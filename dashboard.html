@@ -20,7 +20,7 @@
     <meta name="twitter:description" content="Live data and charts from the HORIZON expedition.">
     <meta name="twitter:image" content="https://damzan06.github.io/HorizonWeb/assets/preview_link_horizon.png?v=20260827a">
     <link rel="stylesheet" href="css/tokens.css?v=20260828b">
-    <link rel="stylesheet" href="css/global.css?v=20260828b">
+    <link rel="stylesheet" href="css/global.css?v=20260828c">
     <link rel="stylesheet" href="css/dashboard.css?v=20260828b">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/logo_horizon_homepage.png?v=20260827a">
     <link rel="icon" type="image/png" href="assets/logo_horizon_homepage.png?v=20260827a">
@@ -57,7 +57,7 @@
                 <article class="dashboard-focus"><span data-dash="planned">Planned GPX distance</span><strong id="metricPlannedDistance">-- km</strong></article>
                 <article class="dashboard-focus"><span data-dash="remaining">Distance remaining</span><strong id="metricRemaining">-- km</strong></article>
                 <article class="dashboard-focus"><span data-dash="completion">Completion</span><strong id="metricCompletion">--%</strong></article>
-                <article class="dashboard-focus dashboard-eta"><span data-dash="eta">Estimated arrival</span><strong id="metricEta">--</strong><small id="metricEtaBasis"></small></article>
+                <article class="dashboard-focus dashboard-eta"><span id="metricEtaLabel" data-dash="eta">Arrival</span><strong id="metricEta">--</strong><small id="metricEtaBasis"></small></article>
             </div>
             <h2 class="metric-group-title" data-dash="performance">Performance</h2>
             <div class="stats-grid dashboard-metrics">
@@ -139,13 +139,6 @@
         <section class="section section-white">
             <div class="section-title chart-header">
                 <h2>Live charts</h2>
-                <label class="chart-axis-control" for="chartXAxisMode">
-                    X axis
-                    <select id="chartXAxisMode" aria-label="Select chart X axis">
-                        <option value="distance">Km</option>
-                        <option value="time">Time</option>
-                    </select>
-                </label>
             </div>
             <div class="chart-grid">
                 <article class="metric-card">
@@ -176,7 +169,7 @@
     <script src="js/firebase.js?v=20260827a"></script>
     <script src="js/route.js?v=20260828a"></script>
     <script src="js/expedition.js?v=20260828b"></script>
-    <script src="js/app.js?v=20260824a"></script>
+    <script src="js/app.js?v=20260828c"></script>
     <script src="js/pages/dashboard.js?v=20260826a"></script>
 </body>
 </html>
