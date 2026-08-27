@@ -28,7 +28,7 @@
         if (!summary || !latest) return;
         mapApi.setActualTrack(points, { progressPercent: summary.completionPercent });
         const popup = `Current position · ${new Date(latest.timestamp).toLocaleString()} · ${Number.isFinite(latest.altitude) ? Math.round(latest.altitude)+' m' : 'altitude unavailable'} · ${Number.isFinite(latest.speed) ? latest.speed.toFixed(1)+' km/h' : 'speed unavailable'}`;
-        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: popup, progressPercent: summary.completionPercent });
+        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: popup, progressPercent: summary.completionPercent, follow: true });
         const values = {
             distance: `${summary.coveredDistanceKm.toFixed(1)} km`, remaining: `${summary.remainingDistanceKm.toFixed(1)} km`,
             completion: `${summary.completionPercent.toFixed(1)}%`, completionText: `${summary.completionPercent.toFixed(1)}%`,

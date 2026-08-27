@@ -71,7 +71,7 @@
             const progressPercent = points.length > 1 ? replayState.currentIndex / (points.length - 1) * 100 : 0;
             replayState.marker = mapApi.setLivePosition(point, { progressPercent });
             mapApi.setActualTrack(points.slice(0, replayState.currentIndex + 1), { progressPercent });
-            map.setView([point.latitude, point.longitude], Math.max(map.getZoom(), 10), { animate: false });
+            mapApi.centerOnPosition([point.latitude, point.longitude], Math.max(map.getZoom(), 10));
         }
 
         setStatus(points.length ? (replayState.isPlaying ? 'Playing replay' : 'Replay ready') : 'Replay will become available once journey data has been recorded.');
@@ -172,7 +172,7 @@
         document.getElementById('replayMapZoomOutBtn')?.addEventListener('click', window.HorizonMap.zoomOut);
         document.getElementById('replayMapCenterBtn')?.addEventListener('click', () => {
             const point = replayState.routePoints[replayState.currentIndex];
-            if (point) window.HorizonMap.getMap()?.setView([point.latitude, point.longitude], Math.max(window.HorizonMap.getMap().getZoom(), 10));
+            if (point) window.HorizonMap.centerOnPosition([point.latitude, point.longitude], Math.max(window.HorizonMap.getMap().getZoom(), 10));
         });
         document.getElementById('replayMapFullscreenBtn')?.addEventListener('click', async () => {
             const wrap = document.querySelector('.page-replay .map-wrap');

@@ -178,6 +178,14 @@
         return route;
     }
 
+    function centerOnPosition(position, zoom) {
+        if (!map || !position) return false;
+        map.setView(position, zoom ?? Math.max(map.getZoom(), 10), { animate: false });
+        const verticalOffset = map.getSize().y / -6;
+        if (verticalOffset < 0) map.panBy([0, verticalOffset], { animate: false });
+        return true;
+    }
+
     function loadRoute(routePath) {
         const targetPath = routePath || (window.HorizonConfig && window.HorizonConfig.routeGeoJsonUrl);
         if (!targetPath) {
@@ -225,9 +233,9 @@
         liveMarker.bindPopup(options && options.label ? options.label : 'Live position');
         liveMarker.bindTooltip('Athlete');
 
-        if (options && options.animate && !hasAutoFit) {
-            map.setView(position, Math.max(map.getZoom(), 9));
-            hasAutoFit = true;
+        if (options && (options.follow || (options.animate && !hasAutoFit))) {
+            centerOnPosition(position, Math.max(map.getZoom(), 9));
+            if (!options.follow) hasAutoFit = true;
         }
 
         return liveMarker;
@@ -272,7 +280,7 @@
         map.fitBounds(plannedRouteBounds, { padding: [40, 40] });
     }
 
-    function centerLive() { if (map && liveMarker) map.setView(liveMarker.getLatLng(), Math.max(map.getZoom(), 10)); return Boolean(liveMarker); }
+    function centerLive() { return map && liveMarker ? centerOnPosition(liveMarker.getLatLng(), Math.max(map.getZoom(), 10)) : false; }
     function centerUser() { if (map && userMarker) map.setView(userMarker.getLatLng(), Math.max(map.getZoom(), 10)); return Boolean(userMarker); }
     function zoomIn() { if (map) map.zoomIn(); }
     function zoomOut() { if (map) map.zoomOut(); }
@@ -299,6 +307,7 @@
         zoomIn,
         zoomOut,
         cycleTileLayer,
+        centerOnPosition,
         getMap: () => map,
         getRouteLayer: () => routeLayer,
         getActualTrack:()=>trackLayer,
