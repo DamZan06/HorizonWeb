@@ -11,6 +11,14 @@
         ".read": true,
         ".write": "auth != null"
       },
+      "achievementOverrides": {
+        ".read": true,
+        ".write": "auth != null",
+        "cantons": {},
+        "passes": {},
+        "updatedAt": { ".validate": "newData.val() == null || newData.isNumber()" },
+        "$other": { ".validate": false }
+      },
       "liveStatus": {
         ".read": true,
         ".write": "auth != null",

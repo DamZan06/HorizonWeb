@@ -180,6 +180,21 @@
         return payload && typeof payload === 'object' ? payload : null;
     }
 
+    async function fetchAchievementOverrides() {
+        const databaseUrl = getPublicDatabaseUrl();
+        const contentPath = String(getConfigValue('contentDatabasePath', 'content')).replace(/^\/+|\/+$/g, '');
+        if (!databaseUrl || !contentPath) return { cantons: [], passes: [] };
+        const response = await timeoutFetch(`${databaseUrl}/${contentPath}/achievementOverrides.json`, {
+            headers: { Accept: 'application/json' }, cache: 'no-store'
+        }, DEFAULT_TIMEOUT_MS);
+        if (!response.ok) return { cantons: [], passes: [] };
+        const payload = await response.json();
+        return {
+            cantons: Array.isArray(payload?.cantons) ? payload.cantons.map(String) : [],
+            passes: Array.isArray(payload?.passes) ? payload.passes.map(String) : []
+        };
+    }
+
     window.HorizonFirebase = {
         DEFAULT_TIMEOUT_MS,
         normalizeLivePoint,
@@ -189,6 +204,7 @@
         fetchTrackPoints: fetchLiveTrack,
         fetchLatestLivePoint,
         fetchGalleryItems,
-        fetchLiveStatusOverride
+        fetchLiveStatusOverride,
+        fetchAchievementOverrides
     };
 })();

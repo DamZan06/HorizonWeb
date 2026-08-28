@@ -315,12 +315,68 @@
         renderLiveStatus();
     }
 
+    const achievementOverrideDefinitions = {
+        cantons: [
+            ['gr', 'Graubünden'], ['ur', 'Uri'], ['vs', 'Valais'], ['vd', 'Vaud'], ['ge', 'Geneva']
+        ],
+        passes: [
+            ['piz', 'Piz Chavalatsch'], ['flueela', 'Flüela Pass'], ['strela', 'Strela Pass'], ['oberalp', 'Oberalp Pass'], ['furka', 'Furka Pass']
+        ]
+    };
+
+    async function renderAchievementOverride(type) {
+        const prefix = type === 'cantons' ? 'adminCantonOverride' : 'adminPassOverride';
+        const list = document.getElementById(`${prefix}List`);
+        const current = document.getElementById(`${prefix}Current`);
+        if (!list) return;
+        const overrides = await window.HorizonFirebase.fetchAchievementOverrides();
+        const selected = new Set(overrides[type] || []);
+        list.innerHTML = '';
+        achievementOverrideDefinitions[type].forEach(([key, label]) => {
+            const item = document.createElement('label');
+            item.className = 'admin-hidden-progress-item';
+            item.innerHTML = `<input type="checkbox" value="${key}" ${selected.has(key) ? 'checked' : ''}><span class="admin-hidden-progress-copy"><strong>${label}</strong><span>${key.toUpperCase()}</span></span>`;
+            list.appendChild(item);
+        });
+        if (current) current.textContent = `Automatic GPS detection active · ${selected.size}/5 manually activated.`;
+    }
+
+    function bindAchievementOverrideForm(type) {
+        const prefix = type === 'cantons' ? 'adminCantonOverride' : 'adminPassOverride';
+        const form = document.getElementById(`${prefix}Form`);
+        const notice = document.getElementById(`${prefix}Notice`);
+        if (!form || form.dataset.bound === 'true') return;
+        form.dataset.bound = 'true';
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const button = form.querySelector('button[type="submit"]');
+            if (button) button.disabled = true;
+            try {
+                const app = getFirebaseApp();
+                const current = await window.HorizonFirebase.fetchAchievementOverrides();
+                current[type] = Array.from(form.querySelectorAll('input[type="checkbox"]:checked')).map(input => input.value);
+                await window.firebase.database(app).ref(`${window.HorizonConfig.contentDatabasePath}/achievementOverrides`).set({
+                    cantons: current.cantons || [], passes: current.passes || [], updatedAt: Date.now()
+                });
+                if (notice) notice.textContent = 'Manual badge activations saved.';
+                await renderAchievementOverride(type);
+            } catch (error) {
+                if (notice) notice.textContent = `Save failed: ${error.message || 'unknown error'}`;
+            } finally {
+                if (button) button.disabled = false;
+            }
+        });
+        renderAchievementOverride(type).catch(() => { if (notice) notice.textContent = 'Could not load manual activations.'; });
+    }
+
     function unlockAdminPanel() {
         document.getElementById('adminLocked').hidden = true;
         document.getElementById('adminApp').hidden = false;
         bindGalleryForm();
         renderGalleryList();
         bindLiveStatusForm();
+        bindAchievementOverrideForm('cantons');
+        bindAchievementOverrideForm('passes');
     }
 
     function init() {
