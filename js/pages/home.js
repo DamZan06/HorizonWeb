@@ -1,5 +1,5 @@
 (function () {
-    const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
+    const tr = (key, fallback) => window.HorizonI18n?.t?.(key) || fallback || key;
     const homeState = {
         initialized: false,
         timerId: null,
@@ -58,7 +58,7 @@
             hoursNode.textContent = '00';
             minutesNode.textContent = '00';
             secondsNode.textContent = '00';
-            messageNode.textContent = tr('HORIZON IS UNDERWAY');
+            messageNode.textContent = tr("home.horizonIsUnderway", "HORIZON IS UNDERWAY");
             countdownNode.classList.add('is-finished');
             return;
         }
@@ -68,7 +68,7 @@
         hoursNode.textContent = String(countdown.hours).padStart(2, '0');
         minutesNode.textContent = String(countdown.minutes).padStart(2, '0');
         secondsNode.textContent = String(countdown.seconds).padStart(2, '0');
-        messageNode.textContent = tr('Time until departure');
+        messageNode.textContent = tr("home.timeUntilDeparture", "Time until departure");
         countdownNode.classList.remove('is-finished');
     }
 
@@ -80,10 +80,10 @@
         }
         const config = window.HorizonConfig || {};
         const state = summary.state || window.HorizonStatus?.getExpeditionState({ now: Date.now(), startDate: config.startDateIso, hasValidPoints:false });
-        const copy = window.HorizonStatus?.getStateCopy?.(state) || [tr('Tracker offline'), tr('No recent valid position is available.')];
+        const copy = window.HorizonStatus?.getStateCopy?.(state) || [tr("common.trackerOffline", "Tracker offline"), tr("common.noRecentValidPositionIsAvailable", "No recent valid position is available.")];
         const etaLabel = document.getElementById('homeEtaLabel');
         if (etaLabel) {
-            etaLabel.textContent = summary?.completedAt ? tr('Arrival') : tr('Estimated arrival');
+            etaLabel.textContent = summary?.completedAt ? tr("common.arrival", "Arrival") : tr("common.estimatedArrival", "Estimated arrival");
         }
         const label = document.getElementById('homeStatusLabel'), text = document.getElementById('homeStatusText');
         if (label) label.textContent = copy[0];
@@ -94,7 +94,7 @@
         document.querySelectorAll('.status-grid .status-pill').forEach((pill) => {
             pill.hidden = pill !== activePill;
         });
-        const values = summary?.started ? { homeDistance: `${summary.coveredDistanceKm.toFixed(1)} km`, homeRemaining: `${summary.remainingDistanceKm.toFixed(1)} km`, homeCompletion: `${summary.completionPercent.toFixed(1)}%`, homeTime: `${(summary.elapsedTimeMs/3600000).toFixed(1)} h`, homeGain: `${Math.round(summary.actualElevationGainM)} m`, homeSteps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(), homeEta: summary.completedAt ? new Intl.DateTimeFormat(document.documentElement.lang,{dateStyle:'medium',timeStyle:'short'}).format(summary.completedAt) : summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang,{dateStyle:'medium',timeStyle:'short'}).format(summary.eta) : tr('Not available') } : { homeDistance: '0 km', homeRemaining: `${summary?.plannedDistanceKm || config.expectedDistanceKm || 500} km`, homeCompletion: '0%', homeTime: '0 h', homeGain: '0 m', homeSteps: '0', homeEta: tr('Not available') };
+        const values = summary?.started ? { homeDistance: `${summary.coveredDistanceKm.toFixed(1)} km`, homeRemaining: `${summary.remainingDistanceKm.toFixed(1)} km`, homeCompletion: `${summary.completionPercent.toFixed(1)}%`, homeTime: `${(summary.elapsedTimeMs/3600000).toFixed(1)} h`, homeGain: `${Math.round(summary.actualElevationGainM)} m`, homeSteps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(), homeEta: summary.completedAt ? new Intl.DateTimeFormat(document.documentElement.lang,{dateStyle:'medium',timeStyle:'short'}).format(summary.completedAt) : summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang,{dateStyle:'medium',timeStyle:'short'}).format(summary.eta) : tr("common.notAvailable", "Not available") } : { homeDistance: '0 km', homeRemaining: `${summary?.plannedDistanceKm || config.expectedDistanceKm || 500} km`, homeCompletion: '0%', homeTime: '0 h', homeGain: '0 m', homeSteps: '0', homeEta: tr("common.notAvailable", "Not available") };
         Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
         const countdown = document.getElementById('homeCountdown');
         if (countdown) countdown.hidden = state !== 'not-started';

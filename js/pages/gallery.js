@@ -1,5 +1,5 @@
 (function () {
-    const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
+    const tr = (key, fallback) => window.HorizonI18n?.t?.(key) || fallback || key;
     const galleryState = {
         initialized: false,
         items: [],
@@ -99,7 +99,7 @@
         grid.innerHTML = '';
         galleryState.layoutEntries = [];
         if (!items.length) {
-            grid.innerHTML = `<p class="empty-state">${tr('Field photographs and places will appear here during the journey.')}</p>`;
+            grid.innerHTML = `<p class="empty-state">${tr("gallery.fieldPhotographsAndPlacesWillAppearHereDuring", "Field photographs and places will appear here during the journey.")}</p>`;
             return;
         }
 
@@ -109,8 +109,8 @@
             const article = document.createElement('article');
             article.className = 'gallery-card';
             article.innerHTML = `
-                <button type="button" class="gallery-trigger" data-gallery-index="${index}" aria-label="${tr('Open image')}: ${item.title}">
-                    <span class="gallery-photo-frame"><img src="${item.thumbnailUrl || item.imageUrl}" alt="${item.title || tr('HORIZON field photograph')}" decoding="async"></span>
+                <button type="button" class="gallery-trigger" data-gallery-index="${index}" aria-label="${tr("gallery.openImage", "Open image")}: ${item.title}">
+                    <span class="gallery-photo-frame"><img src="${item.thumbnailUrl || item.imageUrl}" alt="${item.title || tr("gallery.horizonFieldPhotograph", "HORIZON field photograph")}" decoding="async"></span>
                     <span class="gallery-meta">${item.location || 'HORIZON'}</span>
                 </button>
             `;
@@ -158,8 +158,8 @@
         modalImage.src = item.imageUrl || item.thumbnailUrl;
         modalImage.alt = item.title;
         modalTitle.textContent = item.title;
-        modalLocation.textContent = item.location || tr('HORIZON route');
-        modalDescription.textContent = item.description || tr('HORIZON gallery entry.');
+        modalLocation.textContent = item.location || tr("gallery.horizonRoute", "HORIZON route");
+        modalDescription.textContent = item.description || tr("gallery.horizonGalleryEntry", "HORIZON gallery entry.");
         modal.setAttribute('data-active-index', String(index));
         modal.classList.add('is-open');
         modal.querySelector('.modal-close')?.focus();
@@ -219,11 +219,11 @@
 
     function initPhotoMap(items) {
         const container = document.getElementById('map');
-        if (!container || !window.L) { markStatus(tr('Photo map unavailable.')); return; }
+        if (!container || !window.L) { markStatus(tr("gallery.photoMapUnavailable", "Photo map unavailable.")); return; }
         const mapApi = window.HorizonMap;
-        if (!mapApi?.createMap || !mapApi?.loadRoute) { markStatus(tr('Photo map unavailable.')); return; }
+        if (!mapApi?.createMap || !mapApi?.loadRoute) { markStatus(tr("gallery.photoMapUnavailable", "Photo map unavailable.")); return; }
         const map = mapApi.createMap({ center: [46.6, 10.4], zoom: 7 });
-        mapApi.loadRoute(window.HorizonConfig?.routeGeoJsonUrl).catch(() => markStatus(tr('Planned route unavailable.')));
+        mapApi.loadRoute(window.HorizonConfig?.routeGeoJsonUrl).catch(() => markStatus(tr("common.plannedRouteUnavailable", "Planned route unavailable.")));
         const group = window.L.markerClusterGroup ? window.L.markerClusterGroup() : window.L.layerGroup();
         items.filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng)).forEach((item, index) => {
             // Keep the shorter side constant across photos; the frame hugs whatever the longer side becomes.
@@ -257,11 +257,11 @@
             await renderGallery(items);
             bindModalControls(items);
             initPhotoMap(items);
-            markStatus(items.length ? tr('Geolocated images ready.') : tr('No field photographs yet.'));
+            markStatus(items.length ? tr("gallery.geolocatedImagesReady", "Geolocated images ready.") : tr("gallery.noFieldPhotographsYet", "No field photographs yet."));
         } catch (error) {
             galleryState.items = [];
             await renderGallery([]);
-            markStatus(tr('Gallery temporarily unavailable.'));
+            markStatus(tr("gallery.galleryTemporarilyUnavailable", "Gallery temporarily unavailable."));
         }
     }
 

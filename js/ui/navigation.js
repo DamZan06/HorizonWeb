@@ -1,12 +1,12 @@
 (function () {
-    const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
+    const tr = (key, fallback) => window.HorizonI18n?.t?.(key) || fallback || key;
     const NAV_ITEMS = [
-        { key: 'home', label: 'Home', href: 'index.html' },
-        { key: 'live', label: 'Live', href: 'live.html' },
-        { key: 'dashboard', label: 'Dashboard', href: 'dashboard.html' },
-        { key: 'progress', label: 'Objectives', href: 'progress.html' },
-        { key: 'gallery', label: 'Photos', href: 'gallery.html' },
-        { key: 'replay', label: 'Replay', href: 'replay.html' }
+        { key: 'home', i18n: 'common.home', label: 'Home', href: 'index.html' },
+        { key: 'live', i18n: 'common.live', label: 'Live', href: 'live.html' },
+        { key: 'dashboard', i18n: 'common.dashboard', label: 'Dashboard', href: 'dashboard.html' },
+        { key: 'progress', i18n: 'common.objectives', label: 'Objectives', href: 'progress.html' },
+        { key: 'gallery', i18n: 'common.photos', label: 'Photos', href: 'gallery.html' },
+        { key: 'replay', i18n: 'common.replay', label: 'Replay', href: 'replay.html' }
     ];
 
     function getPageKey() {
@@ -43,8 +43,8 @@
             NAV_ITEMS.forEach((item) => {
                 const link = document.createElement('a');
                 link.href = item.href;
-                link.textContent = tr(item.label);
-                link.dataset.i18n = `copy:${item.label}`;
+                link.textContent = tr(item.i18n, item.label);
+                link.dataset.i18n = item.i18n;
                 link.dataset.navKey = item.key;
                 if (item.key === activeKey) {
                     link.setAttribute('aria-current', 'page');

@@ -82,7 +82,7 @@
         const endpoint = getConfigValue('firebaseURL', '').trim();
         if (!endpoint) return [];
         trackRequest = timeoutFetch(endpoint, { headers: { Accept: 'application/json' }, cache: 'no-store' }, DEFAULT_TIMEOUT_MS)
-            .then((response) => { if (!response.ok) throw new Error(`${window.HorizonI18n?.t?.('copy:Tracker request failed') || 'Tracker request failed'} (${response.status})`); return response.json(); })
+            .then((response) => { if (!response.ok) throw new Error(`${window.HorizonI18n?.t?.('errors.trackerRequestFailed') || 'Tracker request failed'} (${response.status})`); return response.json(); })
             .then(normalizeLivePoints)
             .catch((error) => { trackRequest = null; throw error; });
         return trackRequest;
@@ -146,7 +146,7 @@
             cache: 'no-store'
         }, DEFAULT_TIMEOUT_MS);
         if (!response.ok) {
-            throw new Error(`${window.HorizonI18n?.t?.('copy:Gallery request failed') || 'Gallery request failed'} (${response.status})`);
+            throw new Error(`${window.HorizonI18n?.t?.('errors.galleryRequestFailed') || 'Gallery request failed'} (${response.status})`);
         }
 
         const payload = await response.json();
