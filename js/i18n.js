@@ -12,7 +12,8 @@
                 lastUpdate: 'Last update',
                 routeStart: 'Start',
                 routeFinish: 'Finish'
-            }, dynamic: { liveTrackingActive: 'Expedition not started. The planned route is visible; live position will appear after departure.' }
+            }, dynamic: { liveTrackingActive: 'Expedition not started. The planned route is visible; live position will appear after departure.' },
+            progress:{distance:{title:'Distance',description:'Every kilometre takes us farther west.',achievement:'Distance achievement'},elevation:{title:'Elevation gain',description:'Every climb makes us stronger.',achievement:'Elevation achievement'},time:{title:'Time',description:'Time passes. Determination remains.',achievement:'Time achievement'},locked:'Locked',next:'Next',unlocked:'Unlocked',required:'Required',current:'Current',status:'Status',completed:'Completed',remaining:'remaining',badges:{d1:'First kilometre',d50:'Westward trail',d100:'Across Switzerland',d250:'Halfway',d500:'Chancy summit',e1000:'First summit',e2500:'Alpine ascent',e5000:'High peak',e7500:'Alpine ridge',e10000:'Ultimate ascent',t24:'First day',t48:'Day and night',t100:'Night passage',t150:'Endurance',t200:'Beyond time'}}
         },
         it: {
             app: {
@@ -26,7 +27,8 @@
                 lastUpdate: 'Ultimo aggiornamento',
                 routeStart: 'Partenza',
                 routeFinish: 'Arrivo'
-            }, dynamic: { liveTrackingActive: 'Spedizione non ancora iniziata. Il percorso previsto è visibile; la posizione live apparirà dopo la partenza.' }
+            }, dynamic: { liveTrackingActive: 'Spedizione non ancora iniziata. Il percorso previsto è visibile; la posizione live apparirà dopo la partenza.' },
+            progress:{distance:{title:'Distanza',description:'Ogni chilometro ci porta più a ovest.',achievement:'Traguardo di distanza'},elevation:{title:'Dislivello positivo',description:'Ogni salita ci rende più forti.',achievement:'Traguardo di dislivello'},time:{title:'Tempo',description:'Il tempo passa. La determinazione resta.',achievement:'Traguardo di tempo'},locked:'Bloccato',next:'Prossimo',unlocked:'Sbloccato',required:'Richiesto',current:'Attuale',status:'Stato',completed:'Completato',remaining:'rimanenti',badges:{d1:'Primo chilometro',d50:'Verso ovest',d100:'Attraverso la Svizzera',d250:'Metà percorso',d500:'Vetta di Chancy',e1000:'Prima vetta',e2500:'Ascesa alpina',e5000:'Alta vetta',e7500:'Cresta alpina',e10000:'Ascesa definitiva',t24:'Primo giorno',t48:'Giorno e notte',t100:'Passaggio notturno',t150:'Resistenza',t200:'Oltre il tempo'}}
         },
         de: {
             app: {
@@ -40,7 +42,8 @@
                 lastUpdate: 'Letzte Aktualisierung',
                 routeStart: 'Start',
                 routeFinish: 'Ziel'
-            }, dynamic: { liveTrackingActive: 'Die Expedition hat noch nicht begonnen. Die geplante Route ist sichtbar; die Live-Position erscheint nach dem Start.' }
+            }, dynamic: { liveTrackingActive: 'Die Expedition hat noch nicht begonnen. Die geplante Route ist sichtbar; die Live-Position erscheint nach dem Start.' },
+            progress:{distance:{title:'Distanz',description:'Jeder Kilometer führt uns weiter nach Westen.',achievement:'Distanzabzeichen'},elevation:{title:'Höhengewinn',description:'Jeder Aufstieg macht uns stärker.',achievement:'Höhenabzeichen'},time:{title:'Zeit',description:'Die Zeit vergeht. Die Entschlossenheit bleibt.',achievement:'Zeitabzeichen'},locked:'Gesperrt',next:'Nächstes',unlocked:'Freigeschaltet',required:'Erforderlich',current:'Aktuell',status:'Status',completed:'Abgeschlossen',remaining:'verbleibend',badges:{d1:'Erster Kilometer',d50:'Westwärts',d100:'Durch die Schweiz',d250:'Halbzeit',d500:'Gipfel von Chancy',e1000:'Erster Gipfel',e2500:'Alpiner Aufstieg',e5000:'Hoher Gipfel',e7500:'Alpengrat',e10000:'Finaler Aufstieg',t24:'Erster Tag',t48:'Tag und Nacht',t100:'Nachtpassage',t150:'Ausdauer',t200:'Jenseits der Zeit'}}
         },
         fr: {
             app: {
@@ -54,7 +57,8 @@
                 lastUpdate: 'Dernière mise à jour',
                 routeStart: 'Départ',
                 routeFinish: 'Arrivée'
-            }, dynamic: { liveTrackingActive: "L’expédition n’a pas encore commencé. L’itinéraire prévu est visible; la position en direct apparaîtra après le départ." }
+            }, dynamic: { liveTrackingActive: "L’expédition n’a pas encore commencé. L’itinéraire prévu est visible; la position en direct apparaîtra après le départ." },
+            progress:{distance:{title:'Distance',description:'Chaque kilomètre nous mène plus à l’ouest.',achievement:'Badge de distance'},elevation:{title:'Dénivelé positif',description:'Chaque montée nous rend plus forts.',achievement:'Badge de dénivelé'},time:{title:'Temps',description:'Le temps passe. La détermination reste.',achievement:'Badge de temps'},locked:'Verrouillé',next:'Suivant',unlocked:'Déverrouillé',required:'Requis',current:'Actuel',status:'Statut',completed:'Terminé',remaining:'restants',badges:{d1:'Premier kilomètre',d50:'Vers l’ouest',d100:'À travers la Suisse',d250:'Mi-parcours',d500:'Sommet de Chancy',e1000:'Premier sommet',e2500:'Ascension alpine',e5000:'Haut sommet',e7500:'Crête alpine',e10000:'Ascension ultime',t24:'Premier jour',t48:'Jour et nuit',t100:'Passage nocturne',t150:'Endurance',t200:'Au-delà du temps'}}
         }
     };
 

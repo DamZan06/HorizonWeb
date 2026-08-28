@@ -1,29 +1,37 @@
-(function () {
-    const milestones = [
-        { distanceKm: 1, title: 'First kilometre' },
-        { distanceKm: 50, title: '50 kilometres west' },
-        { distanceKm: 100, title: 'A fifth of Switzerland' },
-        { distanceKm: 250, title: 'Halfway' },
-        { completionPercent: 100, title: 'Chancy' },
-        { distanceKm: 500, title: '500 kilometres' }
-    ];
-    function render(summaryOrDistance) {
-        const grid = document.querySelector('.badge-grid');
-        if (!grid) return;
-        const summary = typeof summaryOrDistance === 'object' ? summaryOrDistance : null;
-        const distance = Math.max(0, Number(summary?.coveredDistanceKm ?? summaryOrDistance) || 0);
-        const completion = Math.max(0, Number(summary?.completionPercent) || 0);
-        grid.innerHTML = '';
-        milestones.forEach((item) => {
-            const article = document.createElement('article');
-            const unlocked = item.completionPercent != null ? completion >= item.completionPercent : distance >= item.distanceKm;
-            article.className = `metric-card milestone ${unlocked ? 'is-unlocked' : 'is-locked'}`;
-            const target = item.completionPercent != null ? `${item.completionPercent}% complete` : `${item.distanceKm} km`;
-            article.innerHTML = `<p class="eyebrow">${unlocked ? 'Unlocked' : 'Locked'}</p><h2>${item.title}</h2><p>${target}</p>`;
-            grid.appendChild(article);
-        });
-    }
-    window.HorizonProgress = { milestones, render };
-    function init(){render(0);window.HorizonExpedition?.loadSummary?.().then(render).catch(()=>{});}
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
+(function(){
+const A={
+boot:'<path d="M22 8c9 12 2 23 10 30 5 4 16 3 19 10 2 5-2 9-9 9H19c-8 0-9-9-2-13l7-5c-5-11-8-23-2-31Z"/><path d="m21 29 10-5m-12-4 10-5M17 48h32"/>',
+sign:'<path d="M31 56V23M12 13h37l8 10-8 10H12L5 23l7-10Z"/><path d="M18 23h29M37 40h15l7 7-7 7H37"/>',
+swiss:'<path d="m9 28 9-13 12 3 8-8 11 9 7 2-3 12 5 8-12 4-5 10-12-5-10 4-5-11-8-4 4-11Z"/><path d="M26 25h12v14H26zM32 21v22M22 32h20"/>',
+milestone:'<path d="M18 56V13l14-7 14 7v43M12 56h40"/><path d="M24 20h16v18H24zM24 46h16M32 20v18"/>',
+flag:'<path d="M8 55 24 34l9 9 8-16 15 28H8Z"/><path d="M33 43V7m1 3h20l-6 8 6 8H34"/>',
+summit:'<path d="M6 55 29 12l8 16 7-9 14 36H6Z"/><path d="m22 26 7-14 5 11-5 6-4-4-3 1Z"/><circle cx="29" cy="8" r="3"/>',
+ascent:'<path d="M5 55 27 18l9 14 8-13 15 36H5Z"/><path d="M16 50c10-2 4-9 14-12s5-9 15-12"/><path d="m40 22 6 3-2 7"/>',
+peak:'<path d="M4 55 32 5l28 50H4Z"/><path d="m19 29 13-24 9 17-8 7-7-6-7 6ZM10 49h44"/>',
+ridge:'<path d="M3 55 17 27l8 9 11-24 9 19 7-8 9 32H3Z"/><path d="m28 29 8-17 6 13-5 5-5-4-4 3ZM8 48c16-7 31-7 48 0"/>',
+ultimate:'<path d="M5 56 31 13l8 13 7-7 13 37H5Z"/><path d="M31 34V7m-6 7 6-7 6 7M14 52h36"/>',
+sunrise:'<path d="M8 51 23 34l8 8 9-14 16 23H8Z"/><path d="M18 31a14 14 0 0 1 28 0M32 6v7M10 27h7m30 0h7M16 12l5 6m27-6-5 6"/>',
+cycle:'<path d="M8 50 25 34l8 8 9-13 14 21H8Z"/><circle cx="20" cy="18" r="8"/><path d="M49 7a11 11 0 1 0 7 20A12 12 0 0 1 49 7Z"/>',
+night:'<path d="M7 55 22 37l8 8 12-18 15 28H7Z"/><path d="M45 7a12 12 0 1 0 8 21A13 13 0 0 1 45 7ZM18 52c6-3 9-8 13-14"/>',
+stopwatch:'<circle cx="32" cy="36" r="21"/><path d="M25 6h14v7H25zM32 14v5m15 2 5-5M32 36l10-8M18 36h4m20 0h4M32 46v4"/>',
+hourglass:'<path d="M19 8h26M19 56h26M22 9c0 13 4 16 10 23-6 7-10 10-10 23m20-46c0 13-4 16-10 23 6 7 10 10 10 23M25 48h14l-7-9-7 9ZM14 15c-7 8-6 25 0 33m36-33c7 8 6 25 0 33"/>'};
+const C=[
+{id:'distance',max:500,unit:'km',value:s=>s.coveredDistanceKm,b:[['d1',1,'First kilometre','boot'],['d50',50,'Westward trail','sign'],['d100',100,'Across Switzerland','swiss'],['d250',250,'Halfway','milestone'],['d500',500,'Chancy summit','flag']]},
+{id:'elevation',max:10000,unit:'m+',value:s=>s.actualElevationGainM,b:[['e1000',1000,'First summit','summit'],['e2500',2500,'Alpine ascent','ascent'],['e5000',5000,'High peak','peak'],['e7500',7500,'Alpine ridge','ridge'],['e10000',10000,'Ultimate ascent','ultimate']]},
+{id:'time',max:200,unit:'h',value:s=>Number(s.elapsedTimeMs)/3600000,b:[['t24',24,'First day','sunrise'],['t48',48,'Day and night','cycle'],['t100',100,'Night passage','night'],['t150',150,'Endurance','stopwatch'],['t200',200,'Beyond time','hourglass']]}
+];
+const S={values:{distance:0,elevation:0,time:0},buttons:new Map(),active:null,timer:null};
+const t=(k,f)=>window.HorizonI18n?.t?.('progress.'+k)||f,lang=()=>document.documentElement.lang||'en';
+const num=(v,d=0)=>new Intl.NumberFormat(lang(),{maximumFractionDigits:d}).format(v),fmt=(v,c,d=0)=>`${num(v,d)} ${c.unit}`;
+function line(v,a){if(v<a[0])return 0;for(let i=0;i<a.length-1;i++)if(v<a[i+1])return((i+(v-a[i])/(a[i+1]-a[i]))/(a.length-1))*100;return 100}
+const lock='<span class="achievement-lock" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>';
+function build(){const root=document.querySelector('.badge-grid');if(!root||root.dataset.built)return;root.dataset.built='1';root.className='achievement-system';C.forEach(c=>{const sec=document.createElement('section');sec.className='achievement-category';sec.dataset.category=c.id;sec.innerHTML='<header class="achievement-category-head"><div><p class="eyebrow" data-title></p><p class="achievement-description" data-description></p></div><strong data-progress></strong></header><div class="achievement-scroll"><div class="achievement-track"><div class="achievement-line"><span></span></div><div class="achievement-badges"></div></div></div>';const row=sec.querySelector('.achievement-badges');c.b.forEach(([id,n,title,icon])=>{const b=document.createElement('button');b.type='button';b.className='achievement-badge is-locked';b.dataset.badgeId=id;b.innerHTML=`<span class="achievement-threshold">${fmt(n,c)}</span><span class="achievement-medal"><svg viewBox="0 0 64 64">${A[icon]}</svg>${lock}<span class="achievement-check" aria-hidden="true">✓</span></span><span class="achievement-name">${title}</span><span class="achievement-state-label"></span>`;b.onclick=()=>open(c,id,b);row.appendChild(b);S.buttons.set(id,b)});root.appendChild(sec)});dialog();translate()}
+function update(summary={}){C.forEach(c=>{const v=Math.max(0,Number(c.value(summary))||0);S.values[c.id]=v;const sec=document.querySelector(`[data-category="${c.id}"]`);if(!sec)return;sec.querySelector('[data-progress]').textContent=`${fmt(v,c,c.id==='distance'?1:0)} / ${fmt(c.max,c)}`;sec.querySelector('.achievement-line span').style.width=line(v,c.b.map(x=>x[1]))+'%';const next=v>0?c.b.find(x=>v<x[1])?.[0]:null;c.b.forEach(([id,n])=>{const b=S.buttons.get(id),was=b.classList.contains('is-unlocked'),un=v>=n;b.classList.toggle('is-unlocked',un);b.classList.toggle('is-next',!un&&id===next);b.classList.toggle('is-locked',!un&&id!==next);const label=un?t('unlocked','Unlocked'):id===next?t('next','Next'):t('locked','Locked');b.querySelector('.achievement-state-label').textContent=label;b.setAttribute('aria-label',`${b.querySelector('.achievement-name').textContent}, ${label}`);if(un&&!was&&b.dataset.ready)b.classList.add('just-unlocked');b.dataset.ready='1'})})}
+function translate(){C.forEach(c=>{const sec=document.querySelector(`[data-category="${c.id}"]`);if(!sec)return;sec.querySelector('[data-title]').textContent=t(c.id+'.title',c.id==='elevation'?'Elevation gain':c.id[0].toUpperCase()+c.id.slice(1));sec.querySelector('[data-description]').textContent=t(c.id+'.description','Expedition milestones');c.b.forEach(([id])=>{const n=S.buttons.get(id).querySelector('.achievement-name');n.textContent=t('badges.'+id,n.textContent)})});update({coveredDistanceKm:S.values.distance,actualElevationGainM:S.values.elevation,elapsedTimeMs:S.values.time*3600000})}
+function dialog(){if(document.getElementById('achievementDialog'))return;const d=document.createElement('div');d.id='achievementDialog';d.className='achievement-dialog-backdrop';d.hidden=true;d.innerHTML='<div class="achievement-dialog" role="dialog" aria-modal="true" aria-labelledby="achievementDialogTitle"><button type="button" class="achievement-dialog-close" aria-label="Close">×</button><div class="achievement-dialog-art"></div><p class="eyebrow achievement-dialog-category"></p><h2 id="achievementDialogTitle"></h2><dl><div><dt data-l="required"></dt><dd data-v="required"></dd></div><div><dt data-l="current"></dt><dd data-v="current"></dd></div><div><dt data-l="status"></dt><dd data-v="status"></dd></div></dl><p class="achievement-dialog-remaining"></p></div>';document.body.appendChild(d);d.querySelector('button').onclick=close;d.onclick=e=>{if(e.target===d)close()};document.addEventListener('keydown',e=>{if(d.hidden)return;if(e.key==='Escape')close();if(e.key==='Tab'){e.preventDefault();d.querySelector('button').focus()}})}
+function open(c,id,b){const x=c.b.find(y=>y[0]===id),d=document.getElementById('achievementDialog'),v=S.values[c.id],un=v>=x[1];S.active=b;d.querySelector('.achievement-dialog-art').innerHTML=b.querySelector('.achievement-medal svg').outerHTML;d.querySelector('.achievement-dialog-category').textContent=t(c.id+'.achievement',t(c.id+'.title',c.id)+' achievement');d.querySelector('h2').textContent=b.querySelector('.achievement-name').textContent;['required','current','status'].forEach(k=>d.querySelector(`[data-l="${k}"]`).textContent=t(k,k[0].toUpperCase()+k.slice(1)));d.querySelector('[data-v="required"]').textContent=fmt(x[1],c);d.querySelector('[data-v="current"]').textContent=fmt(v,c,c.id==='distance'?1:0);d.querySelector('[data-v="status"]').textContent=un?t('unlocked','Unlocked'):t('locked','Locked');d.querySelector('.achievement-dialog-remaining').textContent=un?t('completed','Completed'):`${fmt(Math.max(0,x[1]-v),c,c.id==='distance'?1:0)} ${t('remaining','remaining')}`;d.hidden=false;d.querySelector('button').focus()}
+function close(){document.getElementById('achievementDialog').hidden=true;S.active?.focus()}
+async function refresh(){try{update(await window.HorizonExpedition?.loadSummary?.({force:true})||{})}catch{update({})}}
+function init(){build();update({});refresh();S.timer=setInterval(refresh,20000);document.addEventListener('horizon:languagechange',translate)}
+window.HorizonProgress={categories:C,update,refresh,linePercent:line};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
 })();
