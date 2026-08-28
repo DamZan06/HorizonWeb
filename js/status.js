@@ -33,14 +33,14 @@
     }
 
     function getStateCopy(state) {
-        const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
+        const tr = (key, fallback) => window.HorizonI18n?.t?.(key) || fallback || key;
         return {
-            'not-started': [tr('Not started'), tr('Waiting for departure. The planned route is ready.')],
-            resting: [tr('Paused'), tr('The expedition has started and is currently stationary.')],
-            ended: [tr('End of day'), tr('Today’s stage has ended. The expedition will continue from here.')],
-            live: [tr('Started'), tr('The expedition is underway.')],
-            finished: [tr('Arrived'), tr('HORIZON has reached Chancy.')]
-        }[state] || [tr('Tracker offline'), tr('No recent valid position is available.')];
+            'not-started': [tr("common.notStarted", "Not started"), tr("status.waitingForDepartureThePlannedRouteIsReady", "Waiting for departure. The planned route is ready.")],
+            resting: [tr("common.paused", "Paused"), tr("status.theExpeditionHasStartedAndIsCurrentlyStationary", "The expedition has started and is currently stationary.")],
+            ended: [tr("common.endOfDay", "End of day"), tr("status.todaySStageHasEndedTheExpeditionWill", "Today’s stage has ended. The expedition will continue from here.")],
+            live: [tr("status.started", "Started"), tr("status.theExpeditionIsUnderway", "The expedition is underway.")],
+            finished: [tr("status.arrived", "Arrived"), tr("status.horizonHasReachedChancy", "HORIZON has reached Chancy.")]
+        }[state] || [tr("common.trackerOffline", "Tracker offline"), tr("common.noRecentValidPositionIsAvailable", "No recent valid position is available.")];
     }
 
     const horizonStatus = Object.assign(window.HorizonStatus || {}, {

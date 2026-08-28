@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "node tools/serve.js",
     "build:route": "node tools/build-route.js",
-    "test": "node tools/js-syntax-check.js && node tools/unit-test.js && node tools/smoke-test.js",
+    "test": "node tools/js-syntax-check.js && node tools/i18n-check.js && node tools/unit-test.js && node tools/smoke-test.js",
     "test:e2e": "playwright test tests/e2e.spec.js",
     "start": "node tools/serve.js"
   },

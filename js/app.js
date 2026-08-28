@@ -1,5 +1,5 @@
 (function () {
-    const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
+    const tr = (key, fallback) => window.HorizonI18n?.t?.(key) || fallback || key;
     const app = window.HorizonApp || {};
 
     function setupLanguageControls() {
@@ -8,18 +8,16 @@
         const options = '<option value="en">English</option><option value="it">Italiano</option><option value="de">Deutsch</option><option value="fr">Français</option>';
         if (topbar && !topbar.querySelector('.lang-switcher-desktop')) {
             const wrap = document.createElement('div'); wrap.className = 'lang-switcher lang-switcher-desktop';
-            wrap.innerHTML = `<label class="lang-switcher-label" data-i18n="copy:Language">${tr('Language')}</label><select class="lang-switcher-select" data-i18n-attr='{"aria-label":"copy:Language"}' aria-label="${tr('Language')}">${options}</select>`; topbar.appendChild(wrap);
+            wrap.innerHTML = `<label class="lang-switcher-label" data-i18n="common.language">${tr("common.language", "Language")}</label><select class="lang-switcher-select" data-i18n-attr='{"aria-label":"common.language"}' aria-label="${tr("common.language", "Language")}">${options}</select>`; topbar.appendChild(wrap);
         }
         if (nav && !nav.querySelector('.lang-switcher-mobile')) {
             const wrap = document.createElement('div'); wrap.className = 'lang-switcher lang-switcher-mobile';
-            wrap.innerHTML = `<label class="lang-switcher-label" data-i18n="copy:Language">${tr('Language')}</label><select class="lang-switcher-select" data-i18n-attr='{"aria-label":"copy:Language"}' aria-label="${tr('Language')}">${options}</select>`; nav.appendChild(wrap);
-        }
-        const preferred = localStorage.getItem('horizon-language') || document.documentElement.lang || 'en';
-        if (typeof window.HorizonI18n?.applyLanguagePreference === 'function') {
-            window.HorizonI18n.applyLanguagePreference(preferred);
+            wrap.innerHTML = `<label class="lang-switcher-label" data-i18n="common.language">${tr("common.language", "Language")}</label><select class="lang-switcher-select" data-i18n-attr='{"aria-label":"common.language"}' aria-label="${tr("common.language", "Language")}">${options}</select>`; nav.appendChild(wrap);
         }
         if (typeof window.HorizonI18n?.hydrateLanguageControls === 'function') {
             window.HorizonI18n.hydrateLanguageControls();
+        } else if (typeof window.HorizonI18n?.applyLanguagePreference === 'function') {
+            window.HorizonI18n.applyLanguagePreference(document.documentElement.lang || 'en');
         }
     }
 
@@ -34,7 +32,8 @@
             toggle = document.createElement('button');
             toggle.type = 'button'; toggle.className = 'topbar-menu-toggle';
             toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/></svg>';
-            toggle.title = tr('Open menu');
+            toggle.title = tr("common.openMenu", "Open menu");
+            toggle.setAttribute('aria-label', tr("common.openMenu", "Open menu"));
             toggle.setAttribute('aria-expanded', 'false'); toggle.setAttribute('aria-controls', nav.id);
             topbar.insertBefore(toggle, nav);
         }
@@ -52,7 +51,8 @@
             const isHidden = !isOpen;
             document.body.classList.toggle('mobile-nav-open', isOpen);
             toggle.setAttribute('aria-expanded', String(isOpen));
-            toggle.setAttribute('aria-label', isOpen ? tr('Close menu') : tr('Open menu'));
+            toggle.setAttribute('aria-label', isOpen ? tr("common.closeMenu", "Close menu") : tr("common.openMenu", "Open menu"));
+            toggle.title = isOpen ? tr("common.closeMenu", "Close menu") : tr("common.openMenu", "Open menu");
             nav.setAttribute('aria-hidden', String(isHidden));
             if (overlay) {
                 overlay.hidden = !isOpen;
@@ -74,9 +74,13 @@
             }
         });
 
-        nav.querySelectorAll('a').forEach((link) => {
-            link.addEventListener('click', () => setMenuState(false));
+        nav.addEventListener('click', (event) => {
+            if (event.target.closest('a')) setMenuState(false);
         });
+        document.addEventListener('horizon:languagechange', () => {
+            setMenuState(toggle.getAttribute('aria-expanded') === 'true');
+        });
+        setMenuState(false);
     }
 
     function setupScrollableBackground() {

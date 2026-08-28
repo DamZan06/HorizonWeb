@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title data-i18n="copy:HORIZON — Admin">HORIZON — Admin</title>
-    <meta name="description" content="HORIZON admin panel to manage shared field notes and gallery.">
+    <title data-i18n="admin.horizonAdmin">HORIZON — Admin</title>
+    <meta name="description" content="HORIZON admin panel to manage shared field notes and gallery." data-i18n-attr='{"content":"meta.adminDescription"}'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/tokens.css?v=20260828b">
     <link rel="stylesheet" href="css/global.css?v=20260828j">
@@ -15,39 +15,39 @@
 <body data-page="admin">
     <header class="topbar">
         <div class="brand">
-            <img src="assets/logo_horizon_homepage.png?v=20260827a" alt="Logo HORIZON" class="brand-icon" data-i18n-attr='{"alt":"copy:Logo HORIZON"}'>
+            <img src="assets/logo_horizon_homepage.png?v=20260827a" alt="Logo HORIZON" class="brand-icon" data-i18n-attr='{"alt":"admin.logoHorizon"}'>
             <div>
                 <span class="brand-title">HORIZON</span>
-                <span class="brand-subtitle" data-i18n="copy:Admin">Admin</span>
+                <span class="brand-subtitle" data-i18n="common.admin">Admin</span>
             </div>
         </div>
-        <nav class="main-nav" aria-label="Main navigation" data-i18n-attr='{"aria-label":"copy:Main navigation"}'>
-            <a href="index.html" data-i18n="copy:Home">Home</a>
-            <a href="live.html" data-i18n="copy:Live">Live</a>
-            <a href="project.html" data-i18n="copy:Project">Project</a>
-            <a href="gallery.html" data-i18n="copy:Journey">Journey</a>
-            <a href="replay.html" data-i18n="copy:Replay">Replay</a>
-            <a href="dashboard.html" data-i18n="copy:Dashboard">Dashboard</a>
+        <nav class="main-nav" aria-label="Main navigation" data-i18n-attr='{"aria-label":"common.mainNavigation"}'>
+            <a href="index.html" data-i18n="common.home">Home</a>
+            <a href="live.html" data-i18n="common.live">Live</a>
+            <a href="project.html" data-i18n="common.project">Project</a>
+            <a href="gallery.html" data-i18n="common.journey">Journey</a>
+            <a href="replay.html" data-i18n="common.replay">Replay</a>
+            <a href="dashboard.html" data-i18n="common.dashboard">Dashboard</a>
         </nav>
     </header>
     <main class="page page-admin">
         <section id="adminLocked" class="section section-white">
             <div class="section-title">
-                <p class="eyebrow" data-i18n="copy:Restricted access">Restricted access</p>
-                <h1 data-i18n="copy:Administration panel">Administration panel</h1>
-                <p data-i18n="copy:This page is not linked from the public navigation. Enter your Firebase email and password to access and publish shared content.">This page is not linked from the public navigation. Enter your Firebase email and password to access and publish shared content.</p>
+                <p class="eyebrow" data-i18n="admin.restrictedAccess">Restricted access</p>
+                <h1 data-i18n="admin.administrationPanel">Administration panel</h1>
+                <p data-i18n="admin.thisPageIsNotLinkedFromThePublic">This page is not linked from the public navigation. Enter your Firebase email and password to access and publish shared content.</p>
                 <p id="adminModeLabel"></p>
             </div>
             <form id="adminLoginForm" class="admin-login-form">
                 <label>
-                    <span data-i18n="copy:Firebase email">Firebase email</span>
+                    <span data-i18n="admin.firebaseEmail">Firebase email</span>
                     <input type="email" name="email" autocomplete="username">
                 </label>
                 <label>
-                    <span data-i18n="copy:Password">Password</span>
+                    <span data-i18n="admin.password">Password</span>
                     <input type="password" name="password" autocomplete="current-password" required>
                 </label>
-                <button type="submit" class="button primary" data-i18n="copy:Sign in">Sign in</button>
+                <button type="submit" class="button primary" data-i18n="admin.signIn">Sign in</button>
                 <p id="adminLoginSuccess" class="admin-feedback"></p>
                 <p id="adminLoginError" class="admin-error"></p>
             </form>
@@ -55,32 +55,32 @@
 
         <section id="adminApp" class="section admin-section-stack" hidden>
             <div class="section-title">
-                <p class="eyebrow" data-i18n="copy:Content management">Content management</p>
-                <h2 data-i18n="copy:Gallery">Gallery</h2>
-                <p data-i18n="copy:Add, delete and reorder the images published on the site from here.">Add, delete and reorder the images published on the site from here.</p>
+                <p class="eyebrow" data-i18n="admin.contentManagement">Content management</p>
+                <h2 data-i18n="common.gallery">Gallery</h2>
+                <p data-i18n="admin.addDeleteAndReorderTheImagesPublishedOn">Add, delete and reorder the images published on the site from here.</p>
             </div>
             <div class="admin-toolbar">
                 <p id="adminSaveNotice" class="admin-feedback"></p>
-                <button id="adminLogoutBtn" type="button" class="button ghost" data-i18n="copy:Log out">Log out</button>
+                <button id="adminLogoutBtn" type="button" class="button ghost" data-i18n="admin.logOut">Log out</button>
             </div>
 
             <details class="section-white admin-block admin-collapsible">
-                <summary><span data-i18n="copy:Live status">Live status</span><small data-i18n="copy:Change the expedition status shown publicly">Change the expedition status shown publicly</small></summary>
+                <summary><span data-i18n="admin.liveStatus">Live status</span><small data-i18n="admin.changeTheExpeditionStatusShownPublicly">Change the expedition status shown publicly</small></summary>
                 <div class="admin-collapsible-content">
                     <div class="section-title">
-                        <h2 data-i18n="copy:Live status">Live status</h2>
-                    <p data-i18n="copy:You can manually force End of day. If Garmin keeps sending MOVING for at least 2 minutes, the status returns automatically to Moving.">You can manually force End of day. If Garmin keeps sending MOVING for at least 2 minutes, the status returns automatically to Moving.</p>
+                        <h2 data-i18n="admin.liveStatus">Live status</h2>
+                    <p data-i18n="admin.youCanManuallyForceEndOfDayIf">You can manually force End of day. If Garmin keeps sending MOVING for at least 2 minutes, the status returns automatically to Moving.</p>
                     </div>
                     <form id="adminLiveStatusForm" class="admin-form-grid">
-                        <label class="admin-form-full"><span data-i18n="copy:Status mode">Status mode</span>
+                        <label class="admin-form-full"><span data-i18n="admin.statusMode">Status mode</span>
                             <select name="forcedStatus">
-                                <option value="" data-i18n="copy:Automatic from Garmin/Firebase">Automatic from Garmin/Firebase</option>
-                                <option value="ended" data-i18n="copy:End of day">End of day</option>
-                                <option value="finished" data-i18n="copy:Finished (arrived at Chancy)">Finished (arrived at Chancy)</option>
+                                <option value="" data-i18n="admin.automaticFromGarminFirebase">Automatic from Garmin/Firebase</option>
+                                <option value="ended" data-i18n="common.endOfDay">End of day</option>
+                                <option value="finished" data-i18n="admin.finishedArrivedAtChancy">Finished (arrived at Chancy)</option>
                             </select>
                         </label>
-                        <p id="adminLiveStatusCurrent" class="admin-inline-note admin-form-full" data-i18n="copy:Current status: loading...">Current status: loading...</p>
-                        <button type="submit" class="button primary" data-i18n="copy:Save live status">Save live status</button>
+                        <p id="adminLiveStatusCurrent" class="admin-inline-note admin-form-full" data-i18n="admin.currentStatusLoading">Current status: loading...</p>
+                        <button type="submit" class="button primary" data-i18n="admin.saveLiveStatus">Save live status</button>
                         <p id="adminLiveStatusNotice" class="admin-feedback admin-form-full"></p>
                     </form>
                 </div>
@@ -88,86 +88,86 @@
 
             <section class="section-white admin-block">
                 <div class="section-title">
-                    <h2 data-i18n="copy:Gallery">Gallery</h2>
+                    <h2 data-i18n="common.gallery">Gallery</h2>
                 </div>
                 <form data-admin-form="gallery" class="admin-form-grid">
-                    <label><span data-i18n="copy:Title">Title</span><input type="text" name="title" required></label>
-                    <label><span data-i18n="copy:Date">Date</span>
+                    <label><span data-i18n="common.title">Title</span><input type="text" name="title" required></label>
+                    <label><span data-i18n="common.date">Date</span>
                         <span class="admin-input-with-action">
-                            <input type="text" name="date" placeholder="01/08/2026" data-i18n-attr='{"placeholder":"copy:01/08/2026"}'>
-                            <button id="adminGalleryNowBtn" type="button" class="button secondary" data-i18n="copy:Now">Now</button>
+                            <input type="text" name="date" placeholder="01/08/2026" data-i18n-attr='{"placeholder":"admin.value01082026"}'>
+                            <button id="adminGalleryNowBtn" type="button" class="button secondary" data-i18n="admin.now">Now</button>
                         </span>
                     </label>
-                    <label><span data-i18n="copy:Time">Time</span><input type="text" name="time" placeholder="07:30"></label>
-                    <label><span data-i18n="copy:Km">Km</span>
+                    <label><span data-i18n="common.time">Time</span><input type="text" name="time" placeholder="07:30"></label>
+                    <label><span data-i18n="common.km">Km</span>
                         <span class="admin-input-with-action">
                             <input type="text" name="km" placeholder="18">
-                            <button id="adminGalleryKmNowBtn" type="button" class="button secondary" data-i18n="copy:Current km">Current km</button>
+                            <button id="adminGalleryKmNowBtn" type="button" class="button secondary" data-i18n="admin.currentKm">Current km</button>
                         </span>
                     </label>
-                    <label><span data-i18n="copy:Location">Location</span>
-                        <input type="text" name="location" placeholder="Automatically set from location" readonly data-i18n-attr='{"placeholder":"copy:Automatically set from location"}'>
+                    <label><span data-i18n="common.location">Location</span>
+                        <input type="text" name="location" placeholder="Automatically set from location" readonly data-i18n-attr='{"placeholder":"admin.automaticallySetFromLocation"}'>
                     </label>
-                    <label class="admin-form-full"><span data-i18n="copy:Description">Description</span><textarea name="description" rows="4"></textarea></label>
-                    <label class="admin-form-full"><span data-i18n="copy:Image">Image</span><input type="file" name="image" accept="image/*" required></label>
+                    <label class="admin-form-full"><span data-i18n="common.description">Description</span><textarea name="description" rows="4"></textarea></label>
+                    <label class="admin-form-full"><span data-i18n="common.image">Image</span><input type="file" name="image" accept="image/*" required></label>
                     <div class="admin-form-full admin-inline-row">
-                        <button id="adminGalleryGeoBtn" type="button" class="button secondary" data-i18n="copy:Use current location">Use current location</button>
-                        <button id="adminGalleryMapBtn" type="button" class="button secondary" data-i18n="copy:Choose on map">Choose on map</button>
-                        <span id="adminGalleryGeoStatus" class="admin-inline-note" data-i18n="copy:Location not set">Location not set</span>
+                        <button id="adminGalleryGeoBtn" type="button" class="button secondary" data-i18n="admin.useCurrentLocation">Use current location</button>
+                        <button id="adminGalleryMapBtn" type="button" class="button secondary" data-i18n="admin.chooseOnMap">Choose on map</button>
+                        <span id="adminGalleryGeoStatus" class="admin-inline-note" data-i18n="admin.locationNotSet">Location not set</span>
                     </div>
                     <div id="adminGalleryMapPickerWrap" class="admin-form-full admin-map-picker-wrap" hidden>
-                        <p class="admin-inline-note" data-i18n="copy:Click on lla cartina per impostare la posizione della foto.">Click on
+                        <p class="admin-inline-note" data-i18n="admin.clickOnLlaCartinaPerImpostareLaPosizione">Click on
 lla cartina per impostare la posizione della foto.</p>                        <div id="adminGalleryMapPicker" class="admin-map-picker"></div>
                     </div>
                     <input type="hidden" name="lat">
                     <input type="hidden" name="lng">
-                    <button type="submit" class="button primary" data-i18n="copy:Add to gallery">Add to gallery</button>
+                    <button type="submit" class="button primary" data-i18n="admin.addToGallery">Add to gallery</button>
                 </form>
                 <div data-admin-list="gallery" class="admin-item-list"></div>
             </section>
 
             <details class="section-white admin-block admin-collapsible">
-                <summary><span data-i18n="copy:Hidden milestones">Hidden milestones</span><small data-i18n="copy:Choose which secret progress badges are visible">Choose which secret progress badges are visible</small></summary>
+                <summary><span data-i18n="common.hiddenMilestones">Hidden milestones</span><small data-i18n="admin.chooseWhichSecretProgressBadgesAreVisible">Choose which secret progress badges are visible</small></summary>
                 <div class="admin-collapsible-content">
                 <div class="section-title">
-                    <h2 data-i18n="copy:Hidden milestones">Hidden milestones</h2>
-                    <p data-i18n="copy:Unlock hidden progress manually so they appear only on the public progress page.">Unlock hidden progress manually so they appear only on the public progress page.</p>
+                    <h2 data-i18n="common.hiddenMilestones">Hidden milestones</h2>
+                    <p data-i18n="admin.unlockHiddenProgressManuallySoTheyAppearOnly">Unlock hidden progress manually so they appear only on the public progress page.</p>
                 </div>
                 <form id="adminHiddenProgressForm" class="admin-form-grid">
                     <div id="adminHiddenProgressList" class="admin-hidden-progress-list admin-form-full"></div>
-                    <button type="submit" class="button primary" data-i18n="copy:Save hidden milestones">Save hidden milestones</button>
+                    <button type="submit" class="button primary" data-i18n="admin.saveHiddenMilestones">Save hidden milestones</button>
                     <p id="adminHiddenProgressNotice" class="admin-feedback admin-form-full"></p>
                 </form>
                 </div>
             </details>
 
             <details class="section-white admin-block admin-collapsible">
-                <summary><span data-i18n="copy:Progress cantons">Progress cantons</span><small data-i18n="copy:Manage the manual canton override">Manage the manual canton override</small></summary>
+                <summary><span data-i18n="admin.progressCantons">Progress cantons</span><small data-i18n="admin.manageTheManualCantonOverride">Manage the manual canton override</small></summary>
                 <div class="admin-collapsible-content">
                 <div class="section-title">
-                    <h2 data-i18n="copy:Progress cantons (manual)">Progress cantons (manual)</h2>
-                    <p data-i18n="copy:The automatic GPS detection remains active. Select additional cantons here only when a manual correction is needed.">The automatic GPS detection remains active. Select additional cantons here only when a manual correction is needed.</p>
+                    <h2 data-i18n="admin.progressCantonsManual">Progress cantons (manual)</h2>
+                    <p data-i18n="admin.theAutomaticGpsDetectionRemainsActiveSelectAdditional">The automatic GPS detection remains active. Select additional cantons here only when a manual correction is needed.</p>
                 </div>
                 <form id="adminCantonOverrideForm" class="admin-form-grid">
-                    <p id="adminCantonOverrideCurrent" class="admin-inline-note admin-form-full" data-i18n="copy:Automatic GPS detection active.">Automatic GPS detection active.</p>
+                    <p id="adminCantonOverrideCurrent" class="admin-inline-note admin-form-full" data-i18n="admin.automaticGpsDetectionActive2">Automatic GPS detection active.</p>
                     <div id="adminCantonOverrideList" class="admin-hidden-progress-list admin-form-full"></div>
-                    <button type="submit" class="button primary" data-i18n="copy:Save manual cantons">Save manual cantons</button>
+                    <button type="submit" class="button primary" data-i18n="admin.saveManualCantons">Save manual cantons</button>
                     <p id="adminCantonOverrideNotice" class="admin-feedback admin-form-full"></p>
                 </form>
                 </div>
             </details>
 
             <details class="section-white admin-block admin-collapsible">
-                <summary><span data-i18n="copy:Mountain passes">Mountain passes</span><small data-i18n="copy:Manually activate pass badges">Manually activate pass badges</small></summary>
+                <summary><span data-i18n="admin.mountainPasses">Mountain passes</span><small data-i18n="admin.manuallyActivatePassBadges">Manually activate pass badges</small></summary>
                 <div class="admin-collapsible-content">
                     <div class="section-title">
-                        <h2 data-i18n="copy:Mountain passes (manual)">Mountain passes (manual)</h2>
-                        <p data-i18n="copy:The automatic GPS geofence remains active. Select additional passes only when a manual correction is needed.">The automatic GPS geofence remains active. Select additional passes only when a manual correction is needed.</p>
+                        <h2 data-i18n="admin.mountainPassesManual">Mountain passes (manual)</h2>
+                        <p data-i18n="admin.theAutomaticGpsGeofenceRemainsActiveSelectAdditional">The automatic GPS geofence remains active. Select additional passes only when a manual correction is needed.</p>
                     </div>
                     <form id="adminPassOverrideForm" class="admin-form-grid">
-                        <p id="adminPassOverrideCurrent" class="admin-inline-note admin-form-full" data-i18n="copy:Automatic GPS detection active.">Automatic GPS detection active.</p>
+                        <p id="adminPassOverrideCurrent" class="admin-inline-note admin-form-full" data-i18n="admin.automaticGpsDetectionActive2">Automatic GPS detection active.</p>
                         <div id="adminPassOverrideList" class="admin-hidden-progress-list admin-form-full"></div>
-                        <button type="submit" class="button primary" data-i18n="copy:Save manual passes">Save manual passes</button>
+                        <button type="submit" class="button primary" data-i18n="admin.saveManualPasses">Save manual passes</button>
                         <p id="adminPassOverrideNotice" class="admin-feedback admin-form-full"></p>
                     </form>
                 </div>
@@ -182,7 +182,11 @@ lla cartina per impostare la posizione della foto.</p>                        <d
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/config.js?v=20260828e"></script>
     <script src="js/firebase.js?v=20260828j"></script>
-    <script src="js/i18n.js?v=20260828k"></script>
+    <script src="js/i18n.js?v=20260828l"></script>
+    <script src="js/locales/en.js?v=20260828l"></script>
+    <script src="js/locales/it.js?v=20260828l"></script>
+    <script src="js/locales/de.js?v=20260828l"></script>
+    <script src="js/locales/fr.js?v=20260828l"></script>
     <script src="js/status.js?v=20260828k"></script>
     <script src="js/stats.js?v=20260828b"></script>
     <script src="js/route.js?v=20260828a"></script>
