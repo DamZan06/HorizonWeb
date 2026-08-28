@@ -91,7 +91,8 @@ async function refresh(){
 function initDashboardPage(){
   document.querySelectorAll('.chart-card-head').forEach(h=>{let p=document.createElement('p');p.className='empty-state';p.textContent='Telemetry will appear once tracking begins.';h.after(p)});
   document.querySelectorAll('.chart-fullscreen-btn').forEach(b=>b.onclick=async()=>document.fullscreenElement?document.exitFullscreen():b.closest('.metric-card').requestFullscreen());
-  document.getElementById('chartXAxisMode').onchange=()=>charts(S.points);
+  const chartXAxisMode=document.getElementById('chartXAxisMode');
+  if(chartXAxisMode)chartXAxisMode.onchange=()=>charts(S.points);
   document.addEventListener('horizon:languagechange',translate);
   translate();
   refresh();
