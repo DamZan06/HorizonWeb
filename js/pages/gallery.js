@@ -14,28 +14,112 @@
         }
     }
 
-    function renderGallery(items) {
+    function loadAspectRatio(src) {
+        return new Promise((resolve) => {
+            const probe = new Image();
+            probe.onload = () => resolve(probe.naturalWidth && probe.naturalHeight ? probe.naturalWidth / probe.naturalHeight : 4 / 3);
+            probe.onerror = () => resolve(4 / 3);
+            probe.src = src;
+        });
+    }
+
+    // Bins photos into full-width rows (Flickr-style justified grid); a trailing row only stretches if that doesn't blow it up past maxRowHeight.
+    function computeJustifiedRows(containerWidth, entries, targetHeight, gap, maxRowHeight) {
+        const rows = [];
+        let row = [];
+        let aspectSum = 0;
+        entries.forEach((entry) => {
+            row.push(entry);
+            aspectSum += entry.aspectRatio;
+            const rowWidthAtTarget = aspectSum * targetHeight + (row.length - 1) * gap;
+            if (rowWidthAtTarget >= containerWidth) {
+                rows.push({ entries: row, aspectSum, justified: true });
+                row = [];
+                aspectSum = 0;
+            }
+        });
+        if (row.length) {
+            const requiredHeight = (containerWidth - (row.length - 1) * gap) / aspectSum;
+            rows.push({ entries: row, aspectSum, justified: requiredHeight <= maxRowHeight });
+        }
+        return rows;
+    }
+
+    function targetRowHeightFor(containerWidth) {
+        if (containerWidth >= 1200) return 240;
+        if (containerWidth >= 900) return 210;
+        if (containerWidth >= 600) return 190;
+        return 160;
+    }
+
+    function layoutGallery() {
+        const grid = document.querySelector('.gallery-grid');
+        const entries = galleryState.layoutEntries;
+        if (!grid || !entries || !entries.length) return;
+        const containerWidth = grid.clientWidth;
+        if (!containerWidth) return;
+        const gap = containerWidth < 560 ? 10 : 16;
+        const targetHeight = targetRowHeightFor(containerWidth);
+        const rows = computeJustifiedRows(containerWidth, entries, targetHeight, gap, targetHeight * 1.35);
+        rows.forEach((row) => {
+            const rowHeight = row.justified ? (containerWidth - (row.entries.length - 1) * gap) / row.aspectSum : targetHeight;
+            const roundedHeight = Math.round(rowHeight);
+            let widthBudget = row.justified ? containerWidth - (row.entries.length - 1) * gap : null;
+            row.entries.forEach((entry, entryIndex) => {
+                const isLast = entryIndex === row.entries.length - 1;
+                // The last card in a justified row absorbs any rounding remainder so the row never overflows its container.
+                const width = row.justified && isLast
+                    ? widthBudget
+                    : Math.round(rowHeight * entry.aspectRatio);
+                if (row.justified && !isLast) widthBudget -= width;
+                entry.card.style.width = `${width}px`;
+                entry.frame.style.width = `${width}px`;
+                entry.frame.style.height = `${roundedHeight}px`;
+                entry.meta.style.height = 'auto';
+            });
+            // The caption box grows to the tallest caption on the row so none of them gets clipped.
+            const maxMetaHeight = Math.max(...row.entries.map((entry) => entry.meta.scrollHeight));
+            row.entries.forEach((entry) => { entry.meta.style.height = `${maxMetaHeight}px`; });
+        });
+    }
+
+    let layoutResizeTimer = null;
+    function scheduleLayout() {
+        window.clearTimeout(layoutResizeTimer);
+        layoutResizeTimer = window.setTimeout(layoutGallery, 150);
+    }
+
+    async function renderGallery(items) {
         const grid = document.querySelector('.gallery-grid');
         if (!grid) {
             return;
         }
 
         grid.innerHTML = '';
+        galleryState.layoutEntries = [];
         if (!items.length) {
             grid.innerHTML = '<p class="empty-state">Field photographs and places will appear here during the journey.</p>';
             return;
         }
+
+        const aspectRatios = await Promise.all(items.map((item) => loadAspectRatio(item.thumbnailUrl || item.imageUrl)));
 
         items.forEach((item, index) => {
             const article = document.createElement('article');
             article.className = 'gallery-card';
             article.innerHTML = `
                 <button type="button" class="gallery-trigger" data-gallery-index="${index}" aria-label="Open ${item.title}">
-                    <img src="${item.thumbnailUrl || item.imageUrl}" alt="${item.title || 'HORIZON field photograph'}" loading="lazy" decoding="async">
+                    <span class="gallery-photo-frame"><img src="${item.thumbnailUrl || item.imageUrl}" alt="${item.title || 'HORIZON field photograph'}" decoding="async"></span>
                     <span class="gallery-meta">${item.location || 'HORIZON'}</span>
                 </button>
             `;
             grid.appendChild(article);
+            galleryState.layoutEntries.push({
+                card: article,
+                frame: article.querySelector('.gallery-photo-frame'),
+                meta: article.querySelector('.gallery-meta'),
+                aspectRatio: aspectRatios[index]
+            });
         });
 
         grid.querySelectorAll('.gallery-trigger').forEach((button) => {
@@ -44,7 +128,14 @@
                 openGalleryModal(items, idx);
             });
         });
+
+        layoutGallery();
+        if (!galleryState.resizeBound) {
+            galleryState.resizeBound = true;
+            window.addEventListener('resize', scheduleLayout);
+        }
     }
+
 
     function openGalleryModal(items, index) {
         const modal = document.querySelector('.modal-backdrop');
@@ -134,8 +225,15 @@
         mapApi.loadRoute(window.HorizonConfig?.routeGeoJsonUrl).catch(() => markStatus('Planned route unavailable.'));
         const group = window.L.markerClusterGroup ? window.L.markerClusterGroup() : window.L.layerGroup();
         items.filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng)).forEach((item, index) => {
-            const marker = window.L.marker([item.lat, item.lng], { title: item.title, alt: item.title });
-            marker.bindTooltip(item.title || 'HORIZON field photograph');
+            // Keep the shorter side constant across photos; the frame hugs whatever the longer side becomes.
+            const sizeScript = "if(this.naturalWidth<this.naturalHeight){this.style.width='36px';this.style.height='auto'}else{this.style.height='36px';this.style.width='auto'}";
+            const icon = window.L.divIcon({
+                className: 'gallery-map-thumb',
+                html: `<img src="${item.thumbnailUrl || item.imageUrl || item.image}" alt="${item.title || ''}" onload="${sizeScript}">`,
+                iconSize: [0, 0],
+                iconAnchor: [0, 0]
+            });
+            const marker = window.L.marker([item.lat, item.lng], { icon, alt: item.title, keyboard: false });
             marker.on('click', () => openGalleryModal(items, index)); group.addLayer(marker);
         });
         group.addTo(map); galleryState.map = map;
@@ -155,13 +253,13 @@
         try {
             const items = await window.HorizonFirebase.fetchGalleryItems();
             galleryState.items = items;
-            renderGallery(items);
+            await renderGallery(items);
             bindModalControls(items);
             initPhotoMap(items);
             markStatus(items.length ? 'Geolocated images ready.' : 'No field photographs yet.');
         } catch (error) {
             galleryState.items = [];
-            renderGallery([]);
+            await renderGallery([]);
             markStatus('Gallery temporarily unavailable.');
         }
     }

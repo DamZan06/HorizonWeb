@@ -52,7 +52,7 @@
 
         return selected ? { eta: Number(now) + (Number(remainingDistanceKm) / Number(selected[1])) * 3600000, basis: selected[0], speedKmh: Number(selected[1]) } : { eta: null, basis: null, speedKmh: null };
     }
-    function calculateSummary({ points = [], routeMeta, now = Date.now() }) {
+    function calculateSummary({ points = [], routeMeta, now = Date.now(), forcedAdminState = '' }) {
         const list = points.filter((p)=>valid(p.latitude)&&valid(p.longitude)&&valid(p.timestamp)).slice().sort((a,b)=>a.timestamp-b.timestamp);
         const plannedDistanceKm = valid(routeMeta?.distanceKm) ? Number(routeMeta.distanceKm) : Number(window.HorizonConfig?.expectedDistanceKm || 500);
         const latestPoint=list.at(-1)||null, firstPoint=list[0]||null;
@@ -79,7 +79,7 @@
         const remainingDistanceKm=isAtFinish ? 0 : Math.max(0,plannedDistanceKm-coveredDistanceKm);
         const completionPercent=isAtFinish ? 100 : window.HorizonStats.clamp(coveredDistanceKm/plannedDistanceKm*100,0,100);
         const finished = isAtFinish || completionPercent>=99.9;
-        const state=window.HorizonStatus.getExpeditionState({now,startDate:window.HorizonConfig.startDateIso,hasValidPoints:Boolean(list.length),latestPointTimestamp:latestPoint?.timestamp,trackerState:latestPoint?.trackerState,finished});
+        const state=window.HorizonStatus.getExpeditionState({now,startDate:window.HorizonConfig.startDateIso,hasValidPoints:Boolean(list.length),latestPointTimestamp:latestPoint?.timestamp,trackerState:latestPoint?.trackerState,finished,forcedAdminState});
         const etaResult=calculateEta({remainingDistanceKm,recentMovingSpeedKmh,movingAverageSpeedKmh,averageSpeedKmh,latestPointTimestamp:latestPoint?.timestamp,now,pointCount:list.length,finished});
         const heartRates=list.map(p=>Number(p.heartRate)).filter(v=>valid(v)&&v>30&&v<240);
         const heartRateBpm = valid(latestPoint?.heartRate) ? Number(latestPoint.heartRate) : null;
@@ -87,6 +87,14 @@
         const waterLostLiters = estimateWaterLostLiters(coveredDistanceKm, Math.max(0, elapsedTimeMs / 1000), window.HorizonStats.elevationGain(list), heartRateBpm);
         return {started:Boolean(list.length),state,plannedDistanceKm,plannedElevationGainM:Number(routeMeta?.elevationGainM)||null,coveredDistanceKm,remainingDistanceKm,completionPercent,completedAt:finished?latestPoint?.timestamp||null:null,actualStartTimestamp:firstPoint?.timestamp||null,elapsedTimeMs,movingTimeMs,stoppedTimeMs:Math.max(0,elapsedTimeMs-movingTimeMs),currentSpeedKmh:valid(latestPoint?.speed)?Number(latestPoint.speed):null,averageSpeedKmh,movingAverageSpeedKmh,recentMovingSpeedKmh,maxSpeedKmh,currentAltitudeM:valid(latestPoint?.altitude)?Number(latestPoint.altitude):null,actualElevationGainM:window.HorizonStats.elevationGain(list),actualElevationLossM:window.HorizonStats.elevationLoss(list),currentHeartRateBpm:heartRateBpm,averageHeartRateBpm:heartRates.length?heartRates.reduce((a,b)=>a+b,0)/heartRates.length:null,maxHeartRateBpm:heartRates.length?Math.max(...heartRates):null,latestPoint,latestPointTimestamp:latestPoint?.timestamp||null,signalAgeMs:latestPoint?Math.max(0,now-latestPoint.timestamp):null,eta:etaResult.eta,etaBasis:etaResult.basis,etaSpeedKmh:etaResult.speedKmh,caloriesBurned,waterLostLiters,routeMeta,points:list};
     }
-    async function loadSummary(options){const [points,routeMeta]=await Promise.all([window.HorizonFirebase.fetchLiveTrack(options),window.HorizonRoute.fetchMetadata()]);return calculateSummary({points,routeMeta});}
+    async function loadSummary(options){
+        const [points,routeMeta,liveStatusOverride]=await Promise.all([
+            window.HorizonFirebase.fetchLiveTrack(options),
+            window.HorizonRoute.fetchMetadata(),
+            Promise.resolve().then(()=>window.HorizonFirebase.fetchLiveStatusOverride?.()).catch(()=>null)
+        ]);
+        const forcedAdminState = liveStatusOverride?.forcedStatus === 'ended' ? 'resting' : liveStatusOverride?.forcedStatus === 'finished' ? 'finished' : '';
+        return calculateSummary({points,routeMeta,forcedAdminState});
+    }
     window.HorizonExpedition={calculateEta,calculateSummary,estimateCaloriesBurnedKcal,estimateWaterLostLiters,loadSummary};
 })();

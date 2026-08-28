@@ -76,6 +76,7 @@
                             <select name="forcedStatus">
                                 <option value="">Automatic from Garmin/Firebase</option>
                                 <option value="ended">End of day</option>
+                                <option value="finished">Finished (arrived at Chancy)</option>
                             </select>
                         </label>
                         <p id="adminLiveStatusCurrent" class="admin-inline-note admin-form-full">Current status: loading...</p>
@@ -106,27 +107,6 @@
                     </label>
                     <label>Location
                         <input type="text" name="location" placeholder="Automatically set from location" readonly>
-                    </label>
-                    <label>Tag
-                        <input type="text" name="tag" placeholder="mountain" list="adminGalleryTagList" required>
-                        <datalist id="adminGalleryTagList">
-                            <option value="mountain"></option>
-                            <option value="checkpoint"></option>
-                            <option value="panorama"></option>
-                            <option value="camp"></option>
-                            <option value="city"></option>
-                            <option value="lake"></option>
-                            <option value="night"></option>
-                        </datalist>
-                        <span class="admin-tag-suggestions" aria-label="Suggested tags">
-                            <button type="button" class="admin-tag-chip" data-tag-suggestion="mountain">mountain</button>
-                            <button type="button" class="admin-tag-chip" data-tag-suggestion="checkpoint">checkpoint</button>
-                            <button type="button" class="admin-tag-chip" data-tag-suggestion="panorama">panorama</button>
-                            <button type="button" class="admin-tag-chip" data-tag-suggestion="camp">camp</button>
-                            <button type="button" class="admin-tag-chip" data-tag-suggestion="city">city</button>
-                            <button type="button" class="admin-tag-chip" data-tag-suggestion="lake">lake</button>
-                            <button type="button" class="admin-tag-chip" data-tag-suggestion="night">night</button>
-                        </span>
                     </label>
                     <label class="admin-form-full">Description<textarea name="description" rows="4"></textarea></label>
                     <label class="admin-form-full">Image<input type="file" name="image" accept="image/*" required></label>
@@ -188,10 +168,14 @@ lla cartina per impostare la posizione della foto.</p>                        <d
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="js/config.js?v=20260824a"></script>
+    <script src="js/config.js?v=20260828e"></script>
+    <script src="js/firebase.js?v=20260828d"></script>
     <script src="js/i18n.js?v=20260824a"></script>
-    <script src="js/status.js?v=20260824a"></script>
-    <script src="js/pages/admin.js?v=20260826b"></script>
+    <script src="js/status.js?v=20260828d"></script>
+    <script src="js/stats.js?v=20260828b"></script>
+    <script src="js/route.js?v=20260828a"></script>
+    <script src="js/expedition.js?v=20260828d"></script>
+    <script src="js/pages/admin.js?v=20260828c"></script>
     <script src="js/app.js?v=20260828c"></script>
 </body>
 </html>

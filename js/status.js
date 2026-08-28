@@ -41,34 +41,10 @@
         }[state] || ['Tracker offline', 'No recent valid position is available.'];
     }
 
-    function bindAdminLiveStatusForm() {
-        const form = document.getElementById('adminLiveStatusForm');
-        if (!form || form.dataset.bound === 'true') return;
-
-        form.dataset.bound = 'true';
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const formData = new FormData(form);
-            const forcedStatus = String(formData.get('forcedStatus') || '').trim();
-            const cacheKey = 'horizon-live-status-force';
-            if (!forcedStatus) {
-                localStorage.removeItem(cacheKey);
-            } else {
-                localStorage.setItem(cacheKey, forcedStatus);
-            }
-
-            const notice = document.getElementById('adminLiveStatusNotice');
-            if (notice) {
-                notice.textContent = forcedStatus ? 'Stato live impostato.' : 'Stato automatico riattivato.';
-            }
-        });
-    }
-
     const horizonStatus = Object.assign(window.HorizonStatus || {}, {
         getExpeditionState,
         normalizeHomeStatus,
-        getStateCopy,
-        bindAdminLiveStatusForm
+        getStateCopy
     });
 
     window.HorizonStatus = horizonStatus;

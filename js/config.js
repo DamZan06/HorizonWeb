@@ -12,6 +12,7 @@
         routeMetaUrl: 'data/route/horizon-route-meta.json',
         // Current public tracker backend; visual branding remains exclusively HORIZON.
         firebaseURL: 'https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/livetrack/points.json',
+        contentDatabaseURL: 'https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app',
         contentDatabasePath: 'content',
         defaultCenter: [46.6, 10.4],
         defaultZoom: 12,

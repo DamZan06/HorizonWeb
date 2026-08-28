@@ -7,6 +7,19 @@
         return config[name] !== undefined && config[name] !== null ? config[name] : fallbackValue;
     }
 
+    function getPublicDatabaseUrl() {
+        const firebaseConfigUrl = window.HorizonFirebaseConfig?.databaseURL;
+        const configuredContentUrl = getConfigValue('contentDatabaseURL', '');
+        if (firebaseConfigUrl || configuredContentUrl) {
+            return String(firebaseConfigUrl || configuredContentUrl).replace(/\/$/, '');
+        }
+        try {
+            return new URL(getConfigValue('firebaseURL', '')).origin;
+        } catch {
+            return '';
+        }
+    }
+
     function timeoutFetch(url, options, timeoutMs) {
         const controller = new AbortController();
         const timer = window.setTimeout(() => controller.abort(), timeoutMs);
@@ -122,10 +135,9 @@
     }
 
     async function fetchGalleryItems() {
-        const config = window.HorizonFirebaseConfig || {};
-        const databaseUrl = String(config.databaseURL || '').replace(/\/$/, '');
+        const databaseUrl = getPublicDatabaseUrl();
         const contentPath = String(getConfigValue('contentDatabasePath', 'content')).replace(/^\/+|\/+$/g, '');
-        if (!databaseUrl || !contentPath || !config.apiKey) {
+        if (!databaseUrl || !contentPath) {
             return [];
         }
 
@@ -149,6 +161,25 @@
             .sort((first, second) => Number(second.createdAt || 0) - Number(first.createdAt || 0));
     }
 
+    async function fetchLiveStatusOverride() {
+        const databaseUrl = getPublicDatabaseUrl();
+        const contentPath = String(getConfigValue('contentDatabasePath', 'content')).replace(/^\/+|\/+$/g, '');
+        if (!databaseUrl || !contentPath) {
+            return null;
+        }
+
+        const response = await timeoutFetch(`${databaseUrl}/${contentPath}/liveStatus.json`, {
+            headers: { Accept: 'application/json' },
+            cache: 'no-store'
+        }, DEFAULT_TIMEOUT_MS);
+        if (!response.ok) {
+            return null;
+        }
+
+        const payload = await response.json();
+        return payload && typeof payload === 'object' ? payload : null;
+    }
+
     window.HorizonFirebase = {
         DEFAULT_TIMEOUT_MS,
         normalizeLivePoint,
@@ -157,6 +188,7 @@
         fetchLiveTrack,
         fetchTrackPoints: fetchLiveTrack,
         fetchLatestLivePoint,
-        fetchGalleryItems
+        fetchGalleryItems,
+        fetchLiveStatusOverride
     };
 })();

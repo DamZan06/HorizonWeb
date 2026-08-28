@@ -105,11 +105,6 @@
             window.HorizonNavigation.renderNavigation();
         }
 
-        const statusController = window.HorizonStatus;
-        if (typeof statusController?.bindAdminLiveStatusForm === 'function') {
-            statusController.bindAdminLiveStatusForm();
-        }
-
         if (document.body && document.body.dataset && document.body.dataset.page === 'home' && window.HorizonHome && typeof window.HorizonHome.initHomePage === 'function') {
             window.HorizonHome.initHomePage();
         }

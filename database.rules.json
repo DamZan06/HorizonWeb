@@ -1,0 +1,30 @@
+{
+  "rules": {
+    "livetrack": {
+      "points": {
+        ".read": true,
+        ".write": "auth != null"
+      }
+    },
+    "content": {
+      "gallery": {
+        ".read": true,
+        ".write": "auth != null"
+      },
+      "liveStatus": {
+        ".read": true,
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['forcedStatus', 'updatedAt'])",
+        "forcedStatus": {
+          ".validate": "newData.isString() && (newData.val() == 'ended' || newData.val() == 'finished')"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}
