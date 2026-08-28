@@ -1,4 +1,5 @@
 (function () {
+    const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
     function getFirebaseApp() {
         const config = window.HorizonFirebaseConfig || {};
         if (!config.apiKey || !window.firebase) {
@@ -21,11 +22,11 @@
                 canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
                 canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
                 canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Image compression failed.')), 'image/webp', quality);
+                canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error(tr('Image compression failed.'))), 'image/webp', quality);
             };
             image.onerror = () => {
                 URL.revokeObjectURL(objectUrl);
-                reject(new Error('Selected file is not a readable image.'));
+                reject(new Error(tr('Selected file is not a readable image.')));
             };
             image.src = objectUrl;
         });
@@ -35,13 +36,13 @@
         const language = document.documentElement.lang || 'en';
         const endpoint = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&zoom=14&addressdetails=1&accept-language=${encodeURIComponent(language)}`;
         const response = await fetch(endpoint, { headers: { Accept: 'application/json', 'Accept-Language': language } });
-        if (!response.ok) throw new Error('Location lookup unavailable.');
+        if (!response.ok) throw new Error(tr('Location lookup unavailable.'));
         const payload = await response.json();
         const address = payload?.address || {};
         const primary = address.city || address.town || address.village || address.hamlet || address.suburb || address.municipality || '';
         const secondary = address.state || address.county || '';
         const compact = [primary, secondary].filter(Boolean).join(', ');
-        return compact || String(payload?.display_name || '').split(',').slice(0, 2).join(',').trim() || 'Location not found';
+        return compact || String(payload?.display_name || '').split(',').slice(0, 2).join(',').trim() || tr('Location not found');
     }
 
     // Wires the "Now", "Current km", "Use current location" and "Choose on map" one-tap helpers.
@@ -66,7 +67,7 @@
         // Reveals the picker map and drops/moves the marker so the chosen point is always visible.
         const ensurePickerMap = () => {
             if (mapWrap) mapWrap.hidden = false;
-            if (mapButton) mapButton.textContent = 'Hide map';
+            if (mapButton) mapButton.textContent = tr('Hide map');
             if (!window.L) return null;
             if (!pickerMap) {
                 const center = window.HorizonConfig?.defaultCenter || [46.6, 10.4];
@@ -75,7 +76,7 @@
                 pickerMap.on('click', (clickEvent) => {
                     const { lat, lng } = clickEvent.latlng;
                     placeMarker(lat, lng);
-                    applyPosition(lat, lng, 'Selected on map');
+                    applyPosition(lat, lng, tr('Selected on map'));
                 });
             }
             window.setTimeout(() => pickerMap.invalidateSize(), 50);
@@ -93,13 +94,13 @@
         const applyPosition = async (lat, lng, label) => {
             if (latField) latField.value = String(lat);
             if (lngField) lngField.value = String(lng);
-            setStatus(`${label}: ${lat.toFixed(5)}, ${lng.toFixed(5)} · looking up place name...`);
+            setStatus(`${label}: ${lat.toFixed(5)}, ${lng.toFixed(5)} · ${tr('looking up place name...')}`);
             try {
                 const place = await reverseGeocode(lat, lng);
                 if (locationField) locationField.value = place;
                 setStatus(`${label}: ${lat.toFixed(5)}, ${lng.toFixed(5)} · ${place}`);
             } catch {
-                setStatus(`${label}: ${lat.toFixed(5)}, ${lng.toFixed(5)} · place name unavailable`);
+                setStatus(`${label}: ${lat.toFixed(5)}, ${lng.toFixed(5)} · ${tr('place name unavailable')}`);
             }
         };
 
@@ -113,7 +114,7 @@
             const button = event.currentTarget;
             const originalLabel = button.textContent;
             button.disabled = true;
-            button.textContent = 'Loading...';
+            button.textContent = tr('Loading...');
             try {
                 const summary = await window.HorizonExpedition?.loadSummary?.({ force: true });
                 if (kmField && Number.isFinite(summary?.coveredDistanceKm)) {
@@ -128,14 +129,14 @@
         });
 
         document.getElementById('adminGalleryGeoBtn')?.addEventListener('click', () => {
-            if (!navigator.geolocation) { setStatus('Geolocation is not supported on this device.'); return; }
-            setStatus('Requesting current position...');
+            if (!navigator.geolocation) { setStatus(tr('Geolocation is not supported on this device.')); return; }
+            setStatus(tr('Requesting current position...'));
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     placeMarker(position.coords.latitude, position.coords.longitude);
-                    applyPosition(position.coords.latitude, position.coords.longitude, 'Current position');
+                    applyPosition(position.coords.latitude, position.coords.longitude, tr('Current position'));
                 },
-                () => setStatus('Location permission denied.'),
+                () => setStatus(tr('Location permission denied.')),
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
             );
         });
@@ -143,7 +144,7 @@
         mapButton?.addEventListener('click', () => {
             if (mapWrap && !mapWrap.hidden) {
                 mapWrap.hidden = true;
-                mapButton.textContent = 'Choose on map';
+                mapButton.textContent = tr('Choose on map');
                 return;
             }
             ensurePickerMap();
@@ -166,12 +167,12 @@
     async function renderGalleryList() {
         const list = document.querySelector('[data-admin-list="gallery"]');
         if (!list) return;
-        list.innerHTML = '<p class="admin-inline-note">Loading published photos...</p>';
+        list.innerHTML = `<p class="admin-inline-note">${tr('Loading published photos...')}</p>`;
         try {
             const items = await window.HorizonFirebase.fetchGalleryItems();
             list.innerHTML = '';
             if (!items.length) {
-                list.innerHTML = '<p class="admin-inline-note">No photos published yet.</p>';
+                list.innerHTML = `<p class="admin-inline-note">${tr('No photos published yet.')}</p>`;
                 return;
             }
             items.forEach((item) => {
@@ -180,40 +181,40 @@
                 card.innerHTML = `
                     <img src="${item.thumbnailUrl || item.imageUrl}" alt="${item.title || ''}">
                     <div class="admin-item-meta">
-                        <h3>${item.title || 'Untitled'}</h3>
+                        <h3>${item.title || tr('Untitled')}</h3>
                         <p>${[item.date, item.time, item.km ? `${item.km} km` : '', item.location].filter(Boolean).join(' · ')}</p>
                     </div>
                     <div class="admin-item-actions">
-                        <button type="button" class="button ghost admin-delete-gallery-item">Delete</button>
+                        <button type="button" class="button ghost admin-delete-gallery-item">${tr('Delete')}</button>
                     </div>
                 `;
                 card.querySelector('.admin-delete-gallery-item')?.addEventListener('click', async (event) => {
                     const button = event.currentTarget;
                     button.disabled = true;
-                    button.textContent = 'Deleting...';
+                    button.textContent = tr('Deleting...');
                     try {
                         await deleteGalleryItem(item, card);
                     } catch {
                         button.disabled = false;
-                        button.textContent = 'Delete';
+                        button.textContent = tr('Delete');
                     }
                 });
                 list.appendChild(card);
             });
         } catch {
-            list.innerHTML = '<p class="admin-inline-note">Could not load published photos.</p>';
+            list.innerHTML = `<p class="admin-inline-note">${tr('Could not load published photos.')}</p>`;
         }
     }
 
     async function uploadGalleryPhoto(form, notice) {
         const file = form.querySelector('[name="image"]')?.files?.[0];
         if (!file) {
-            throw new Error('Select an image first.');
+            throw new Error(tr('Select an image first.'));
         }
 
         const app = getFirebaseApp();
         if (!app) {
-            throw new Error('Firebase is not configured.');
+            throw new Error(tr('Firebase is not configured.'));
         }
 
         const id = `gallery-${crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`}`;
@@ -224,7 +225,7 @@
         const fullRef = storage.ref(`gallery/${id}/full.webp`);
         const thumbnailRef = storage.ref(`gallery/${id}/thumb.webp`);
 
-        notice.textContent = 'Compressing and uploading image...';
+        notice.textContent = tr('Compressing and uploading image...');
         try {
             await fullRef.put(fullBlob, { contentType: 'image/webp', cacheControl: 'public,max-age=31536000,immutable' });
             await thumbnailRef.put(thumbnailBlob, { contentType: 'image/webp', cacheControl: 'public,max-age=31536000,immutable' });
@@ -262,19 +263,19 @@
             try {
                 await uploadGalleryPhoto(form, notice);
                 form.reset();
-                notice.textContent = 'Photo published successfully.';
+                notice.textContent = tr('Photo published successfully.');
                 renderGalleryList();
             } catch (error) {
-                notice.textContent = `Upload failed: ${error.message || 'unknown error'}`;
+                notice.textContent = `${tr('Upload failed')}: ${error.message || tr('unknown error')}`;
             }
         });
         form.dataset.bound = 'true';
     }
 
     function mapForcedStatusLabel(forcedStatus) {
-        if (forcedStatus === 'ended') return 'End of day (forced)';
-        if (forcedStatus === 'finished') return 'Finished (forced)';
-        return 'Automatic from Garmin/Firebase';
+        if (forcedStatus === 'ended') return tr('End of day (forced)');
+        if (forcedStatus === 'finished') return tr('Finished (forced)');
+        return tr('Automatic from Garmin/Firebase');
     }
 
     async function renderLiveStatus() {
@@ -284,10 +285,10 @@
         try {
             const override = await window.HorizonFirebase.fetchLiveStatusOverride();
             const forcedStatus = ['ended', 'finished'].includes(override?.forcedStatus) ? override.forcedStatus : '';
-            current.textContent = `Current status: ${mapForcedStatusLabel(forcedStatus)}`;
+            current.textContent = `${tr('Current status')}: ${mapForcedStatusLabel(forcedStatus)}`;
             if (select) select.value = forcedStatus;
         } catch {
-            current.textContent = 'Current status: unavailable';
+            current.textContent = `${tr('Current status')}: ${tr('unavailable')}`;
         }
     }
 
@@ -300,16 +301,16 @@
             const notice = document.getElementById('adminLiveStatusNotice');
             const forcedStatus = String(new FormData(form).get('forcedStatus') || '').trim();
             const app = getFirebaseApp();
-            if (!app) { if (notice) notice.textContent = 'Firebase is not configured.'; return; }
+            if (!app) { if (notice) notice.textContent = tr('Firebase is not configured.'); return; }
             try {
                 const database = window.firebase.database(app);
                 const reference = database.ref(`${window.HorizonConfig.contentDatabasePath}/liveStatus`);
                 if (!forcedStatus) await reference.set(null);
                 else await reference.set({ forcedStatus, updatedAt: Date.now() });
-                if (notice) notice.textContent = 'Live status saved.';
+                if (notice) notice.textContent = tr('Live status saved.');
                 renderLiveStatus();
             } catch (error) {
-                if (notice) notice.textContent = `Save failed: ${error.message || 'unknown error'}`;
+                if (notice) notice.textContent = `${tr('Save failed')}: ${error.message || tr('unknown error')}`;
             }
         });
         renderLiveStatus();
@@ -338,7 +339,7 @@
             item.innerHTML = `<input type="checkbox" value="${key}" ${selected.has(key) ? 'checked' : ''}><span class="admin-hidden-progress-copy"><strong>${label}</strong><span>${key.toUpperCase()}</span></span>`;
             list.appendChild(item);
         });
-        if (current) current.textContent = `Automatic GPS detection active · ${selected.size}/5 manually activated.`;
+        if (current) current.textContent = `${tr('Automatic GPS detection active')} · ${selected.size}/5 ${tr('manually activated')}.`;
     }
 
     function bindAchievementOverrideForm(type) {
@@ -358,15 +359,15 @@
                 await window.firebase.database(app).ref(`${window.HorizonConfig.contentDatabasePath}/achievementOverrides`).set({
                     cantons: current.cantons || [], passes: current.passes || [], updatedAt: Date.now()
                 });
-                if (notice) notice.textContent = 'Manual badge activations saved.';
+                if (notice) notice.textContent = tr('Manual badge activations saved.');
                 await renderAchievementOverride(type);
             } catch (error) {
-                if (notice) notice.textContent = `Save failed: ${error.message || 'unknown error'}`;
+                if (notice) notice.textContent = `${tr('Save failed')}: ${error.message || tr('unknown error')}`;
             } finally {
                 if (button) button.disabled = false;
             }
         });
-        renderAchievementOverride(type).catch(() => { if (notice) notice.textContent = 'Could not load manual activations.'; });
+        renderAchievementOverride(type).catch(() => { if (notice) notice.textContent = tr('Could not load manual activations.'); });
     }
 
     function unlockAdminPanel() {
@@ -385,16 +386,16 @@
         const mode = document.getElementById('adminModeLabel');
         const config = window.HorizonFirebaseConfig || {};
         const configured = Boolean(config.apiKey && config.databaseURL && window.firebase);
-        if (mode) mode.textContent = configured ? 'Changes are published through authenticated Firebase services.' : 'Publishing is disabled: Firebase credentials are not configured in this repository.';
+        if (mode) mode.textContent = configured ? tr('Changes are published through authenticated Firebase services.') : tr('Publishing is disabled: Firebase credentials are not configured in this repository.');
         form?.addEventListener('submit', async (event) => {
             event.preventDefault();
-            if (!configured) { if (error) error.textContent = 'Admin sign-in is unavailable until Firebase public client configuration is supplied.'; return; }
+            if (!configured) { if (error) error.textContent = tr('Admin sign-in is unavailable until Firebase public client configuration is supplied.'); return; }
             try {
                 const app = getFirebaseApp();
                 const data = new FormData(form);
                 await window.firebase.auth(app).signInWithEmailAndPassword(String(data.get('email') || ''), String(data.get('password') || ''));
                 unlockAdminPanel();
-            } catch (failure) { if (error) error.textContent = 'Sign-in failed. Check the account and Firebase configuration.'; }
+            } catch (failure) { if (error) error.textContent = tr('Sign-in failed. Check the account and Firebase configuration.'); }
         });
         document.getElementById('adminLogoutBtn')?.addEventListener('click', async () => { if (window.firebase?.apps?.length) await window.firebase.auth().signOut(); location.reload(); });
 
@@ -405,6 +406,14 @@
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
+    document.addEventListener('horizon:languagechange', () => {
+        if (!document.getElementById('adminApp')?.hidden) {
+            renderGalleryList();
+            renderLiveStatus();
+            renderAchievementOverride('cantons').catch(() => {});
+            renderAchievementOverride('passes').catch(() => {});
+        }
+    });
 
     window.HorizonAdmin = { bindGalleryForm, renderGalleryList, bindLiveStatusForm, renderLiveStatus };
 })();

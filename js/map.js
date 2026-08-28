@@ -1,4 +1,5 @@
 (function () {
+    const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
     let map = null;
     let routeLayer = null;
     let markerLayer = null;
@@ -74,7 +75,7 @@
         }
 
         if (statusNode && statusNode.textContent.trim() === '') {
-            statusNode.textContent = 'LOADING MAP…';
+            statusNode.textContent = tr('LOADING MAP…');
         }
 
         return container;
@@ -113,19 +114,19 @@
 
         map.on('loading', () => {
             if (window.HorizonUI && typeof window.HorizonUI.setStatus === 'function') {
-                window.HorizonUI.setStatus('LOADING MAP…');
+                window.HorizonUI.setStatus(tr('LOADING MAP…'));
             }
         });
 
         map.on('load', () => {
             if (window.HorizonUI && typeof window.HorizonUI.setStatus === 'function') {
-                window.HorizonUI.setStatus('Map ready');
+                window.HorizonUI.setStatus(tr('Map ready'));
             }
         });
 
         map.on('tileerror', () => {
             if (window.HorizonUI && typeof window.HorizonUI.setStatus === 'function') {
-                window.HorizonUI.setStatus('Map background temporarily unavailable.');
+                window.HorizonUI.setStatus(tr('Map background temporarily unavailable.'));
             }
         });
         map.on('zoomend moveend', () => { if (trackLayer) updateTrackAppearance(currentTrackProgress); });
@@ -133,8 +134,8 @@
         [['plannedRoute',410],['actualTrack',420],['routeMarkers',430],['currentPosition',440],['userPosition',450]].forEach(([name,z])=>{map.createPane(name);map.getPane(name).style.zIndex=z;});
         routeLayer = window.L.layerGroup().addTo(map);
         markerLayer = window.L.layerGroup().addTo(map);
-        const legend=window.L.control({position:'bottomright'});legend.onAdd=()=>{const node=window.L.DomUtil.create('div','horizon-map-legend');node.innerHTML='<span><i class="legend-planned"></i><b data-map-legend="planned">Planned route</b></span><span><i class="legend-actual"></i><b data-map-legend="actual">Actual track</b></span>';return node;};legend.addTo(map);
-        const translateLegend=()=>{const values={en:['Planned route','Actual track'],it:['Percorso previsto','Traccia effettiva'],de:['Geplante Route','Tatsächliche Strecke'],fr:['Itinéraire prévu','Tracé réel']}[document.documentElement.lang]||['Planned route','Actual track'];document.querySelectorAll('[data-map-legend]').forEach((n,i)=>n.textContent=values[i]);};document.addEventListener('horizon:languagechange',translateLegend);translateLegend();
+        const legend=window.L.control({position:'bottomright'});legend.onAdd=()=>{const node=window.L.DomUtil.create('div','horizon-map-legend');node.innerHTML='<span><i class="legend-planned"></i><b data-map-legend="planned"></b></span><span><i class="legend-actual"></i><b data-map-legend="actual"></b></span>';return node;};legend.addTo(map);
+        const translateLegend=()=>{const values=[tr('Planned route'),tr('Actual track')];document.querySelectorAll('[data-map-legend]').forEach((n,i)=>n.textContent=values[i]);};document.addEventListener('horizon:languagechange',translateLegend);translateLegend();
 
         return map;
     }
@@ -162,9 +163,9 @@
         const latlngs = layers.flatMap((layer) => layer.getLatLngs ? layer.getLatLngs().flat(Infinity) : []).filter((p) => p && Number.isFinite(p.lat));
         if (latlngs.length) {
             const startIcon=window.L.divIcon({className:'horizon-start-icon',html:'<span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 7 8 5-8 5V7Z"/></svg></span>',iconSize:[38,45],iconAnchor:[19,43]});
-            startMarker=window.L.marker(latlngs[0],{pane:'routeMarkers',icon:startIcon,title:'Start'}).bindTooltip('Start').addTo(routeLayer);
+            startMarker=window.L.marker(latlngs[0],{pane:'routeMarkers',icon:startIcon,title:tr('Start')}).bindTooltip(tr('Start')).addTo(routeLayer);
             const flagIcon=window.L.icon({iconUrl:'assets/icons/finish-flag.gif',iconSize:[52,52],iconAnchor:[8,50],popupAnchor:[18,-43],className:'horizon-finish-icon'});
-            finishMarker=window.L.marker(latlngs.at(-1),{pane:'routeMarkers',icon:flagIcon,title:'Finish'}).bindTooltip('Finish').addTo(routeLayer);
+            finishMarker=window.L.marker(latlngs.at(-1),{pane:'routeMarkers',icon:flagIcon,title:tr('Finish')}).bindTooltip(tr('Finish')).addTo(routeLayer);
         }
 
         if (!hasAutoFit && route.getBounds && route.getBounds().isValid()) {
@@ -193,12 +194,12 @@
         }
 
         if (window.HorizonUI && typeof window.HorizonUI.setStatus === 'function') {
-            window.HorizonUI.setStatus('Loading route…');
+            window.HorizonUI.setStatus(tr('Loading route…'));
         }
 
         return fetch(targetPath, { headers: { Accept: 'application/json' } }).then((response) => {
             if (!response.ok) {
-                throw new Error('Route fetch failed');
+                throw new Error(tr('Route fetch failed'));
             }
             return response.json();
         }).then((geojson) => {
@@ -216,7 +217,7 @@
         if (!liveMarker) {
             const icon=window.L.divIcon({className:'horizon-current-icon',html:'<span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.5 5.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM9.7 9l2.1-1.2 2.4 1.4 2.3 3.1-1.7 1.1-2-2.6-1.1.7 2.1 2.2-3.5 5.8-1.8-1.1 2.2-3.8-1.8-1.8-1.5 2.5-1.8-1 2.2-3.7A4 4 0 0 1 9.7 9Z"/></svg></span>',iconSize:[44,44],iconAnchor:[22,22]});
             liveMarker = window.L.marker(position, { pane:'currentPosition',icon,
-                title: options && options.label ? options.label : 'Live position',
+                title: options && options.label ? options.label : tr('Live position'),
                 riseOnHover: true
             }).addTo(markerLayer);
         } else {
@@ -231,7 +232,7 @@
         }
 
         liveMarker.unbindTooltip();
-        liveMarker.bindPopup(options && options.label ? options.label : 'Live position');
+        liveMarker.bindPopup(options && options.label ? options.label : tr('Live position'));
 
         if (options && (options.follow || (options.animate && !hasAutoFit))) {
             centerOnPosition(position, Math.max(map.getZoom(), 9));
@@ -265,7 +266,7 @@
         const position = Array.isArray(coords) && coords.length >= 2 ? [coords[0], coords[1]] : [coords.latitude, coords.longitude];
         if (!userMarker) {
             const icon=window.L.divIcon({className:'horizon-user-icon',html:'<span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 2h2v3.1A7 7 0 0 1 18.9 11H22v2h-3.1a7 7 0 0 1-5.9 5.9V22h-2v-3.1A7 7 0 0 1 5.1 13H2v-2h3.1A7 7 0 0 1 11 5.1V2Zm1 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"/></svg></span>',iconSize:[36,36],iconAnchor:[18,18]});
-            userMarker = window.L.marker(position,{pane:'userPosition',icon,title:'My position'}).bindTooltip('My position').addTo(markerLayer);
+            userMarker = window.L.marker(position,{pane:'userPosition',icon,title:tr('My position')}).bindTooltip(tr('My position')).addTo(markerLayer);
         } else {
             userMarker.setLatLng(position);
         }

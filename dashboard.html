@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>HORIZON — Telemetry</title>
+    <title data-i18n="copy:HORIZON — Telemetry">HORIZON — Telemetry</title>
     <meta name="description" content="HORIZON telemetry: distance, progress, time, elevation and performance charts for the expedition.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://damzan06.github.io/HorizonWeb/dashboard.html">
@@ -27,134 +27,134 @@
     <link rel="apple-touch-icon" href="assets/logo_horizon_homepage.png?v=20260827a">
 </head>
 <body data-page="dashboard">
-    <a href="#main" class="skip-link">Skip to main content</a>
+    <a href="#main" class="skip-link" data-i18n="copy:Skip to main content">Skip to main content</a>
     <header class="topbar">
-        <a href="index.html" class="brand" aria-label="HORIZON home">
-            <img src="assets/logo_horizon_homepage.png?v=20260827a" alt="HORIZON logo" class="brand-icon">
+        <a href="index.html" class="brand" aria-label="HORIZON home" data-i18n-attr='{"aria-label":"copy:HORIZON home"}'>
+            <img src="assets/logo_horizon_homepage.png?v=20260827a" alt="HORIZON logo" class="brand-icon" data-i18n-attr='{"alt":"copy:HORIZON logo"}'>
             <div>
                 <span class="brand-title">HORIZON</span>
-                <span class="brand-subtitle">Telemetry</span>
+                <span class="brand-subtitle" data-i18n="copy:Telemetry">Telemetry</span>
             </div>
         </a>
-        <nav class="main-nav" aria-label="Main navigation">
-            <a href="index.html">Home</a>
-            <a href="live.html">Live</a>
-            <a href="project.html">Project</a>
-            <a href="gallery.html">Journey</a>
-            <a href="replay.html">Replay</a>
-            <a href="dashboard.html" aria-current="page">Dashboard</a>
+        <nav class="main-nav" aria-label="Main navigation" data-i18n-attr='{"aria-label":"copy:Main navigation"}'>
+            <a href="index.html" data-i18n="copy:Home">Home</a>
+            <a href="live.html" data-i18n="copy:Live">Live</a>
+            <a href="project.html" data-i18n="copy:Project">Project</a>
+            <a href="gallery.html" data-i18n="copy:Journey">Journey</a>
+            <a href="replay.html" data-i18n="copy:Replay">Replay</a>
+            <a href="dashboard.html" aria-current="page" data-i18n="copy:Dashboard">Dashboard</a>
         </nav>
     </header>
     <main id="main" class="page page-dashboard">
         <section class="section">
             <div class="section-title">
-                <p class="eyebrow">Advanced analysis</p>
-                <h1>Expedition dashboard.</h1>
-                <p>Complete sport telemetry with charts for speed, altitude, daily progress and route progression.</p>
+                <p class="eyebrow" data-i18n="copy:Advanced analysis">Advanced analysis</p>
+                <h1 data-i18n="copy:Expedition dashboard.">Expedition dashboard.</h1>
+                <p data-i18n="copy:Complete sport telemetry with charts for speed, altitude, daily progress and route progression.">Complete sport telemetry with charts for speed, altitude, daily progress and route progression.</p>
             </div>
             <div class="dashboard-hero-grid">
-                <article class="dashboard-focus"><span data-dash="covered">Distance covered</span><strong id="metricDistance">-- km</strong></article>
-                <article class="dashboard-focus"><span data-dash="planned">Planned GPX distance</span><strong id="metricPlannedDistance">-- km</strong></article>
-                <article class="dashboard-focus"><span data-dash="remaining">Distance remaining</span><strong id="metricRemaining">-- km</strong></article>
-                <article class="dashboard-focus"><span data-dash="completion">Completion</span><strong id="metricCompletion">--%</strong></article>
-                <article class="dashboard-focus dashboard-eta"><span id="metricEtaLabel" data-dash="eta">Arrival</span><strong id="metricEta">--</strong><small id="metricEtaBasis"></small></article>
+                <article class="dashboard-focus"><span data-dash="covered" data-i18n="copy:Distance covered">Distance covered</span><strong id="metricDistance">-- km</strong></article>
+                <article class="dashboard-focus"><span data-dash="planned" data-i18n="copy:Planned GPX distance">Planned GPX distance</span><strong id="metricPlannedDistance">-- km</strong></article>
+                <article class="dashboard-focus"><span data-dash="remaining" data-i18n="copy:Distance remaining">Distance remaining</span><strong id="metricRemaining">-- km</strong></article>
+                <article class="dashboard-focus"><span data-dash="completion" data-i18n="copy:Completion">Completion</span><strong id="metricCompletion">--%</strong></article>
+                <article class="dashboard-focus dashboard-eta"><span id="metricEtaLabel" data-dash="eta" data-i18n="copy:Arrival">Arrival</span><strong id="metricEta">--</strong><small id="metricEtaBasis"></small></article>
             </div>
-            <h2 class="metric-group-title" data-dash="performance">Performance</h2>
+            <h2 class="metric-group-title" data-dash="performance" data-i18n="copy:Performance">Performance</h2>
             <div class="stats-grid dashboard-metrics">
                 <article>
-                    <span>Current speed</span>
+                    <span data-i18n="copy:Current speed">Current speed</span>
                     <strong id="metricSpeed">-- km/h</strong>
                 </article>
                 <article>
-                    <span>Average moving speed</span>
+                    <span data-i18n="copy:Average moving speed">Average moving speed</span>
                     <strong id="metricAvgMovingSpeed">-- km/h</strong>
                 </article>
                 <article>
-                    <span>Average total speed</span>
+                    <span data-i18n="copy:Average total speed">Average total speed</span>
                     <strong id="metricAvgTotalSpeed">-- km/h</strong>
                 </article>
                 <article>
-                    <span>Maximum speed</span>
+                    <span data-i18n="copy:Maximum speed">Maximum speed</span>
                     <strong id="metricMaxSpeed">-- km/h</strong>
                 </article>
                 <article>
-                    <span>Current altitude</span>
+                    <span data-i18n="copy:Current altitude">Current altitude</span>
                     <strong id="metricAltitude">-- m</strong>
                 </article>
                 <article>
-                    <span>Positive elevation gain</span>
+                    <span data-i18n="copy:Positive elevation gain">Positive elevation gain</span>
                     <strong id="metricElevation">-- m</strong>
                 </article>
-                <article><span data-dash="elevationLoss">Elevation loss</span><strong id="metricElevationLoss">-- m</strong></article>
-                <article><span data-dash="plannedElevation">Planned GPX elevation gain</span><strong id="metricPlannedElevation">-- m</strong></article>
+                <article><span data-dash="elevationLoss" data-i18n="copy:Elevation loss">Elevation loss</span><strong id="metricElevationLoss">-- m</strong></article>
+                <article><span data-dash="plannedElevation" data-i18n="copy:Planned GPX elevation gain">Planned GPX elevation gain</span><strong id="metricPlannedElevation">-- m</strong></article>
                 <article>
-                    <span>Total time</span>
+                    <span data-i18n="copy:Total time">Total time</span>
                     <strong id="metricTime">--</strong>
                 </article>
                 <article>
-                    <span>Moving time</span>
+                    <span data-i18n="copy:Moving time">Moving time</span>
                     <strong id="metricMovingTime">--</strong>
                 </article>
-                <article><span data-dash="stoppedTime">Stopped time</span><strong id="metricStoppedTime">--</strong></article>
-                <article><span data-dash="departure">Actual departure</span><strong id="metricActualDeparture">--</strong></article>
-                <article><span data-dash="latest">Latest update</span><strong id="metricLatestUpdate">--</strong></article>
+                <article><span data-dash="stoppedTime" data-i18n="copy:Stopped time">Stopped time</span><strong id="metricStoppedTime">--</strong></article>
+                <article><span data-dash="departure" data-i18n="copy:Actual departure">Actual departure</span><strong id="metricActualDeparture">--</strong></article>
+                <article><span data-dash="latest" data-i18n="copy:Latest update">Latest update</span><strong id="metricLatestUpdate">--</strong></article>
                 <article>
-                    <span>Heart rate</span>
+                    <span data-i18n="copy:Heart rate">Heart rate</span>
                     <strong id="metricHeartRate">-- bpm</strong>
                 </article>
                 <article>
-                    <span>Average heart rate</span>
+                    <span data-i18n="copy:Average heart rate">Average heart rate</span>
                     <strong id="metricHeartRateAvg">-- bpm</strong>
                 </article>
-                <article><span data-dash="maxHeartRate">Maximum heart rate</span><strong id="metricHeartRateMax">-- bpm</strong></article>
-                <article><span data-dash="steps">Estimated steps</span><strong id="metricSteps">--</strong></article>
+                <article><span data-dash="maxHeartRate" data-i18n="copy:Maximum heart rate">Maximum heart rate</span><strong id="metricHeartRateMax">-- bpm</strong></article>
+                <article><span data-dash="steps" data-i18n="copy:Estimated steps">Estimated steps</span><strong id="metricSteps">--</strong></article>
                 <article>
-                    <span>Calories burned</span>
+                    <span data-i18n="copy:Calories burned">Calories burned</span>
                     <strong id="metricCalories">-- kcal</strong>
                 </article>
                 <article>
-                    <span>Water loss</span>
+                    <span data-i18n="copy:Water loss">Water loss</span>
                     <strong id="metricWaterLost">-- L</strong>
                 </article>
             </div>
             <div class="tracker-strip" aria-live="polite">
-                <div><span data-dash="trackerState">Tracker state</span><strong id="metricTrackingStatus">--</strong></div>
-                <div><span data-dash="signalAge">Signal age</span><strong id="metricSignalAge">--</strong></div>
-                <div><span data-dash="points">Recorded points</span><strong id="metricPointCount">--</strong></div>
+                <div><span data-dash="trackerState" data-i18n="copy:Tracker state">Tracker state</span><strong id="metricTrackingStatus">--</strong></div>
+                <div><span data-dash="signalAge" data-i18n="copy:Signal age">Signal age</span><strong id="metricSignalAge">--</strong></div>
+                <div><span data-dash="points" data-i18n="copy:Recorded points">Recorded points</span><strong id="metricPointCount">--</strong></div>
             </div>
             <details class="technical-details">
-                <summary data-dash="technical">Technical details</summary>
+                <summary data-dash="technical" data-i18n="copy:Technical details">Technical details</summary>
                 <dl>
-                    <div><dt data-dash="firstTimestamp">First timestamp</dt><dd id="techFirstTimestamp">--</dd></div>
-                    <div><dt data-dash="latestTimestamp">Latest timestamp</dt><dd id="techLatestTimestamp">--</dd></div>
-                    <div><dt>Latitude</dt><dd id="techLatitude">--</dd></div>
-                    <div><dt>Longitude</dt><dd id="techLongitude">--</dd></div>
-                    <div><dt data-dash="altitude">Altitude</dt><dd id="techAltitude">--</dd></div>
-                    <div><dt data-dash="firebaseState">Firebase state</dt><dd id="techFirebaseState">--</dd></div>
-                    <div><dt data-dash="gpxPoints">GPX route points</dt><dd id="techGpxPoints">--</dd></div>
-                    <div><dt data-dash="routeBounds">GPX route bounds</dt><dd id="techRouteBounds">--</dd></div>
+                    <div><dt data-dash="firstTimestamp" data-i18n="copy:First timestamp">First timestamp</dt><dd id="techFirstTimestamp">--</dd></div>
+                    <div><dt data-dash="latestTimestamp" data-i18n="copy:Latest timestamp">Latest timestamp</dt><dd id="techLatestTimestamp">--</dd></div>
+                    <div><dt data-i18n="copy:Latitude">Latitude</dt><dd id="techLatitude">--</dd></div>
+                    <div><dt data-i18n="copy:Longitude">Longitude</dt><dd id="techLongitude">--</dd></div>
+                    <div><dt data-dash="altitude" data-i18n="copy:Altitude">Altitude</dt><dd id="techAltitude">--</dd></div>
+                    <div><dt data-dash="firebaseState" data-i18n="copy:Firebase state">Firebase state</dt><dd id="techFirebaseState">--</dd></div>
+                    <div><dt data-dash="gpxPoints" data-i18n="copy:GPX route points">GPX route points</dt><dd id="techGpxPoints">--</dd></div>
+                    <div><dt data-dash="routeBounds" data-i18n="copy:GPX route bounds">GPX route bounds</dt><dd id="techRouteBounds">--</dd></div>
                 </dl>
             </details>
         </section>
         <section class="section section-white">
             <div class="section-title chart-header">
-                <h2>Live charts</h2>
+                <h2 data-i18n="copy:Live charts">Live charts</h2>
             </div>
             <div class="chart-grid">
                 <article class="metric-card">
-                    <div class="chart-card-head"><h3>Speed</h3><button type="button" class="chart-fullscreen-btn" aria-label="Expand chart" title="Expand chart">Full</button></div>
+                    <div class="chart-card-head"><h3 data-i18n="copy:Speed">Speed</h3><button type="button" class="chart-fullscreen-btn" aria-label="Expand chart" title="Expand chart" data-i18n="copy:Full" data-i18n-attr='{"aria-label":"copy:Expand chart","title":"copy:Expand chart"}'>Full</button></div>
                     <canvas id="chartSpeed"></canvas>
                 </article>
                 <article class="metric-card">
-                    <div class="chart-card-head"><h3>Altitude</h3><button type="button" class="chart-fullscreen-btn" aria-label="Expand chart" title="Expand chart">Full</button></div>
+                    <div class="chart-card-head"><h3 data-i18n="copy:Altitude">Altitude</h3><button type="button" class="chart-fullscreen-btn" aria-label="Expand chart" title="Expand chart" data-i18n="copy:Full" data-i18n-attr='{"aria-label":"copy:Expand chart","title":"copy:Expand chart"}'>Full</button></div>
                     <canvas id="chartAltitude"></canvas>
                 </article>
                 <article class="metric-card">
-                    <div class="chart-card-head"><h3>Heart rate</h3><button type="button" class="chart-fullscreen-btn" aria-label="Expand chart" title="Expand chart">Full</button></div>
+                    <div class="chart-card-head"><h3 data-i18n="copy:Heart rate">Heart rate</h3><button type="button" class="chart-fullscreen-btn" aria-label="Expand chart" title="Expand chart" data-i18n="copy:Full" data-i18n-attr='{"aria-label":"copy:Expand chart","title":"copy:Expand chart"}'>Full</button></div>
                     <canvas id="chartHeartRate"></canvas>
                 </article>
                 <article class="metric-card">
-                    <div class="chart-card-head"><h3>Cumulative elevation</h3><button type="button" class="chart-fullscreen-btn" aria-label="Expand chart" title="Expand chart">Full</button></div>
+                    <div class="chart-card-head"><h3 data-i18n="copy:Cumulative elevation">Cumulative elevation</h3><button type="button" class="chart-fullscreen-btn" aria-label="Expand chart" title="Expand chart" data-i18n="copy:Full" data-i18n-attr='{"aria-label":"copy:Expand chart","title":"copy:Expand chart"}'>Full</button></div>
                     <canvas id="chartElevation"></canvas>
                 </article>
             </div>
@@ -162,15 +162,15 @@
     </main>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/config.js?v=20260828e"></script>
-    <script src="js/i18n.js?v=20260824a"></script>
-    <script src="js/ui/navigation.js?v=20260824a"></script>
-    <script src="js/status.js?v=20260828f"></script>
+    <script src="js/i18n.js?v=20260828k"></script>
+    <script src="js/ui/navigation.js?v=20260828k"></script>
+    <script src="js/status.js?v=20260828k"></script>
     <script src="js/stats.js?v=20260828b"></script>
     <script src="js/firebase.js?v=20260828d"></script>
     <script src="js/route.js?v=20260828a"></script>
     <script src="js/expedition.js?v=20260828f"></script>
-    <script src="js/app.js?v=20260828c"></script>
-    <script src="js/pages/dashboard.js?v=20260828g"></script>
+    <script src="js/app.js?v=20260828k"></script>
+    <script src="js/pages/dashboard.js?v=20260828k"></script>
 </body>
 </html>
 

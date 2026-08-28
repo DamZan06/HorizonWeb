@@ -1,4 +1,5 @@
 (function () {
+    const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
     const homeState = {
         initialized: false,
         timerId: null,
@@ -57,7 +58,7 @@
             hoursNode.textContent = '00';
             minutesNode.textContent = '00';
             secondsNode.textContent = '00';
-            messageNode.textContent = 'HORIZON IS UNDERWAY';
+            messageNode.textContent = tr('HORIZON IS UNDERWAY');
             countdownNode.classList.add('is-finished');
             return;
         }
@@ -67,7 +68,7 @@
         hoursNode.textContent = String(countdown.hours).padStart(2, '0');
         minutesNode.textContent = String(countdown.minutes).padStart(2, '0');
         secondsNode.textContent = String(countdown.seconds).padStart(2, '0');
-        messageNode.textContent = 'Time until departure';
+        messageNode.textContent = tr('Time until departure');
         countdownNode.classList.remove('is-finished');
     }
 
@@ -79,17 +80,10 @@
         }
         const config = window.HorizonConfig || {};
         const state = summary.state || window.HorizonStatus?.getExpeditionState({ now: Date.now(), startDate: config.startDateIso, hasValidPoints:false });
-        const copy = window.HorizonStatus?.getStateCopy?.(state) || ['Tracker offline', 'No recent valid position is available.'];
+        const copy = window.HorizonStatus?.getStateCopy?.(state) || [tr('Tracker offline'), tr('No recent valid position is available.')];
         const etaLabel = document.getElementById('homeEtaLabel');
         if (etaLabel) {
-            const labels = document.documentElement.lang === 'it'
-                ? { arrival: 'Arrivo', eta: 'Arrivo stimato' }
-                : document.documentElement.lang === 'de'
-                    ? { arrival: 'Ankunft', eta: 'Geschätzte Ankunft' }
-                    : document.documentElement.lang === 'fr'
-                        ? { arrival: 'Arrivée', eta: 'Arrivée estimée' }
-                        : { arrival: 'Arrival', eta: 'Estimated arrival' };
-            etaLabel.textContent = summary?.completedAt ? labels.arrival : labels.eta;
+            etaLabel.textContent = summary?.completedAt ? tr('Arrival') : tr('Estimated arrival');
         }
         const label = document.getElementById('homeStatusLabel'), text = document.getElementById('homeStatusText');
         if (label) label.textContent = copy[0];
@@ -100,7 +94,7 @@
         document.querySelectorAll('.status-grid .status-pill').forEach((pill) => {
             pill.hidden = pill !== activePill;
         });
-        const values = summary?.started ? { homeDistance: `${summary.coveredDistanceKm.toFixed(1)} km`, homeRemaining: `${summary.remainingDistanceKm.toFixed(1)} km`, homeCompletion: `${summary.completionPercent.toFixed(1)}%`, homeTime: `${(summary.elapsedTimeMs/3600000).toFixed(1)} h`, homeGain: `${Math.round(summary.actualElevationGainM)} m`, homeSteps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(), homeEta: summary.completedAt ? new Intl.DateTimeFormat(document.documentElement.lang,{dateStyle:'medium',timeStyle:'short'}).format(summary.completedAt) : summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang,{dateStyle:'medium',timeStyle:'short'}).format(summary.eta) : 'Not available' } : { homeDistance: '0 km', homeRemaining: `${summary?.plannedDistanceKm || config.expectedDistanceKm || 500} km`, homeCompletion: '0%', homeTime: '0 h', homeGain: '0 m', homeSteps: '0', homeEta: 'Not available' };
+        const values = summary?.started ? { homeDistance: `${summary.coveredDistanceKm.toFixed(1)} km`, homeRemaining: `${summary.remainingDistanceKm.toFixed(1)} km`, homeCompletion: `${summary.completionPercent.toFixed(1)}%`, homeTime: `${(summary.elapsedTimeMs/3600000).toFixed(1)} h`, homeGain: `${Math.round(summary.actualElevationGainM)} m`, homeSteps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(), homeEta: summary.completedAt ? new Intl.DateTimeFormat(document.documentElement.lang,{dateStyle:'medium',timeStyle:'short'}).format(summary.completedAt) : summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang,{dateStyle:'medium',timeStyle:'short'}).format(summary.eta) : tr('Not available') } : { homeDistance: '0 km', homeRemaining: `${summary?.plannedDistanceKm || config.expectedDistanceKm || 500} km`, homeCompletion: '0%', homeTime: '0 h', homeGain: '0 m', homeSteps: '0', homeEta: tr('Not available') };
         Object.entries(values).forEach(([id, value]) => { const node = document.getElementById(id); if (node) node.textContent = value; });
         const countdown = document.getElementById('homeCountdown');
         if (countdown) countdown.hidden = state !== 'not-started';
@@ -125,6 +119,10 @@
             updateCountdown();
         }).catch(()=>{}),20000);
         homeState.timerId = window.setInterval(updateCountdown, 1000);
+        document.addEventListener('horizon:languagechange', () => {
+            updateCountdown();
+            window.HorizonExpedition?.loadSummary?.().then(updateHomeState).catch(() => {});
+        });
     }
 
     window.HorizonHome = {

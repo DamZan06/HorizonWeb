@@ -1,4 +1,5 @@
 (function () {
+    const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
     const NAV_ITEMS = [
         { key: 'home', label: 'Home', href: 'index.html' },
         { key: 'live', label: 'Live', href: 'live.html' },
@@ -42,7 +43,8 @@
             NAV_ITEMS.forEach((item) => {
                 const link = document.createElement('a');
                 link.href = item.href;
-                link.textContent = item.label;
+                link.textContent = tr(item.label);
+                link.dataset.i18n = `copy:${item.label}`;
                 link.dataset.navKey = item.key;
                 if (item.key === activeKey) {
                     link.setAttribute('aria-current', 'page');
@@ -71,4 +73,5 @@
     } else {
         renderNavigation();
     }
+    document.addEventListener('horizon:languagechange', renderNavigation);
 })();

@@ -1,4 +1,5 @@
 (function () {
+    const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
     const replaySpeedPresets = {
         slow: { label: '0.5x', interval: 220 },
         normal: { label: '1x', interval: 116 },
@@ -49,7 +50,7 @@
 
         replayState.routePromise = mapApi.loadRoute(window.HorizonConfig?.routeGeoJsonUrl)
             .catch(() => {
-                setStatus('Planned route unavailable.');
+                setStatus(tr('Planned route unavailable.'));
                 return null;
             });
         replayState.map = map;
@@ -82,14 +83,14 @@
             mapApi.centerOnPosition([point.latitude, point.longitude], Math.max(map.getZoom(), 10));
         }
 
-        setStatus(points.length ? (replayState.isPlaying ? 'Playing replay' : 'Replay ready') : 'Replay will become available once journey data has been recorded.');
+        setStatus(points.length ? tr(replayState.isPlaying ? 'Playing replay' : 'Replay ready') : tr('Replay will become available once journey data has been recorded.'));
     }
 
     function startReplayTimer() {
         if (replayState.timer) window.clearInterval(replayState.timer);
         replayState.timer = window.setInterval(() => {
             const points = ensureRoutePoints();
-            if (replayState.currentIndex >= points.length - 1) { pauseReplay(); setStatus('Replay complete'); return; }
+            if (replayState.currentIndex >= points.length - 1) { pauseReplay(); setStatus(tr('Replay complete')); return; }
             replayState.currentIndex += 1;
             renderReplayFrame();
         }, replayState.speed);
@@ -103,7 +104,7 @@
         }
         replayState.isPlaying = true;
         updatePlayButton();
-        setStatus('Playing replay');
+        setStatus(tr('Playing replay'));
         startReplayTimer();
     }
 
@@ -114,14 +115,14 @@
             replayState.timer = null;
         }
         updatePlayButton();
-        setStatus('Replay paused');
+        setStatus(tr('Replay paused'));
     }
 
     function updatePlayButton() {
         const button = document.getElementById('replayPlay');
         if (!button) return;
         const playing = replayState.isPlaying;
-        button.title = playing ? 'Pause replay' : 'Start replay';
+        button.title = tr(playing ? 'Pause replay' : 'Start replay');
         button.setAttribute('aria-label', button.title);
         button.innerHTML = playing
             ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3v14H7V5Zm7 0h3v14h-3V5Z"/></svg>'
@@ -137,7 +138,7 @@
         replayState.currentIndex = 0;
         renderReplayFrame();
         updatePlayButton();
-        setStatus('Replay ready');
+        setStatus(tr('Replay ready'));
     }
 
     function initReplayPage() {
@@ -172,14 +173,14 @@
         buildMarker();
         const controls = [playButton, resetButton, ...speedButtons];
         controls.forEach((control) => { if (control) control.disabled = true; });
-        setStatus('Loading recorded journey…');
+        setStatus(tr('Loading recorded journey…'));
         const routePromise = replayState.routePromise || Promise.resolve();
         Promise.all([routePromise, window.HorizonFirebase?.fetchLiveTrack?.()]).then(([, points = []]) => {
             replayState.routePoints = points.map((point) => ({ latitude: point.latitude, longitude: point.longitude }));
             controls.forEach((control) => { if (control) control.disabled = !replayState.routePoints.length; });
             renderReplayFrame();
             updatePlayButton();
-        }).catch(() => setStatus('Replay is temporarily unavailable.'));
+        }).catch(() => setStatus(tr('Replay is temporarily unavailable.')));
 
         document.getElementById('replayMapZoomInBtn')?.addEventListener('click', window.HorizonMap.zoomIn);
         document.getElementById('replayMapZoomOutBtn')?.addEventListener('click', window.HorizonMap.zoomOut);
@@ -195,7 +196,7 @@
         document.getElementById('replayMapLayerBtn')?.addEventListener('click', (event) => {
             const layerName = window.HorizonMap.cycleTileLayer?.();
             if (layerName) {
-                event.currentTarget.title = `Map layer: ${layerName}`;
+                event.currentTarget.title = `${tr('Map layer')}: ${tr(layerName)}`;
                 event.currentTarget.setAttribute('aria-label', event.currentTarget.title);
             }
         });
@@ -213,4 +214,8 @@
     } else {
         initReplayPage();
     }
+    document.addEventListener('horizon:languagechange', () => {
+        renderReplayFrame();
+        updatePlayButton();
+    });
 })();

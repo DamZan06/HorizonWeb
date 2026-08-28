@@ -33,13 +33,14 @@
     }
 
     function getStateCopy(state) {
+        const tr = (source) => window.HorizonI18n?.t?.(`copy:${source}`) || source;
         return {
-            'not-started': ['Not started', 'Waiting for departure. The planned route is ready.'],
-            resting: ['Paused', 'The expedition has started and is currently stationary.'],
-            ended: ['End of day', 'Today’s stage has ended. The expedition will continue from here.'],
-            live: ['Started', 'The expedition is underway.'],
-            finished: ['Arrived', 'HORIZON has reached Chancy.']
-        }[state] || ['Tracker offline', 'No recent valid position is available.'];
+            'not-started': [tr('Not started'), tr('Waiting for departure. The planned route is ready.')],
+            resting: [tr('Paused'), tr('The expedition has started and is currently stationary.')],
+            ended: [tr('End of day'), tr('Today’s stage has ended. The expedition will continue from here.')],
+            live: [tr('Started'), tr('The expedition is underway.')],
+            finished: [tr('Arrived'), tr('HORIZON has reached Chancy.')]
+        }[state] || [tr('Tracker offline'), tr('No recent valid position is available.')];
     }
 
     const horizonStatus = Object.assign(window.HorizonStatus || {}, {
