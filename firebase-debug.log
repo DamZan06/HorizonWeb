@@ -1,0 +1,63 @@
+[debug] [2026-08-28T12:35:29.384Z] ----------------------------------------------------------------------
+[debug] [2026-08-28T12:35:29.387Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\damia\AppData\Local\npm-cache\_npx\7750544ccf494d8b\node_modules\firebase-tools\lib\bin\firebase.js deploy --only database --project northline-a4eaa --non-interactive
+[debug] [2026-08-28T12:35:29.387Z] CLI Version:   15.28.2
+[debug] [2026-08-28T12:35:29.387Z] Platform:      win32
+[debug] [2026-08-28T12:35:29.388Z] Node Version:  v24.18.0
+[debug] [2026-08-28T12:35:29.388Z] Detected Agent: codex_cli
+[debug] [2026-08-28T12:35:29.388Z] Time:          Fri Aug 28 2026 14:35:29 GMT+0200 (Mitteleuropäische Sommerzeit)
+[debug] [2026-08-28T12:35:29.388Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-08-28T12:35:31.853Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-08-28T12:35:31.854Z] > authorizing via signed-in user (dami06.zanoni@gmail.com)
+[debug] [2026-08-28T12:35:31.854Z] [iam] checking project northline-a4eaa for permissions ["firebase.projects.get","firebasedatabase.instances.update"]
+[debug] [2026-08-28T12:35:31.876Z] Checked if tokens are valid: false, expires at: 1787913750345
+[debug] [2026-08-28T12:35:31.877Z] Checked if tokens are valid: false, expires at: 1787913750345
+[debug] [2026-08-28T12:35:31.877Z] > refreshing access token with scopes: []
+[debug] [2026-08-28T12:35:31.879Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-08-28T12:35:31.879Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-08-28T12:35:32.016Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-08-28T12:35:32.016Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-08-28T12:35:32.038Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/northline-a4eaa:testIamPermissions [none]
+[debug] [2026-08-28T12:35:32.038Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/northline-a4eaa:testIamPermissions  x-goog-user-project=northline-a4eaa
+[debug] [2026-08-28T12:35:32.038Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/northline-a4eaa:testIamPermissions {"permissions":["firebase.projects.get","firebasedatabase.instances.update"]}
+[debug] [2026-08-28T12:35:32.789Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/northline-a4eaa:testIamPermissions 200
+[debug] [2026-08-28T12:35:32.789Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/northline-a4eaa:testIamPermissions {"permissions":["firebase.projects.get","firebasedatabase.instances.update"]}
+[debug] [2026-08-28T12:35:32.789Z] Checked if tokens are valid: true, expires at: 1787924131016
+[debug] [2026-08-28T12:35:32.789Z] Checked if tokens are valid: true, expires at: 1787924131016
+[debug] [2026-08-28T12:35:32.790Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/northline-a4eaa [none]
+[debug] [2026-08-28T12:35:33.239Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/northline-a4eaa 200
+[debug] [2026-08-28T12:35:33.239Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/northline-a4eaa {"projectId":"northline-a4eaa","projectNumber":"908102538186","displayName":"Horizon","name":"projects/northline-a4eaa","resources":{"hostingSite":"northline-a4eaa","realtimeDatabaseInstance":"northline-a4eaa-default-rtdb"},"state":"ACTIVE","labels":{"firebase":"enabled","firebase/storage-default-bucket":"created"},"etag":"1_1ecc72f4-2f2b-43f4-80fb-38167279a350"}
+[info] 
+[info] === Deploying to 'northline-a4eaa'...
+[info] 
+[info] i  deploying database 
+[info] i  database: checking rules syntax... 
+[debug] [2026-08-28T12:35:33.247Z] Checked if tokens are valid: true, expires at: 1787924131016
+[debug] [2026-08-28T12:35:33.247Z] Checked if tokens are valid: true, expires at: 1787924131016
+[debug] [2026-08-28T12:35:33.248Z] >>> [apiv2][query] GET https://firebasedatabase.googleapis.com/v1beta/projects/northline-a4eaa/locations/-/instances/northline-a4eaa-default-rtdb [none]
+[debug] [2026-08-28T12:35:34.194Z] <<< [apiv2][status] GET https://firebasedatabase.googleapis.com/v1beta/projects/northline-a4eaa/locations/-/instances/northline-a4eaa-default-rtdb 200
+[debug] [2026-08-28T12:35:34.194Z] <<< [apiv2][body] GET https://firebasedatabase.googleapis.com/v1beta/projects/northline-a4eaa/locations/-/instances/northline-a4eaa-default-rtdb {"name":"projects/908102538186/locations/europe-west1/instances/northline-a4eaa-default-rtdb","project":"projects/908102538186","databaseUrl":"https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app","type":"DEFAULT_DATABASE","state":"ACTIVE"}
+[debug] [2026-08-28T12:35:34.196Z] Checked if tokens are valid: true, expires at: 1787924131016
+[debug] [2026-08-28T12:35:34.196Z] Checked if tokens are valid: true, expires at: 1787924131016
+[debug] [2026-08-28T12:35:34.196Z] >>> [apiv2][query] PUT https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/.settings/rules.json dryRun=true
+[debug] [2026-08-28T12:35:34.196Z] >>> [apiv2][body] PUT https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/.settings/rules.json "{\n  \"rules\": {\n    \"livetrack\": {\n      \"points\": {\n        \".read\": true,\n        \".write\": \"auth != null\"\n      }\n    },\n    \"content\": {\n      \"gallery\": {\n        \".read\": true,\n        \".write\": \"auth != null\"\n      },\n      \"achievementOverrides\": {\n        \".read\": true,\n        \".write\": \"auth != null\",\n        \"cantons\": {},\n        \"passes\": {},\n        \"updatedAt\": { \".validate\": \"newData.val() == null || newData.isNumber()\" },\n        \"$other\": { \".validate\": false }\n      },\n      \"liveStatus\": {\n        \".read\": true,\n        \".write\": \"auth != null\",\n        \".validate\": \"newData.hasChildren(['forcedStatus', 'updatedAt'])\",\n        \"forcedStatus\": {\n          \".validate\": \"newData.isString() && (newData.val() == 'ended' || newData.val() == 'finished')\"\n        },\n        \"updatedAt\": {\n          \".validate\": \"newData.isNumber()\"\n        },\n        \"$other\": {\n          \".validate\": false\n        }\n      }\n    }\n  }\n}\n"
+[debug] [2026-08-28T12:35:34.321Z] <<< [apiv2][status] PUT https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/.settings/rules.json 200
+[debug] [2026-08-28T12:35:34.321Z] <<< [apiv2][body] PUT https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/.settings/rules.json {"status":"ok"}
+[info] +  database: rules syntax for database northline-a4eaa-default-rtdb is valid 
+[info] i  database: releasing rules... 
+[debug] [2026-08-28T12:35:34.321Z] Checked if tokens are valid: true, expires at: 1787924131016
+[debug] [2026-08-28T12:35:34.321Z] Checked if tokens are valid: true, expires at: 1787924131016
+[debug] [2026-08-28T12:35:34.322Z] >>> [apiv2][query] GET https://firebasedatabase.googleapis.com/v1beta/projects/northline-a4eaa/locations/-/instances/northline-a4eaa-default-rtdb [none]
+[debug] [2026-08-28T12:35:34.579Z] <<< [apiv2][status] GET https://firebasedatabase.googleapis.com/v1beta/projects/northline-a4eaa/locations/-/instances/northline-a4eaa-default-rtdb 200
+[debug] [2026-08-28T12:35:34.579Z] <<< [apiv2][body] GET https://firebasedatabase.googleapis.com/v1beta/projects/northline-a4eaa/locations/-/instances/northline-a4eaa-default-rtdb {"name":"projects/908102538186/locations/europe-west1/instances/northline-a4eaa-default-rtdb","project":"projects/908102538186","databaseUrl":"https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app","type":"DEFAULT_DATABASE","state":"ACTIVE"}
+[debug] [2026-08-28T12:35:34.580Z] Checked if tokens are valid: true, expires at: 1787924131016
+[debug] [2026-08-28T12:35:34.580Z] Checked if tokens are valid: true, expires at: 1787924131016
+[debug] [2026-08-28T12:35:34.580Z] >>> [apiv2][query] PUT https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/.settings/rules.json 
+[debug] [2026-08-28T12:35:34.580Z] >>> [apiv2][body] PUT https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/.settings/rules.json "{\n  \"rules\": {\n    \"livetrack\": {\n      \"points\": {\n        \".read\": true,\n        \".write\": \"auth != null\"\n      }\n    },\n    \"content\": {\n      \"gallery\": {\n        \".read\": true,\n        \".write\": \"auth != null\"\n      },\n      \"achievementOverrides\": {\n        \".read\": true,\n        \".write\": \"auth != null\",\n        \"cantons\": {},\n        \"passes\": {},\n        \"updatedAt\": { \".validate\": \"newData.val() == null || newData.isNumber()\" },\n        \"$other\": { \".validate\": false }\n      },\n      \"liveStatus\": {\n        \".read\": true,\n        \".write\": \"auth != null\",\n        \".validate\": \"newData.hasChildren(['forcedStatus', 'updatedAt'])\",\n        \"forcedStatus\": {\n          \".validate\": \"newData.isString() && (newData.val() == 'ended' || newData.val() == 'finished')\"\n        },\n        \"updatedAt\": {\n          \".validate\": \"newData.isNumber()\"\n        },\n        \"$other\": {\n          \".validate\": false\n        }\n      }\n    }\n  }\n}\n"
+[debug] [2026-08-28T12:35:34.838Z] <<< [apiv2][status] PUT https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/.settings/rules.json 200
+[debug] [2026-08-28T12:35:34.839Z] <<< [apiv2][body] PUT https://northline-a4eaa-default-rtdb.europe-west1.firebasedatabase.app/.settings/rules.json {"status":"ok"}
+[info] +  database: rules for database northline-a4eaa-default-rtdb released successfully 
+[info] 
+[info] +  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/northline-a4eaa/overview
