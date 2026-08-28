@@ -24,21 +24,23 @@
     }
 
     function renderTrack(summary, mapApi, options = {}) {
-        const points = summary?.points || [], latest = summary?.latestPoint;
-        if (!summary || !latest) return;
-        mapApi.setActualTrack(points, { progressPercent: summary.completionPercent });
-        const popup = `<strong>${window.HorizonStatus?.getStateCopy?.(summary.state)?.[0] || 'Live position'}</strong><br>${new Date(latest.timestamp).toLocaleString()}<br>${Number.isFinite(latest.altitude) ? Math.round(latest.altitude)+' m' : 'Altitude unavailable'} · ${Number.isFinite(latest.speed) ? latest.speed.toFixed(1)+' km/h' : 'Speed unavailable'}<br><a class="runner-directions-btn" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${latest.latitude},${latest.longitude}`)}" target="_blank" rel="noopener noreferrer">Navigate to athlete</a>`;
-        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: popup, progressPercent: summary.completionPercent, follow: options.follow === true });
-        const values = {
+        if (!summary) return;
+        const latest = summary.latestPoint;
+        const config = window.HorizonConfig || {};
+        // Mirrors home.js's fallback so both pages show the same remaining/distance figures before tracking starts.
+        const values = summary.started ? {
             distance: `${summary.coveredDistanceKm.toFixed(1)} km`, remaining: `${summary.remainingDistanceKm.toFixed(1)} km`,
             completion: `${summary.completionPercent.toFixed(1)}%`, completionText: `${summary.completionPercent.toFixed(1)}%`,
             speed: Number.isFinite(summary.currentSpeedKmh) ? `${summary.currentSpeedKmh.toFixed(1)} km/h` : 'Not available',
             altitude: Number.isFinite(summary.currentAltitudeM) ? `${Math.round(summary.currentAltitudeM)} m` : 'Not available',
             lastUpdate: new Intl.DateTimeFormat(document.documentElement.lang || 'en', { dateStyle: 'medium', timeStyle: 'short' }).format(latest.timestamp),
             time: `${(summary.elapsedTimeMs/3600000).toFixed(1)} h`, elevation: `${Math.round(summary.actualElevationGainM)} m`,
-            steps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(document.documentElement.lang || 'en'),
-            liveEta: summary.completedAt ? new Intl.DateTimeFormat(document.documentElement.lang||'en',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(summary.completedAt) : summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang||'en',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(summary.eta) : 'Not available'
+            steps: Math.round(summary.coveredDistanceKm * 1300).toLocaleString(document.documentElement.lang || 'en')
+        } : {
+            distance: '0 km', remaining: `${summary.plannedDistanceKm || config.expectedDistanceKm || 500} km`, completion: '0%', completionText: '0%',
+            speed: 'Not available', altitude: 'Not available', lastUpdate: 'Not available', time: '0 h', elevation: '0 m', steps: '0'
         };
+        values.liveEta = summary.completedAt ? new Intl.DateTimeFormat(document.documentElement.lang||'en',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(summary.completedAt) : summary.eta ? new Intl.DateTimeFormat(document.documentElement.lang||'en',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(summary.eta) : 'Not available';
         const etaLabel = document.getElementById('liveEtaLabel');
         if (etaLabel) {
             const labels = document.documentElement.lang === 'it'
@@ -55,6 +57,11 @@
         const state = summary.state;
         const statusNode = document.getElementById('liveStatusLabel'); if (statusNode) statusNode.textContent = window.HorizonStatus?.getStateCopy?.(state)?.[0] || 'Tracker offline';
         const dot = document.querySelector('.live-status .status-dot'); if (dot) dot.className = `status-dot ${state === 'live' ? 'status-moving' : 'status-not-started'}`;
+
+        if (!latest) return;
+        mapApi.setActualTrack(summary.points || [], { progressPercent: summary.completionPercent });
+        const popup = `<strong>${window.HorizonStatus?.getStateCopy?.(state)?.[0] || 'Live position'}</strong><br>${new Date(latest.timestamp).toLocaleString()}<br>${Number.isFinite(latest.altitude) ? Math.round(latest.altitude)+' m' : 'Altitude unavailable'} · ${Number.isFinite(latest.speed) ? latest.speed.toFixed(1)+' km/h' : 'Speed unavailable'}<br><a class="runner-directions-btn" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${latest.latitude},${latest.longitude}`)}" target="_blank" rel="noopener noreferrer">Navigate to athlete</a>`;
+        mapApi.setLivePosition([latest.latitude, latest.longitude], { label: popup, progressPercent: summary.completionPercent, follow: options.follow === true });
     }
 
     function initLivePage() {
