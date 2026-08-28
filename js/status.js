@@ -11,7 +11,7 @@
         const start = parseTime(options.startDate || config.startDateIso);
         const latest = parseTime(options.latestPointTimestamp);
         const forced = String(options.forcedAdminState || '').trim().toLowerCase();
-        const validForced = ['not-started', 'live', 'resting', 'finished'];
+        const validForced = ['not-started', 'live', 'resting', 'ended', 'finished'];
         if (validForced.includes(forced)) return forced;
         if (options.finished === true) return 'finished';
         const hasPoints = options.hasValidPoints === true || latest !== null;
@@ -36,6 +36,7 @@
         return {
             'not-started': ['Not started', 'Waiting for departure. The planned route is ready.'],
             resting: ['Paused', 'The expedition has started and is currently stationary.'],
+            ended: ['End of day', 'Today’s stage has ended. The expedition will continue from here.'],
             live: ['Started', 'The expedition is underway.'],
             finished: ['Arrived', 'HORIZON has reached Chancy.']
         }[state] || ['Tracker offline', 'No recent valid position is available.'];

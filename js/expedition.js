@@ -93,7 +93,7 @@
             window.HorizonRoute.fetchMetadata(),
             Promise.resolve().then(()=>window.HorizonFirebase.fetchLiveStatusOverride?.()).catch(()=>null)
         ]);
-        const forcedAdminState = liveStatusOverride?.forcedStatus === 'ended' ? 'resting' : liveStatusOverride?.forcedStatus === 'finished' ? 'finished' : '';
+        const forcedAdminState = liveStatusOverride?.forcedStatus === 'ended' ? 'ended' : liveStatusOverride?.forcedStatus === 'finished' ? 'finished' : '';
         return calculateSummary({points,routeMeta,forcedAdminState});
     }
     window.HorizonExpedition={calculateEta,calculateSummary,estimateCaloriesBurnedKcal,estimateWaterLostLiters,loadSummary};

@@ -96,7 +96,7 @@
         if (text) text.textContent = copy[1];
         const dot = document.getElementById('homeStatusDot');
         if (dot) dot.className = `status-dot ${state === 'live' ? 'status-moving' : 'status-not-started'}`;
-        const activePill = document.getElementById(`homeState-${state === 'resting' ? 'paused' : state === 'finished' ? 'completed' : state === 'live' ? 'moving' : 'not-started'}`);
+        const activePill = document.getElementById(`homeState-${state === 'resting' ? 'paused' : state === 'ended' ? 'ended' : state === 'finished' ? 'completed' : state === 'live' ? 'moving' : 'not-started'}`);
         document.querySelectorAll('.status-grid .status-pill').forEach((pill) => {
             pill.hidden = pill !== activePill;
         });
